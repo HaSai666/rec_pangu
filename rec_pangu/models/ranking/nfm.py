@@ -1,0 +1,47 @@
+# -*- ecoding: utf-8 -*-
+# @ModuleName: nfm
+# @Author: wk
+# @Email: 306178200@qq.com
+# @Time: 2022/6/10 7:40 PM
+from torch import nn
+import torch
+from ..layers import EmbeddingLayer, LR_Layer, MLP_Layer, InnerProductLayer
+from ..utils import get_dnn_input_dim
+
+class NFM(nn.Module):
+    def __init__(self,
+                 embedding_dim=10,
+                 hidden_units=[64, 64, 64],
+                 loss_fun='torch.nn.BCELoss()',
+                 enc_dict=None):
+        super(NFM, self).__init__()
+
+        self.embedding_dim = embedding_dim
+        self.hidden_units = hidden_units
+        self.loss_fun = eval(loss_fun)
+        self.enc_dict = enc_dict
+
+        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
+
+        self.lr = LR_Layer(enc_dict=self.enc_dict)
+
+        self.inner_product_layer = InnerProductLayer(output="Bi_interaction_pooling")
+        self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
+        self.dnn = MLP_Layer(input_dim=self.embedding_dim, output_dim=1, hidden_units=self.hidden_units,
+                             hidden_activations='relu', dropout_rates=0)
+
+    def forward(self, data):
+        y_pred = self.lr(data)  # Batch,1
+        batch_size = y_pred.shape[0]
+
+        sparse_embedding = self.embedding_layer(data)
+        sparse_embedding = torch.stack(sparse_embedding, dim=1).squeeze(2)
+        inner_product_tensor = self.inner_product_layer(sparse_embedding)
+        bi_pooling_tensor = inner_product_tensor.view(batch_size, -1)
+        y_pred += self.dnn(bi_pooling_tensor)
+        y_pred = y_pred.sigmoid()
+
+        # 输出
+        loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+        output_dict = {'pred': y_pred, 'loss': loss}
+        return output_dict
