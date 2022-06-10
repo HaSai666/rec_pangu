@@ -11,14 +11,14 @@ with open("README.md", "r") as f:
 
 setup(
     name='rec_pangu',
-    version='0.0.1',
+    version='0.0.2',
     description='Some Rank/Multi-task model implemented by Pytorch',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='wk',
     author_email='306178200@qq.com',
-    url='https://github.com/morningsky/Torch-RecHub',
-    install_requires=['numpy>=1.21.5', 'torch>=1.7.0', 'pandas>=1.0.5', 'tqdm>=4.64.0', 'scikit_learn>=0.23.2'],
+    url='https://github.com/HaSai666/rec_pangu',
+    install_requires=['numpy>=1.19.0', 'torch>=1.7.0', 'pandas>=1.0.5', 'tqdm', 'scikit_learn>=0.23.2'],
     packages=find_packages(),
     platforms=["all"],
     classifiers=[
