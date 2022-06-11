@@ -22,30 +22,33 @@ pip install rec_pangu
 ```
 ## 3.Rank模型
 这里目前支持以下Rank模型
-```yaml
-WDL
-DeepFM
-NFM
-FiBiNet
-AFM
-AFN
-AOANet
-AutoInt
-CCPM
-LR
-FM
-xDeepFM
-```
+
+| 模型     | 论文                                                                                                                                                                                                                                                                                                             | 年份   | 相关资料 |
+|--------|------|------|------|
+| WDL    | [Wide & Deep Learning for Recommender Systems](https://arxiv.org/pdf/1606.07792)     | 2016 | TBD  |
+| DeepFM | [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](https://arxiv.org/pdf/1703.04247)     | 2017 | TBD  |
+| NFM | [Neural Factorization Machines for Sparse Predictive Analytics](https://arxiv.org/pdf/1708.05027.pdf)              | 2017 | TBD  |
+| FiBiNet | [FiBiNET: Combining Feature Importance and Bilinear Feature Interaction for Click-Through Rate](https://arxiv.org/pdf/1905.09433.pdf) | 2019 | TBD  |
+| AFM | [Attentional Factorization Machines](https://arxiv.org/pdf/1708.04617)                  | 2017 | TBD  |
+| AutoInt | [AutoInt: Automatic Feature Interaction Learning via Self-Attentive Neural Networks](https://arxiv.org/pdf/1810.11921.pdf)              | 2018 | TBD  |
+| CCPM | [A Convolutional Click Prediction Model](http://www.shuwu.name/sw/Liu2015CCPM.pdf)    | 2015 | TBD  |
+| LR | /  | 2019 | TBD  |
+| FM | /  | 2019 | TBD  |
+| xDeepFM | [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems](https://arxiv.org/pdf/1803.05170.pdf)     | 2018 | TBD  |
+| DCN | [Deep & Cross Network for Ad Click Predictions](https://arxiv.org/pdf/1708.05123.pdf) | 2019 | TBD  |
+
 ## 4.多任务模型
 目前支持以下多任务模型
-```yaml
-AITM
-ShareBottom
-ESSM
-MMOE
-OMOE
-MLMMOE
-```
+
+| 模型          | 论文                                                                                                                                          | 年份   | 相关资料 |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------|------|------|
+| MMOE        | [Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts](https://dl.acm.org/doi/pdf/10.1145/3219819.3220007) | 2018 | TBD  |
+| ShareBottom | [Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts](https://dl.acm.org/doi/pdf/10.1145/3219819.3220007) | 2018 | TBD  |
+| ESSM        | [Entire Space Multi-Task Model: An Effective Approach for Estimating Post-Click Conversion Rate](https://arxiv.org/pdf/1804.07931.pdf)      | 2018 | TBD  |
+| OMOE        | [Modeling Task Relationships in Multi-task Learning with Multi-gate Mixture-of-Experts](https://dl.acm.org/doi/pdf/10.1145/3219819.3220007) | 2018 | TBD  |
+| MLMMOE      | /                                                                                                                                           | /    | TBD  |
+| AITM        | [Modeling the Sequential Dependence among Audience Multi-step Conversions with Multi-task Learning in Targeted Display Advertising](https://arxiv.org/pdf/2105.08489.pdf)| 2019 | TBD  |
+
 ## 5.Demo
 我们的Rank和多任务模型所对外暴露的接口十分相似，我们下面会分别给出Rank和多任务模型的demo
 ### 5.1 Rank Demo
@@ -91,7 +94,6 @@ if __name__=='__main__':
     print('Test metric:{}'.format(test_metric))
 
 ```
-这里的schema主要记录数据集的信息，主要包括离散特征的列表('sparse_cols'),连续特征列表('dense_cols'),标签列('label_cols')
 ### 5.2 多任务模型Demo
 ```python
 import torch
@@ -133,4 +135,3 @@ if __name__=='__main__':
     test_metric = trainer.evaluate_model(model, test_loader, device=device)
     print('Test metric:{}'.format(test_metric))
 ```
-这里的schema主要记录数据集的信息，主要包括离散特征的列表('sparse_cols'),连续特征列表('dense_cols'),标签列('label_cols'),注意在多任务模型中，标签列的值为每一个任务的列名
