@@ -13,8 +13,6 @@ class DeepFM(nn.Module):
                  embedding_dim=10,
                  hidden_units=[64, 64, 64],
                  loss_fun = 'torch.nn.BCELoss()',
-                 content_embedding_dim=None,
-                 content_units=None,
                  enc_dict=None):
         super(DeepFM, self).__init__()
 
@@ -22,8 +20,6 @@ class DeepFM(nn.Module):
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
-        self.content_units = content_units
-        self.content_embedding_dim = content_embedding_dim
 
         self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.fm = FM_Layer()

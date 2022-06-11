@@ -15,3 +15,4 @@ from .ccpm import CCPM
 from .lr import LR
 from .fm import FM
 from .xdeepfm import xDeepFM
+from .dcn import DCN
