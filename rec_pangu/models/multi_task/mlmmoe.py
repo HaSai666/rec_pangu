@@ -73,6 +73,7 @@ class MLMMOE(nn.Module):
 
     def forward(self, data):
         hidden = self.embedding_layer(data).flatten(start_dim=1)
+        self.set_device(hidden.device)
         dense_fea = get_linear_input(self.enc_dict, data)
         hidden = torch.cat([hidden, dense_fea], axis=-1)
 

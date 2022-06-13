@@ -26,6 +26,7 @@ class RankTraniner:
                 valid_metric = valid_model(model, valid_loader, device, num_task=self.num_task)
                 print("Valid Metric:")
                 print(valid_metric)
+        return valid_metric
 
     def save_model(self, model, model_ckpt_dir):
         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)

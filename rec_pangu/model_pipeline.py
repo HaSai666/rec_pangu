@@ -66,40 +66,6 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
                     res_dict[f'train_task{i+1}_{metric}'] = eval(metric)(multi_task_label_list[i], multi_task_pred_list[i])
         return res_dict
 
-
-def train_autofis_model(model, train_loader, mask_optimizer, optimizer, device, metric_list=['roc_auc_score','log_loss'],):
-    model.train()
-    pred_list = []
-    label_list = []
-    pbar = tqdm(train_loader)
-    for data in pbar:
-
-        for key in data.keys():
-            data[key] = data[key].to(device)
-
-        output = model(data)
-        pred = output['pred']
-        loss = output['loss']
-
-        loss.backward()
-        optimizer.step()
-        mask_optimizer.step()
-        model.zero_grad()
-
-        pred_list.extend(pred.squeeze(-1).cpu().detach().numpy())
-        label_list.extend(data['label'].squeeze(-1).cpu().detach().numpy())
-
-        pbar.set_description("Loss {}".format(loss))
-
-    res_dict = dict()
-    for metric in metric_list:
-        if metric =='log_loss':
-            res_dict[metric] = log_loss(label_list,pred_list, eps=1e-7)
-        else:
-            res_dict[metric] = eval(metric)(label_list,pred_list)
-
-    return res_dict
-
 def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_loss'],num_task =1):
     model.eval()
     if num_task == 1:

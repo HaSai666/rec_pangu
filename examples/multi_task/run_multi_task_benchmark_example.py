@@ -1,15 +1,15 @@
 # -*- ecoding: utf-8 -*-
-# @ModuleName: run_multi_task_example
+# @ModuleName: run_multi_task_benchmark_example
 # @Author: wk
 # @Email: 306178200@qq.com
-# @Time: 2022/6/10 7:40 PM
+# @Time: 2022/6/13 5:02 PM
 import sys
 sys.path.append('../../')
 import torch
 from rec_pangu.dataset import get_dataloader
-from rec_pangu.models.multi_task import AITM,ShareBottom,ESSM,MMOE,OMOE,MLMMOE
-from rec_pangu.trainer import RankTraniner
+from rec_pangu.benchmark_trainer import BenchmarkTrainer
 import pandas as pd
+
 
 if __name__=='__main__':
     df = pd.read_csv('sample_data/multi_task_sample_data.csv')
@@ -29,18 +29,22 @@ if __name__=='__main__':
     test_df = df
 
     #声明使用的device
-    device = torch.device('cpu')
+    device = torch.device('cuda:0')
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema)
-    #声明模型,多任务模型目前支持：AITM,ShareBottom,ESSM,MMOE,OMOE,MLMMOE
-    model = MMOE(enc_dict=enc_dict)
-    #声明Trainer
-    trainer = RankTraniner(num_task=2)
-    #训练模型
-    trainer.fit(model, train_loader, valid_loader, epoch=5, lr=1e-3, device=device)
-    #保存模型权重
-    trainer.save_model(model, './model_ckpt')
-    #模型验证
-    test_metric = trainer.evaluate_model(model, test_loader, device=device)
-    print('Test metric:{}'.format(test_metric))
-
+    #声明需要跑测的模型
+    model_list = ['MMOE','AITM','ShareBottom','ESSM','OMOE','MLMMOE']
+    # 声明Benchmark Trainer
+    benchmark_trainer = BenchmarkTrainer(num_task=2,
+                                         model_list=model_list,
+                                         benhcmark_res_path='./multi_task_benchmark_res.csv',
+                                         ckpt_root='./multi_task_benchmark_ckpt/')
+    #开始benchmark跑测，模型权重保存在{ckpt_root}/{model_name}下面，benchmark的输出结果保存在benchmark_res_path里面
+    benchmark_trainer.run(enc_dict=enc_dict,
+                          train_loader=train_loader,
+                          valid_loader=valid_loader,
+                          test_loader=test_loader,
+                          epoch=3,
+                          lr=1e-3,
+                          device=device
+                          )

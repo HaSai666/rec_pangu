@@ -45,7 +45,6 @@ class MMOE(nn.Module):
         for gate in self.gates:
             gate.data.normal_(0, 1)
         self.gates_bias = [torch.nn.Parameter(torch.rand(n_expert), requires_grad=True) for _ in range(num_task)]
-
         # esmm ctr和ctcvr独立任务的DNN结构
         for i in range(self.num_task):
             setattr(self, 'task_{}_dnn'.format(i + 1), nn.ModuleList())
@@ -68,6 +67,7 @@ class MMOE(nn.Module):
 
     def forward(self, data):
         hidden = self.embedding_layer(data).flatten(start_dim=1)
+        self.set_device(hidden.device)
         dense_fea = get_linear_input(self.enc_dict, data)
         hidden = torch.cat([hidden, dense_fea], axis=-1)
 
