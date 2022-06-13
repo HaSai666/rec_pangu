@@ -10,7 +10,7 @@ from ..utils import get_feature_num, get_linear_input
 
 class AFN(nn.Module):
     def __init__(self,
-                 embedding_dim=10,
+                 embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
                  afn_hidden_units = [64, 64, 64],
                  ensemble_dnn = True,

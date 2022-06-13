@@ -11,7 +11,7 @@ from ..utils import get_feature_num, get_linear_input
 
 class AOANet(nn.Module):
     def __init__(self,
-                 embedding_dim=10,
+                 embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
                  num_interaction_layers = 3,
                  num_subspaces = 4,

@@ -10,7 +10,7 @@ from ..utils import get_feature_num, get_linear_input
 
 class FM(nn.Module):
     def __init__(self,
-                 embedding_dim=10,
+                 embedding_dim=32,
                  loss_fun='torch.nn.BCELoss()',
                  enc_dict=None):
         super(FM, self).__init__()

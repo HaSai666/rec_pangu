@@ -10,7 +10,7 @@ from ..utils import get_dnn_input_dim
 
 class NFM(nn.Module):
     def __init__(self,
-                 embedding_dim=10,
+                 embedding_dim=32,
                  hidden_units=[64, 64, 64],
                  loss_fun='torch.nn.BCELoss()',
                  enc_dict=None):

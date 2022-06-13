@@ -9,7 +9,7 @@ from ..layers import EmbeddingLayer, MLP_Layer, CrossNet
 from ..utils import get_dnn_input_dim, get_linear_input, get_feature_num
 class DCN(nn.Module):
     def __init__(self,
-                 embedding_dim=10,
+                 embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
                  loss_fun = 'torch.nn.BCELoss()',
                  crossing_layers = 3,
