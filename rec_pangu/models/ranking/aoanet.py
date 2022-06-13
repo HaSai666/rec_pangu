@@ -6,7 +6,7 @@
 from torch import nn
 import torch
 from ..layers import EmbeddingLayer, MLP_Layer
-from ..utils import get_feature_num
+from ..utils import get_feature_num, get_linear_input
 
 
 class AOANet(nn.Module):
@@ -27,7 +27,7 @@ class AOANet(nn.Module):
         self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
 
-        self.dnn = MLP_Layer(input_dim=self.embedding_dim * self.num_sparse,
+        self.dnn = MLP_Layer(input_dim=self.embedding_dim * self.num_sparse + self.num_dense,
                              output_dim=None,
                              hidden_units=self.dnn_hidden_units)
         self.gin = GeneralizedInteractionNet(num_interaction_layers,
@@ -38,9 +38,10 @@ class AOANet(nn.Module):
 
 
     def forward(self, data):
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
-        dnn_out = self.dnn(feature_emb.flatten(start_dim=1))
+        feature_emb = self.embedding_layer(data)
+        dense_input = get_linear_input(self.enc_dict, data)
+        emb_flatten = feature_emb.flatten(start_dim=1)
+        dnn_out = self.dnn(torch.cat([emb_flatten, dense_input], dim=1))
         interact_out = self.gin(feature_emb).flatten(start_dim=1)
         y_pred = self.fc(torch.cat([dnn_out, interact_out], dim=-1))
         y_pred = y_pred.sigmoid()

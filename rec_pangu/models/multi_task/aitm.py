@@ -41,7 +41,7 @@ class AITM(nn.Module):
 
     def forward(self, data):
         feature_embedding = self.embedding_layer(data)
-        feature_embedding = torch.stack(feature_embedding, 1).flatten(start_dim=1)
+        feature_embedding = feature_embedding.flatten(start_dim=1)
 
         tower_click = self.click_tower(feature_embedding)
 

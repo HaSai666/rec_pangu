@@ -42,12 +42,9 @@ class ShareBottom(nn.Module):
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
 
     def forward(self, data):
-        feature_embedding = self.embedding_layer(data)
-        emb_flatten = torch.stack(feature_embedding, 1).flatten(start_dim=1)
-
+        feature_emb = self.embedding_layer(data).flatten(start_dim=1)
         dense_fea = get_linear_input(self.enc_dict, data)
-
-        out = torch.cat([emb_flatten, dense_fea], axis=-1)
+        out = torch.cat([feature_emb, dense_fea], axis=-1)
 
         # task tower
         output_dict = dict()

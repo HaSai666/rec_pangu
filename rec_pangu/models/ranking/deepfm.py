@@ -23,13 +23,7 @@ class DeepFM(nn.Module):
 
         self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.fm = FM_Layer()
-
-        if self.content_units != None:
-            self.content_fc = nn.Linear(self.content_embedding_dim, self.content_units)
-
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
-
-
         self.dnn = MLP_Layer(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
                                  hidden_activations='relu', dropout_rates=0)
 
@@ -37,7 +31,6 @@ class DeepFM(nn.Module):
         sparse_embedding = self.embedding_layer(data)
         dense_input = get_linear_input(self.enc_dict, data)
         # FM
-        sparse_embedding = torch.stack(sparse_embedding,dim=1).squeeze(2)
         fm_out = self.fm(sparse_embedding)
         # DNN
         emb_flatten = sparse_embedding.flatten(start_dim=1)

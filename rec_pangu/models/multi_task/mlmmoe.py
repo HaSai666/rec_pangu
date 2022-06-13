@@ -72,11 +72,8 @@ class MLMMOE(nn.Module):
         print(f'Successfully set device:{device}')
 
     def forward(self, data):
-        feature_embedding = self.embedding_layer(data)
-        hidden = torch.stack(feature_embedding, 1).flatten(start_dim=1)
-
+        hidden = self.embedding_layer(data).flatten(start_dim=1)
         dense_fea = get_linear_input(self.enc_dict, data)
-
         hidden = torch.cat([hidden, dense_fea], axis=-1)
 
         # mmoe

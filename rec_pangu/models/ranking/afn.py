@@ -47,14 +47,12 @@ class AFN(nn.Module):
 
     def forward(self, data):
 
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
+        feature_emb = self.embedding_layer(data)
         dnn_input = self.logarithmic_net(feature_emb)
         afn_out = self.dense_layer(dnn_input)
 
         if self.ensemble_dnn:
-            sparse_emb_list2 = self.embedding_layer2(data)
-            feature_emb2 = torch.stack(sparse_emb_list2, dim=1).squeeze(2)
+            feature_emb2 = self.embedding_layer2(data)
             dnn_out = self.dnn(feature_emb2.flatten(start_dim=1))
             y_pred = self.fc(torch.cat([afn_out, dnn_out], dim=-1))
         else:

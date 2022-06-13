@@ -33,9 +33,7 @@ class ESSM(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, data):
-        feature_embedding = self.embedding_layer(data)
-        hidden = torch.stack(feature_embedding, 1).flatten(start_dim=1)
-
+        hidden = self.embedding_layer(data).flatten(start_dim=1)
         click = self.sigmoid(self.ctr_layer(hidden))
         conversion = self.sigmoid(self.cvr_layer(hidden))
 

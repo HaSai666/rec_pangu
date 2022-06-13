@@ -35,10 +35,9 @@ class WDL(nn.Module):
 
         # Deep
         sparse_emb = self.embedding_layer(data)
-        sparse_emb = torch.stack(sparse_emb, dim=1).flatten(1)  # Batch,num_sparse_fea*embedding_dim
-
+        sparse_emb = sparse_emb.flatten(start_dim=1)
         dense_input = get_linear_input(self.enc_dict, data)
-        dnn_input = torch.cat((sparse_emb, dense_input), dim=1)  # Batch,num_sparse_fea*embedding_dim+num_dense
+        dnn_input = torch.cat([sparse_emb, dense_input], dim=1)  # Batch,num_sparse_fea*embedding_dim+num_dense
         deep_logit = self.dnn(dnn_input)
 
         # Wide+Deep

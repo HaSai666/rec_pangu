@@ -6,7 +6,7 @@
 from torch import nn
 import torch
 from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, MultiHeadSelfAttention
-from ..utils import get_feature_num
+from ..utils import get_feature_num, get_linear_input
 
 
 class AutoInt(nn.Module):
@@ -30,7 +30,7 @@ class AutoInt(nn.Module):
 
         self.lr_layer = LR_Layer(enc_dict=enc_dict)
 
-        self.dnn = MLP_Layer(input_dim=self.embedding_dim* self.num_sparse,
+        self.dnn = MLP_Layer(input_dim=self.embedding_dim* self.num_sparse + self.num_dense,
                              output_dim=1,
                              hidden_units=self.dnn_hidden_units)
 
@@ -44,15 +44,14 @@ class AutoInt(nn.Module):
 
     def forward(self, data):
 
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
-        print(feature_emb.shape)
-
+        feature_emb = self.embedding_layer(data)
         attention_out = self.self_attention(feature_emb)
         attention_out = attention_out.flatten(start_dim=1)
         y_pred = self.fc(attention_out)
         if self.dnn is not None:
-            y_pred += self.dnn(feature_emb.flatten(start_dim=1))
+            dense_input = get_linear_input(self.enc_dict, data)
+            emb_flatten = feature_emb.flatten(start_dim=1)
+            y_pred += self.dnn(torch.cat([emb_flatten, dense_input], dim=1))
         if self.lr_layer is not None:
             y_pred += self.lr_layer(data)
         y_pred = y_pred.sigmoid()

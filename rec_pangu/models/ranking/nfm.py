@@ -35,7 +35,6 @@ class NFM(nn.Module):
         batch_size = y_pred.shape[0]
 
         sparse_embedding = self.embedding_layer(data)
-        sparse_embedding = torch.stack(sparse_embedding, dim=1).squeeze(2)
         inner_product_tensor = self.inner_product_layer(sparse_embedding)
         bi_pooling_tensor = inner_product_tensor.view(batch_size, -1)
         y_pred += self.dnn(bi_pooling_tensor)

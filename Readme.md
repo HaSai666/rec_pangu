@@ -4,6 +4,7 @@
   <img src='https://img.shields.io/badge/torch-1.7+-brightgreen'>
   <img src='https://img.shields.io/badge/scikit_learn-0.23.2+-brightgreen'>
   <img src='https://img.shields.io/badge/pandas-1.0.5+-brightgreen'>
+  <img src='https://img.shields.io/badge/pypi-0.0.3-brightgreen'>
 
 ## 1.开源定位
 - 使用pytorch对经典的rank/多任务模型进行实现，并且对外提供统一调用的API接口，极大的降低了使用Rank/多任务模型的时间成本

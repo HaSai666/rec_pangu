@@ -23,8 +23,7 @@ class FM(nn.Module):
         self.fm = FM_Layer()
 
     def forward(self, data):
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
+        feature_emb = self.embedding_layer(data)
         y_pred = self.fm(feature_emb)
         y_pred = y_pred.sigmoid()
         # 输出

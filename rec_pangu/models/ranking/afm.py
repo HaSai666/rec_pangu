@@ -28,19 +28,21 @@ class AFM(nn.Module):
         self.senet_layer = SENET_Layer(self.num_sparse, 3)
         self.bilinear_interaction = BilinearInteractionLayer(self.num_sparse, embedding_dim, 'field_interaction')
 
-        input_dim = self.num_sparse * (self.num_sparse - 1) * self.embedding_dim
+        input_dim = self.num_sparse * (self.num_sparse - 1) * self.embedding_dim + self.num_dense
         self.dnn = MLP_Layer(input_dim=input_dim, output_dim=1, hidden_units=self.hidden_units,
                              hidden_activations='relu', dropout_rates=0)
 
     def forward(self, data):
         y_pred = self.lr(data)  # Batch,1
 
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
+        feature_emb = self.embedding_layer(data)
         senet_emb = self.senet_layer(feature_emb)
         bilinear_p = self.bilinear_interaction(feature_emb)
         bilinear_q = self.bilinear_interaction(senet_emb)
         comb_out = torch.flatten(torch.cat([bilinear_p, bilinear_q], dim=1), start_dim=1)
+
+        dense_input = get_linear_input(self.enc_dict, data)
+        comb_out = torch.cat([comb_out, dense_input],dim=1)
         y_pred += self.dnn(comb_out)
         y_pred = y_pred.sigmoid()
 

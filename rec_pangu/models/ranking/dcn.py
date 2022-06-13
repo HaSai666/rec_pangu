@@ -30,7 +30,6 @@ class DCN(nn.Module):
 
     def forward(self, data):
         feature_emb = self.embedding_layer(data)
-        feature_emb = torch.stack(feature_emb, dim=1).squeeze(2)
         dense_input = get_linear_input(self.enc_dict, data)
         flat_feature_emb = feature_emb.flatten(start_dim=1)
         cross_out = self.crossnet(torch.cat([flat_feature_emb, dense_input],dim=1))

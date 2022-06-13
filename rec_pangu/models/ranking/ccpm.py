@@ -34,9 +34,7 @@ class CCPM(nn.Module):
 
     def forward(self, data):
 
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
-
+        feature_emb = self.embedding_layer(data)
         conv_in = torch.unsqueeze(feature_emb, 1)  # shape (bs, 1, field, emb)
         conv_out = self.conv_layer(conv_in)
         flatten_out = torch.flatten(conv_out, start_dim=1)

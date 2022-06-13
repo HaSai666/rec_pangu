@@ -57,13 +57,9 @@ class OMOE(nn.Module):
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
 
     def forward(self, data):
-        feature_embedding = self.embedding_layer(data)
-        hidden = torch.stack(feature_embedding, 1).flatten(start_dim=1)
-
+        hidden = self.embedding_layer(data).flatten(start_dim=1)
         dense_fea = get_linear_input(self.enc_dict, data)
-
         hidden = torch.cat([hidden, dense_fea], axis=-1)
-
         # mmoe
         experts_out = torch.einsum('ij, jkl -> ikl', hidden, self.experts)  # batch * hidden_size * num_experts
         experts_out += self.experts_bias

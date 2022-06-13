@@ -5,6 +5,7 @@
 # @Time: 2022/6/10 7:40 PM
 
 from torch import nn
+import torch
 
 class EmbeddingLayer(nn.Module):
     def __init__(self,
@@ -21,7 +22,7 @@ class EmbeddingLayer(nn.Module):
             if 'vocab_size' in self.enc_dict[col].keys():
                 self.emb_feature.append(col)
                 self.embedding_layer.update({col : nn.Embedding(
-                    self.enc_dict[col]['vocab_size']+2,
+                    self.enc_dict[col]['vocab_size']+1,
                     self.embedding_dim,
                 )})
 
@@ -31,7 +32,7 @@ class EmbeddingLayer(nn.Module):
             for col in self.emb_feature:
                 inp = X[col].long().view(-1, 1)
                 feature_emb_list.append(self.embedding_layer[col](inp))
-            return feature_emb_list
+            return torch.stack(feature_emb_list,dim=1).squeeze(2)
         else:
             if 'seq' in name:
                 inp = X[name].long()

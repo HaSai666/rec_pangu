@@ -33,7 +33,7 @@ if __name__=='__main__':
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema)
     #声明模型,多任务模型目前支持：AITM,ShareBottom,ESSM,MMOE,OMOE,MLMMOE
-    model = AITM(enc_dict=enc_dict)
+    model = ShareBottom(enc_dict=enc_dict)
     #声明Trainer
     trainer = RankTraniner(num_task=2)
     #训练模型

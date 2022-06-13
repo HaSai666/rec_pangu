@@ -19,8 +19,7 @@ class LR_Layer(nn.Module):
         self.fc = nn.Linear(self.dnn_input_dim, 1)
 
     def forward(self, data):
-        sparse_emb = self.emb_layer(data)
-        sparse_emb = torch.stack(sparse_emb, dim=1).flatten(1)
+        sparse_emb = self.emb_layer(data).squeeze(-1)
         dense_input = get_linear_input(self.enc_dict, data)
         dnn_input = torch.cat((sparse_emb, dense_input), dim=1)
         out = self.fc(dnn_input)

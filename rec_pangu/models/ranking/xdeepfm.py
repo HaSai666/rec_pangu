@@ -25,7 +25,7 @@ class xDeepFM(nn.Module):
         self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
 
-        self.dnn = MLP_Layer(input_dim=self.num_sparse*self.embedding_dim,
+        self.dnn = MLP_Layer(input_dim=self.num_sparse*self.embedding_dim + self.num_dense,
                              output_dim=1,
                              hidden_units=self.dnn_hidden_units)
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
@@ -34,12 +34,13 @@ class xDeepFM(nn.Module):
 
     def forward(self, data):
 
-        sparse_emb_list = self.embedding_layer(data)
-        feature_emb = torch.stack(sparse_emb_list, dim=1).squeeze(2)
+        feature_emb = self.embedding_layer(data)
         lr_logit = self.lr_layer(data)
         cin_logit = self.cin(feature_emb)
         if self.dnn is not None:
-            dnn_logit = self.dnn(feature_emb.flatten(start_dim=1))
+            dense_input = get_linear_input(self.enc_dict, data)
+            emb_flatten = feature_emb.flatten(start_dim=1)
+            dnn_logit = self.dnn(torch.cat([emb_flatten, dense_input], dim=1))
             y_pred = lr_logit + cin_logit + dnn_logit
         else:
             y_pred = lr_logit + cin_logit
