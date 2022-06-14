@@ -19,7 +19,8 @@ class OMOE(nn.Module):
                  expert_activation=None,
                  hidden_dim=[128, 64],
                  dropouts=[0.2, 0.2],
-                 enc_dict=None):
+                 enc_dict=None,
+                 device=None):
         super(OMOE, self).__init__()
         self.enc_dict = enc_dict
         self.num_task = num_task

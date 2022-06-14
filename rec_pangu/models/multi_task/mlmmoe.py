@@ -18,7 +18,8 @@ class MLMMOE(nn.Module):
                  expert_activation=None,
                  hidden_dim=[128, 64],
                  dropouts=[0.2, 0.2],
-                 enc_dict=None):
+                 enc_dict=None,
+                 device=None):
         super(MLMMOE, self).__init__()
         self.enc_dict = enc_dict
         self.num_task = num_task
@@ -61,6 +62,7 @@ class MLMMOE(nn.Module):
                                                                       nn.Dropout(dropouts[j]))
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_last_layer', nn.Linear(hid_dim[-1], 1))
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
+        self.set_device(device)
 
     def set_device(self, device):
         for i in range(self.num_task):
@@ -73,7 +75,6 @@ class MLMMOE(nn.Module):
 
     def forward(self, data):
         hidden = self.embedding_layer(data).flatten(start_dim=1)
-        self.set_device(hidden.device)
         dense_fea = get_linear_input(self.enc_dict, data)
         hidden = torch.cat([hidden, dense_fea], axis=-1)
 

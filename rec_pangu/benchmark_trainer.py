@@ -23,7 +23,10 @@ class BenchmarkTrainer:
     def run(self,train_loader, enc_dict, valid_loader=None, test_loader=None, epoch=10, lr=1e-3, device=torch.device('cpu')):
         for model_name in tqdm(self.model_list):
             model_class = eval(model_name)
-            model = model_class(enc_dict=enc_dict)
+            if self.num_task >1:
+                model = model_class(enc_dict=enc_dict, device=device)
+            else:
+                model = model_class(enc_dict=enc_dict)
 
             model_trainer = RankTraniner(num_task=self.num_task)
 

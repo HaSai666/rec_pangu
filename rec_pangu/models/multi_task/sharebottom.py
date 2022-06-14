@@ -15,7 +15,8 @@ class ShareBottom(nn.Module):
                  embedding_dim=40,
                  hidden_dim=[128, 64],
                  dropouts=[0.2, 0.2],
-                 enc_dict=None):
+                 enc_dict=None,
+                 device=None):
         super(ShareBottom, self).__init__()
         self.enc_dict = enc_dict
         self.num_task = num_task

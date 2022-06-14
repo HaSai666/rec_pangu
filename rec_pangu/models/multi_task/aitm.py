@@ -13,7 +13,8 @@ class AITM(nn.Module):
                  embedding_dim=32,
                  tower_dims=[128, 64, 32],
                  drop_prob=[0.1, 0.1, 0.1],
-                 enc_dict=None):
+                 enc_dict=None,
+                 device=None):
         super(AITM, self).__init__()
         self.enc_dict = enc_dict
         self.tower_dims = tower_dims
