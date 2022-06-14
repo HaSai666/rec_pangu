@@ -1,5 +1,5 @@
 title: Rec Pangu
-lang: zh
+lang: en
 description: Some Rank/Multi-task model implemented by Pytorch
 
 remote_theme: rundocs/jekyll-rtd-theme
@@ -12,4 +12,3 @@ exclude:
   - CNAME
   - Gemfile
   - Gemfile.lock
-theme: jekyll-theme-slate
