@@ -2,6 +2,6 @@
 sort : 1
 ---
 
-# Get Start
+# 快速开始
 
 {% include list.liquid %}
