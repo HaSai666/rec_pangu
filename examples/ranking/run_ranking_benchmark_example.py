@@ -31,7 +31,7 @@ if __name__=='__main__':
     #声明使用的device
     device = torch.device('cuda:0')
     #获取dataloader
-    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema)
+    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=512)
     #声明需要跑测的模型
     model_list = ['WDL', 'DeepFM', 'NFM', 'FiBiNet', 'AFM', 'AFN', 'AOANet', 'AutoInt', 'CCPM', 'LR', 'FM', 'xDeepFM']
     # 声明Benchmark Trainer
