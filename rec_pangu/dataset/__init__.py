@@ -8,3 +8,4 @@
 from .base_dataset import BaseDataset
 from .process_data import get_dataloader
 from .multi_task_dataset import MultiTaskDataset
+from .graph_dataset import read_graph

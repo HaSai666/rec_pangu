@@ -171,3 +171,24 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
                 else:
                     res_dict[f'test_task{i + 1}_{metric}'] = eval(metric)(multi_task_label_list[i], multi_task_pred_list[i])
         return res_dict
+
+
+
+def train_graph_model(model,optimizer,train_data):
+
+    model.train()
+    optimizer.zero_grad()
+    result = model(train_data['train_graph_edge_index'], train_data['train_edge_index'],train_data['train_edge_label'])
+    loss = result['loss']
+    loss.backward()
+    optimizer.step()
+
+    return float(loss)
+
+
+def test_graph_model(model,test_data):
+    model.eval()
+    result = model(test_data['test_graph_edge_index'], test_data['test_edge_index'], test_data['test_edge_label'])
+    loss = result['loss']
+
+    return float(loss)
