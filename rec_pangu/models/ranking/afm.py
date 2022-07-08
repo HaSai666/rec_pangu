@@ -8,6 +8,8 @@ import torch
 from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, SENET_Layer, BilinearInteractionLayer
 from ..utils import get_feature_num, get_linear_input
 
+# TODO: change the current code of AFM with the right version.
+
 class AFM(nn.Module):
     def __init__(self,
                  embedding_dim=32,

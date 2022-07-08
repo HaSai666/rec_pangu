@@ -19,7 +19,7 @@
 3. pip install -e . --verbose
 
 #稳定版 
-pip install rec_pangu
+pip install rec_pangu --upgrade
 ```
 ## 3.Rank模型
 这里目前支持以下Rank模型

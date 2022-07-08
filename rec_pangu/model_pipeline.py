@@ -31,12 +31,13 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
 
         res_dict = dict()
         for metric in metric_list:
+            assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
+                metric, ['roc_auc_score', 'log_loss'])
             if metric =='log_loss':
                 res_dict[f'train_{metric}'] = log_loss(label_list,pred_list, eps=1e-7)
             else:
                 res_dict[f'train_{metric}'] = eval(metric)(label_list,pred_list)
-
-        return
+        return res_dict
     else:
         multi_task_pred_list = [[] for _ in range(num_task)]
         multi_task_label_list = [[] for _ in range(num_task)]
@@ -60,6 +61,8 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
         res_dict = dict()
         for i in range(num_task):
             for metric in metric_list:
+                assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
+                    metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
                     res_dict[f'train_task{i+1}_{metric}'] = log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7)
                 else:
@@ -84,6 +87,8 @@ def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_l
 
         res_dict = dict()
         for metric in metric_list:
+            assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
+                metric, ['roc_auc_score', 'log_loss'])
             if metric =='log_loss':
                 res_dict[f'valid_{metric}'] = log_loss(label_list,pred_list, eps=1e-7)
             else:
@@ -107,6 +112,8 @@ def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_l
         res_dict = dict()
         for i in range(num_task):
             for metric in metric_list:
+                assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
+                    metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
                     res_dict[f'valid_task{i+1}_{metric}'] = log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7)
                 else:
@@ -131,6 +138,8 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
 
         res_dict = dict()
         for metric in metric_list:
+            assert metric in ['roc_auc_score','log_loss'], 'metric :{} not supported! metric must be in {}'.format(
+                metric,['roc_auc_score','log_loss'])
             if metric == 'log_loss':
                 res_dict[f'test_{metric}'] = log_loss(label_list, pred_list, eps=1e-7)
             else:
@@ -154,9 +163,32 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
         res_dict = dict()
         for i in range(num_task):
             for metric in metric_list:
+                assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
+                    metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
                     res_dict[f'test_task{i + 1}_{metric}'] = log_loss(multi_task_label_list[i], multi_task_pred_list[i],
                                                                  eps=1e-7)
                 else:
                     res_dict[f'test_task{i + 1}_{metric}'] = eval(metric)(multi_task_label_list[i], multi_task_pred_list[i])
         return res_dict
+
+
+
+def train_graph_model(model,optimizer,train_data):
+
+    model.train()
+    optimizer.zero_grad()
+    result = model(train_data['train_graph_edge_index'], train_data['train_edge_index'],train_data['train_edge_label'])
+    loss = result['loss']
+    loss.backward()
+    optimizer.step()
+
+    return float(loss)
+
+
+def test_graph_model(model,test_data):
+    model.eval()
+    result = model(test_data['test_graph_edge_index'], test_data['test_edge_index'], test_data['test_edge_label'])
+    loss = result['loss']
+
+    return float(loss)

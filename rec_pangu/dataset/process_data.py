@@ -34,8 +34,8 @@ def get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size = 
 
     return train_loader,valid_loader,test_loader, enc_dict
 
-def get_dataloader(train_df, valid_df, test_df, schema):
+def get_dataloader(train_df, valid_df, test_df, schema, batch_size=512*3):
     if isinstance(schema['label_col'], list):
-        return get_multi_task_dataloader(train_df, valid_df, test_df, schema)
+        return get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
     else:
-        return get_base_dataloader(train_df, valid_df, test_df, schema)
+        return get_base_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
