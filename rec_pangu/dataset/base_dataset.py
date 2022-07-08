@@ -39,7 +39,7 @@ class BaseDataset(Dataset):
         return self.enc_dict
 
     def enc_dense_data(self,col):
-        return (self.df[col] - self.enc_dict[col]['min']) / (self.enc_dict[col]['max'] - self.enc_dict[col]['min'])
+        return (self.df[col] - self.enc_dict[col]['min']) / (self.enc_dict[col]['max'] - self.enc_dict[col]['min'] + 1e-5)
 
     def enc_sparse_data(self,col):
         return self.df[col].apply(lambda x : self.enc_dict[col].get(x,self.enc_dict[col]['vocab_size']))
