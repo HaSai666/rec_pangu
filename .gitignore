@@ -140,4 +140,5 @@ cython_debug/
 .idea
 rec_pangu/dataset/emb_dataset.py
 rec_pangu/dataset/process_data_bak.py
+pypi.sh
 
