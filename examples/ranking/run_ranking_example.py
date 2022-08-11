@@ -13,7 +13,6 @@ import pandas as pd
 
 if __name__=='__main__':
     df = pd.read_csv('sample_data/ranking_sample_data.csv')
-    print(df.head())
     #声明数据schema
     schema={
         "sparse_cols":['user_id','item_id','item_type','dayofweek','is_workday','city','county',
@@ -40,7 +39,14 @@ if __name__=='__main__':
     trainer.fit(model, train_loader, valid_loader, epoch=5, lr=1e-3, device=device)
     #保存模型权重
     trainer.save_model(model, './model_ckpt')
+    #保存模型权重和enc_dict
+    trainer.save_all(model, enc_dict, './model_ckpt')
     #模型验证
     test_metric = trainer.evaluate_model(model, test_loader, device=device)
-    print('Test metric:{}'.format(test_metric))
+
+    #测试 predict_dataframe
+    y_pre_dataftame = trainer.predict_dataframe(model, test_df, enc_dict, schema)
+    #测试 predict_dataloader
+    y_pre_dataloader = trainer.predict_dataloader(model, test_loader)
+    assert y_pre_dataftame == y_pre_dataloader,"预测结果不一致"
 

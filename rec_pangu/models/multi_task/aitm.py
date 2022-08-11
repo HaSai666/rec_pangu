@@ -11,7 +11,7 @@ from ..utils import get_feature_num
 class AITM(nn.Module):
     def __init__(self,
                  embedding_dim=32,
-                 tower_dims=[128, 64, 32],
+                 tower_dims=[400, 400, 400],
                  drop_prob=[0.1, 0.1, 0.1],
                  enc_dict=None,
                  device=None):

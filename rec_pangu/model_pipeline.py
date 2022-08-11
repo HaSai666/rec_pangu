@@ -5,14 +5,14 @@
 # @Time: 2022/6/10 7:40 PM
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score,log_loss
+from loguru import logger
 
 def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1):
     model.train()
     if num_task == 1:
         pred_list = []
         label_list = []
-        pbar = tqdm(train_loader)
-        for data in pbar:
+        for idx,data in enumerate(train_loader):
 
             for key in data.keys():
                 data[key] = data[key].to(device)
@@ -27,8 +27,9 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
 
             pred_list.extend(pred.squeeze(-1).cpu().detach().numpy())
             label_list.extend(data['label'].squeeze(-1).cpu().detach().numpy())
-            pbar.set_description("Loss {}".format(loss))
 
+            if idx % 20 ==0:
+                logger.info(f'Iter {idx} Loss:{loss}')
         res_dict = dict()
         for metric in metric_list:
             assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
@@ -41,8 +42,7 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
     else:
         multi_task_pred_list = [[] for _ in range(num_task)]
         multi_task_label_list = [[] for _ in range(num_task)]
-        pbar = tqdm(train_loader)
-        for data in pbar:
+        for idx,data in enumerate(train_loader):
 
             for key in data.keys():
                 data[key] = data[key].to(device)
@@ -56,7 +56,8 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             for i in range(num_task):
                 multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
                 multi_task_label_list[i].extend(list(data[f'task{i + 1}_label'].squeeze(-1).cpu().detach().numpy()))
-            pbar.set_description("Loss {}".format(loss))
+            if idx % 20 == 0:
+                logger.info(f'Iter {idx} Loss:{loss}')
 
         res_dict = dict()
         for i in range(num_task):
@@ -74,7 +75,7 @@ def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_l
     if num_task == 1:
         pred_list = []
         label_list = []
-        for data in tqdm(valid_loader):
+        for data in valid_loader:
 
             for key in data.keys():
                 data[key] = data[key].to(device)
@@ -125,7 +126,7 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
     if num_task == 1:
         pred_list = []
         label_list = []
-        for data in tqdm(test_loader):
+        for data in test_loader:
 
             for key in data.keys():
                 data[key] = data[key].to(device)

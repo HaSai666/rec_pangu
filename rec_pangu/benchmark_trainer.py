@@ -11,6 +11,8 @@ from tqdm import tqdm
 from rec_pangu.trainer import RankTraniner
 from rec_pangu.models.ranking import *
 from rec_pangu.models.multi_task import *
+from loguru import logger
+from .utils import beautify_json
 
 class BenchmarkTrainer:
     def __init__(self, num_task = 1, model_list = None, benhcmark_res_path = None, ckpt_root='./benchmark_ckpt'):
@@ -21,7 +23,8 @@ class BenchmarkTrainer:
         self.ckpt_root = ckpt_root
 
     def run(self,train_loader, enc_dict, valid_loader=None, test_loader=None, epoch=10, lr=1e-3, device=torch.device('cpu')):
-        for model_name in tqdm(self.model_list):
+        for model_name in self.model_list:
+            logger.info(f'Start Training Model: {model_name}')
             model_class = eval(model_name)
             if self.num_task >1:
                 model = model_class(enc_dict=enc_dict, device=device)
@@ -44,6 +47,7 @@ class BenchmarkTrainer:
                 'train_model_time':train_time * 1000,
                 'test_model_time':test_time * 1000
             }
+            logger.info(f'Model {model_name} Training Log :{beautify_json(log_dict)}')
             log_dict.update(valid_metric)
             log_dict.update(test_metric)
             self.benchmark_res_df = self.benchmark_res_df.append(log_dict, ignore_index=True)

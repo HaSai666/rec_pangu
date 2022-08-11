@@ -18,7 +18,7 @@ setup(
     author='wk',
     author_email='306178200@qq.com',
     url='https://github.com/HaSai666/rec_pangu',
-    install_requires=['numpy>=1.19.0', 'torch>=1.7.0', 'pandas>=1.0.5', 'tqdm', 'scikit_learn>=0.23.2'],
+    install_requires=['numpy>=1.19.0', 'torch>=1.7.0', 'pandas>=1.0.5', 'tqdm', 'scikit_learn>=0.23.2','torch_geometric','pygments','loguru'],
     packages=find_packages(),
     platforms=["all"],
     classifiers=[

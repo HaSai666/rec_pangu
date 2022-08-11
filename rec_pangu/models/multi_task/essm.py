@@ -38,10 +38,10 @@ class ESSM(nn.Module):
         click = self.sigmoid(self.ctr_layer(hidden))
         conversion = self.sigmoid(self.cvr_layer(hidden))
 
-        click = click * conversion
+        pctrcvr = click * conversion
 
         # get loss
-        loss = self.loss(click, conversion, data)
+        loss = self.loss(click, pctrcvr, data)
         output_dict = {
             'task1_pred': click,
             'task2_pred': conversion,

@@ -13,7 +13,6 @@ import pandas as pd
 
 if __name__=='__main__':
     df = pd.read_csv('sample_data/ranking_sample_data.csv')
-    print(df.head())
     #声明数据schema
     schema={
         "sparse_cols":['user_id','item_id','item_type','dayofweek','is_workday','city','county',
@@ -29,7 +28,7 @@ if __name__=='__main__':
     test_df = df
 
     #声明使用的device
-    device = torch.device('cuda:0')
+    device = torch.device('cpu')
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=512)
     #声明需要跑测的模型
