@@ -140,5 +140,6 @@ cython_debug/
 .idea
 rec_pangu/dataset/emb_dataset.py
 rec_pangu/dataset/process_data_bak.py
+examples/ranking/model_ckpt
+examples/multi_task/model_ckpt
 pypi.sh
-

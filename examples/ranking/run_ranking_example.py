@@ -50,3 +50,10 @@ if __name__=='__main__':
     y_pre_dataloader = trainer.predict_dataloader(model, test_loader)
     assert y_pre_dataftame == y_pre_dataloader,"预测结果不一致"
 
+    # 测试读取权重
+    model = xDeepFM(enc_dict=enc_dict)
+    model.load_state_dict(torch.load('./model_ckpt/model.pth')['model'])
+    # 测试 predict_dataframe
+    y_pre_dataftame_v2 = trainer.predict_dataframe(model, test_df, enc_dict, schema)
+    assert y_pre_dataftame == y_pre_dataftame_v2, "预测结果不一致"
+
