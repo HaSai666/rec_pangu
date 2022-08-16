@@ -7,20 +7,18 @@ import torch
 from torch import nn
 from ..layers import EmbeddingLayer,MLP_Layer,MultiHeadSelfAttention
 from ..utils import get_feature_num
-
-class AITM(nn.Module):
+from ..base_model import BaseModel
+class AITM(BaseModel):
     def __init__(self,
                  embedding_dim=32,
                  tower_dims=[400, 400, 400],
                  drop_prob=[0.1, 0.1, 0.1],
                  enc_dict=None,
                  device=None):
-        super(AITM, self).__init__()
+        super(AITM, self).__init__(enc_dict,embedding_dim)
         self.enc_dict = enc_dict
         self.tower_dims = tower_dims
         self.drop_prob = drop_prob
-        self.embedding_dim = embedding_dim
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
         self.num_sparse_fea, self.num_dense_fea = get_feature_num(self.enc_dict)
 
@@ -32,13 +30,14 @@ class AITM(nn.Module):
                                           hidden_activations='relu', dropout_rates=self.drop_prob)
         self.attention_layer = MultiHeadSelfAttention(self.tower_dims[-1])
 
-        self.info_layer = nn.Sequential(nn.Linear(tower_dims[-1], 32), nn.ReLU(),
+        self.info_layer = nn.Sequential(nn.Linear(tower_dims[-1], tower_dims[-1]), nn.ReLU(),
                                         nn.Dropout(drop_prob[-1]))
 
         self.click_layer = nn.Sequential(nn.Linear(tower_dims[-1], 1),
                                          nn.Sigmoid())
         self.conversion_layer = nn.Sequential(nn.Linear(tower_dims[-1], 1),
                                               nn.Sigmoid())
+        self.apply(self._init_weights)
 
     def forward(self, data):
         feature_embedding = self.embedding_layer(data)

@@ -7,22 +7,23 @@ from torch import nn
 import torch
 from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, CompressedInteractionNet
 from ..utils import get_feature_num, get_linear_input
+from ..base_model import BaseModel
 
-class xDeepFM(nn.Module):
+class xDeepFM(BaseModel):
     def __init__(self,
                  embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
                  cin_layer_units = [16,16,16],
                  loss_fun='torch.nn.BCELoss()',
                  enc_dict=None):
-        super(xDeepFM, self).__init__()
+        super(xDeepFM, self).__init__(enc_dict,embedding_dim)
 
         self.embedding_dim = embedding_dim
         self.dnn_hidden_units = dnn_hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
 
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
+        # self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
 
         self.dnn = MLP_Layer(input_dim=self.num_sparse*self.embedding_dim + self.num_dense,
@@ -31,6 +32,7 @@ class xDeepFM(nn.Module):
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
         self.cin = CompressedInteractionNet(self.num_sparse, cin_layer_units, output_dim=1)
 
+        self.apply(self._init_weights)
 
     def forward(self, data):
 

@@ -7,8 +7,8 @@ from torch import nn
 import torch
 from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, SENET_Layer, BilinearInteractionLayer
 from ..utils import get_feature_num, get_linear_input
-
-class AFN(nn.Module):
+from ..base_model import BaseModel
+class AFN(BaseModel):
     def __init__(self,
                  embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
@@ -17,15 +17,13 @@ class AFN(nn.Module):
                  loss_fun='torch.nn.BCELoss()',
                  logarithmic_neurons = 5,
                  enc_dict=None):
-        super(AFN, self).__init__()
+        super(AFN, self).__init__(enc_dict,embedding_dim)
 
-        self.embedding_dim = embedding_dim
         self.dnn_hidden_units = dnn_hidden_units
         self.afn_hidden_units = afn_hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
 
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
         self.coefficient_W = nn.Linear(self.num_sparse, logarithmic_neurons, bias=False)
 
@@ -36,6 +34,7 @@ class AFN(nn.Module):
         self.log_batch_norm = nn.BatchNorm1d(self.num_sparse)
         self.exp_batch_norm = nn.BatchNorm1d(logarithmic_neurons)
         self.ensemble_dnn = ensemble_dnn
+        self.apply(self._init_weights)
 
         if ensemble_dnn:
             self.embedding_layer2 = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)

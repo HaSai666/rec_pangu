@@ -26,6 +26,11 @@ class EmbeddingLayer(nn.Module):
                     self.embedding_dim,
                 )})
 
+    def set_weights(self, col_name, embedding_matrix, trainable=True):
+        self.embedding_layer[col_name].weight = embedding_matrix
+        if not trainable:
+            self.embedding_layer[col_name].weight.requires_grad = False
+
     def forward(self, X,name=None):
         if name == None:
             feature_emb_list = []

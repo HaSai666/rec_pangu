@@ -29,7 +29,7 @@ if __name__=='__main__':
     test_df = df
 
     #声明使用的device
-    device = torch.device('cuda:0')
+    device = torch.device('cpu')
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=512)
     #声明需要跑测的模型

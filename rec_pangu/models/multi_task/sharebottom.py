@@ -8,8 +8,8 @@ from torch import nn
 from ..layers import EmbeddingLayer
 from ..utils import get_feature_num, get_linear_input
 import numpy as np
-
-class ShareBottom(nn.Module):
+from ..base_model import BaseModel
+class ShareBottom(BaseModel):
     def __init__(self,
                  num_task=2,
                  embedding_dim=40,
@@ -17,17 +17,16 @@ class ShareBottom(nn.Module):
                  dropouts=[0.2, 0.2],
                  enc_dict=None,
                  device=None):
-        super(ShareBottom, self).__init__()
+        super(ShareBottom, self).__init__(enc_dict,embedding_dim)
         self.enc_dict = enc_dict
         self.num_task = num_task
         self.hidden_dim = hidden_dim
         self.dropouts = dropouts
-        self.embedding_dim = embedding_dim
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
         self.num_sparse_fea, self.num_dense_fea = get_feature_num(self.enc_dict)
 
         hidden_size = self.num_sparse_fea * self.embedding_dim + self.num_dense_fea
+        self.apply(self._init_weights)
 
         for i in range(self.num_task):
             setattr(self, 'task_{}_dnn'.format(i + 1), nn.ModuleList())

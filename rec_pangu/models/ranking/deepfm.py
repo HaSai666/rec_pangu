@@ -7,25 +7,24 @@ from torch import nn
 import torch
 from ..layers import EmbeddingLayer, FM_Layer, MLP_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
-
-class DeepFM(nn.Module):
+from ..base_model import BaseModel
+class DeepFM(BaseModel):
     def __init__(self,
                  embedding_dim=32,
                  hidden_units=[64, 64, 64],
                  loss_fun = 'torch.nn.BCELoss()',
                  enc_dict=None):
-        super(DeepFM, self).__init__()
+        super(DeepFM, self).__init__(enc_dict,embedding_dim)
 
-        self.embedding_dim = embedding_dim
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
 
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.fm = FM_Layer()
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
         self.dnn = MLP_Layer(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
                                  hidden_activations='relu', dropout_rates=0)
+        self.apply(self._init_weights)
 
     def forward(self, data):
         sparse_embedding = self.embedding_layer(data)

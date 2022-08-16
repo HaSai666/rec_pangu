@@ -7,26 +7,27 @@ from torch import nn
 import torch
 from ..layers import EmbeddingLayer, MLP_Layer, CrossNet
 from ..utils import get_dnn_input_dim, get_linear_input, get_feature_num
-class DCN(nn.Module):
+from ..base_model import BaseModel
+class DCN(BaseModel):
     def __init__(self,
                  embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
                  loss_fun = 'torch.nn.BCELoss()',
                  crossing_layers = 3,
                  enc_dict=None):
-        super(DCN, self).__init__()
+        super(DCN, self).__init__(enc_dict,embedding_dim)
 
-        self.embedding_dim = embedding_dim
         self.dnn_hidden_units = dnn_hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
 
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
         input_dim = self.num_sparse * self.embedding_dim + self.num_dense
         self.crossnet = CrossNet(input_dim, crossing_layers)
 
         self.fc = nn.Linear(input_dim, 1)
+
+        self.apply(self._init_weights)
 
     def forward(self, data):
         feature_emb = self.embedding_layer(data)

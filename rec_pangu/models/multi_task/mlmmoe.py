@@ -8,8 +8,8 @@ from torch import nn
 from ..layers import EmbeddingLayer
 from ..utils import get_feature_num, get_linear_input
 import numpy as np
-
-class MLMMOE(nn.Module):
+from ..base_model import BaseModel
+class MLMMOE(BaseModel):
     def __init__(self,
                  num_task=2,
                  n_expert=3,
@@ -20,7 +20,7 @@ class MLMMOE(nn.Module):
                  dropouts=[0.2, 0.2],
                  enc_dict=None,
                  device=None):
-        super(MLMMOE, self).__init__()
+        super(MLMMOE, self).__init__(enc_dict,embedding_dim)
         self.enc_dict = enc_dict
         self.num_task = num_task
         self.n_expert = n_expert
@@ -28,8 +28,6 @@ class MLMMOE(nn.Module):
         self.expert_activation = expert_activation
         self.hidden_dim = hidden_dim
         self.dropouts = dropouts
-        self.embedding_dim = embedding_dim
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
         self.num_sparse_fea, self.num_dense_fea = get_feature_num(self.enc_dict)
 
@@ -63,6 +61,7 @@ class MLMMOE(nn.Module):
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_last_layer', nn.Linear(hid_dim[-1], 1))
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
         self.set_device(device)
+        self.apply(self._init_weights)
 
     def set_device(self, device):
         for i in range(self.num_task):

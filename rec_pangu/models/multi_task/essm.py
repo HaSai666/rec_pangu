@@ -7,20 +7,18 @@ import torch
 from torch import nn
 from ..layers import EmbeddingLayer,MLP_Layer
 from ..utils import get_feature_num
-
-class ESSM(nn.Module):
+from ..base_model import BaseModel
+class ESSM(BaseModel):
     def __init__(self,
                  embedding_dim=40,
                  hidden_dim=[128, 64],
                  dropouts=[0.2, 0.2],
                  enc_dict=None,
                  device=None):
-        super(ESSM, self).__init__()
+        super(ESSM, self).__init__(enc_dict,embedding_dim)
         self.enc_dict = enc_dict
         self.hidden_dim = hidden_dim
         self.dropouts = dropouts
-        self.embedding_dim = embedding_dim
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
         self.num_sparse_fea, self.num_dense_fea = get_feature_num(self.enc_dict)
 
@@ -32,6 +30,8 @@ class ESSM(nn.Module):
         self.cvr_layer = MLP_Layer(input_dim=hidden_size, output_dim=1, hidden_units=self.hidden_dim,
                                    hidden_activations='relu', dropout_rates=self.dropouts)
         self.sigmoid = nn.Sigmoid()
+
+        self.apply(self._init_weights)
 
     def forward(self, data):
         hidden = self.embedding_layer(data).flatten(start_dim=1)

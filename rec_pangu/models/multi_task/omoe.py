@@ -8,9 +8,9 @@ from torch import nn
 from ..layers import EmbeddingLayer
 from ..utils import get_feature_num, get_linear_input
 import numpy as np
+from ..base_model import BaseModel
 
-
-class OMOE(nn.Module):
+class OMOE(BaseModel):
     def __init__(self,
                  num_task=2,
                  n_expert=3,
@@ -21,7 +21,7 @@ class OMOE(nn.Module):
                  dropouts=[0.2, 0.2],
                  enc_dict=None,
                  device=None):
-        super(OMOE, self).__init__()
+        super(OMOE, self).__init__(enc_dict,embedding_dim)
         self.enc_dict = enc_dict
         self.num_task = num_task
         self.n_expert = n_expert
@@ -29,8 +29,6 @@ class OMOE(nn.Module):
         self.expert_activation = expert_activation
         self.hidden_dim = hidden_dim
         self.dropouts = dropouts
-        self.embedding_dim = embedding_dim
-        self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
         self.num_sparse_fea, self.num_dense_fea = get_feature_num(self.enc_dict)
 
@@ -56,6 +54,8 @@ class OMOE(nn.Module):
                                                                       nn.Dropout(dropouts[j]))
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_last_layer', nn.Linear(hid_dim[-1], 1))
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
+
+        self.apply(self._init_weights)
 
     def forward(self, data):
         hidden = self.embedding_layer(data).flatten(start_dim=1)

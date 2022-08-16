@@ -10,6 +10,7 @@ from rec_pangu.dataset import get_dataloader
 from rec_pangu.models.ranking import WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM, DCN
 from rec_pangu.trainer import RankTraniner
 import pandas as pd
+import numpy as np
 
 if __name__=='__main__':
     df = pd.read_csv('sample_data/ranking_sample_data.csv')
@@ -32,7 +33,13 @@ if __name__=='__main__':
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=512)
     #声明模型,排序模型目前支持：WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM
-    model = xDeepFM(enc_dict=enc_dict)
+    model = xDeepFM(enc_dict=enc_dict, embedding_dim=32)
+    #模拟生成预训练权重
+    pretrained_dict = {
+        user_id:np.random.rand(32) for user_id in train_df['user_id'].unique()
+    }
+    #设置预训练权重
+    model.set_pretrained_weights('user_id', pretrained_dict, trainable=False)
     #声明Trainer
     trainer = RankTraniner(num_task=1)
     #训练模型
@@ -43,17 +50,4 @@ if __name__=='__main__':
     trainer.save_all(model, enc_dict, './model_ckpt')
     #模型验证
     test_metric = trainer.evaluate_model(model, test_loader, device=device)
-
-    # #测试 predict_dataframe
-    # y_pre_dataftame = trainer.predict_dataframe(model, test_df, enc_dict, schema)
-    # #测试 predict_dataloader
-    # y_pre_dataloader = trainer.predict_dataloader(model, test_loader)
-    # assert y_pre_dataftame == y_pre_dataloader,"预测结果不一致"
-    #
-    # # 测试读取权重
-    # model = xDeepFM(enc_dict=enc_dict)
-    # model.load_state_dict(torch.load('./model_ckpt/model.pth')['model'])
-    # # 测试 predict_dataframe
-    # y_pre_dataftame_v2 = trainer.predict_dataframe(model, test_df, enc_dict, schema)
-    # assert y_pre_dataftame == y_pre_dataftame_v2, "预测结果不一致"
 
