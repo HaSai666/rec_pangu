@@ -16,4 +16,4 @@ from .lr import LR
 from .fm import FM
 from .xdeepfm import xDeepFM
 from .dcn import DCN
-from .lightgcn import lightgcn
+# from .lightgcn import lightgcn

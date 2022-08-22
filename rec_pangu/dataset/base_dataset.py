@@ -28,7 +28,7 @@ class BaseDataset(Dataset):
         self.enc_dict = dict(zip( list(self.dense_cols+self.sparse_cols),[dict() for _ in range(len(self.dense_cols+self.sparse_cols))]))
         for f in self.sparse_cols:
             self.df[f] = self.df[f].astype('str')
-            map_dict = dict(zip(self.df[f].unique(), range(self.df[f].nunique())))
+            map_dict = dict(zip(sorted(self.df[f].unique()), range(self.df[f].nunique())))
             self.enc_dict[f] = map_dict
             self.enc_dict[f]['vocab_size'] = self.df[f].nunique()
 

@@ -38,6 +38,6 @@ class DeepFM(BaseModel):
 
         y_pred = torch.sigmoid(fm_out + dnn_output)
         loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-        output_dict = {'pred':y_pred,'loss':loss}
+        output_dict = {'pred':y_pred,'loss':loss} 
         return output_dict
 

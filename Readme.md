@@ -1,10 +1,13 @@
 # Rec PanGu
-<p align="left">
-  <img src='https://img.shields.io/badge/python-3.7+-brightgreen'>
-  <img src='https://img.shields.io/badge/torch-1.7+-brightgreen'>
-  <img src='https://img.shields.io/badge/scikit_learn-0.23.2+-brightgreen'>
-  <img src='https://img.shields.io/badge/pandas-1.0.5+-brightgreen'>
-  <img src='https://img.shields.io/badge/pypi-0.0.3-brightgreen'>
+[![stars](https://img.shields.io/github/stars/HaSai666/rec_pangu?color=097abb)](https://github.com/HaSai666/rec_pangu/stargazers)
+[![issues](https://img.shields.io/github/issues/HaSai666/rec_pangu?color=097abb)](https://github.com/HaSai666/rec_pangu/issues)
+[![license](https://img.shields.io/github/license/HaSai666/rec_pangu?color=097abb)](https://github.com/HaSai666/rec_pangu/blob/main/LICENSE)
+<img src='https://img.shields.io/badge/python-3.7+-brightgreen'>
+<img src='https://img.shields.io/badge/torch-1.7+-brightgreen'>
+<img src='https://img.shields.io/badge/scikit_learn-0.23.2+-brightgreen'>
+<img src='https://img.shields.io/badge/pandas-1.0.5+-brightgreen'>
+<img src='https://img.shields.io/badge/pypi-0.0.3-brightgreen'>
+<a href="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab"><img src="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab.svg" alt="wakatime"></a>
 
 ## 1.开源定位
 - 使用pytorch对经典的rank/多任务模型进行实现，并且对外提供统一调用的API接口，极大的降低了使用Rank/多任务模型的时间成本
