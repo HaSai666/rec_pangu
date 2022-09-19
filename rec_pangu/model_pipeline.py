@@ -6,9 +6,11 @@
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score,log_loss
 from loguru import logger
+from .utils import get_gpu_usage
 
 def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1):
     model.train()
+    max_iter = int(train_loader.dataset.__len__() / train_loader.batch_size)
     if num_task == 1:
         pred_list = []
         label_list = []
@@ -28,8 +30,12 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             pred_list.extend(pred.squeeze(-1).cpu().detach().numpy())
             label_list.extend(data['label'].squeeze(-1).cpu().detach().numpy())
 
-            if idx % 20 ==0:
-                logger.info(f'Iter {idx} Loss:{loss}')
+            auc = round(roc_auc_score(label_list, pred_list), 4)
+
+            if idx % 20 ==0 and device.type != 'cpu':
+                logger.info(f'Iter {idx}/{max_iter} Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc} GPU Mem:{get_gpu_usage(device)}')
+            else:
+                logger.info(f'Iter {idx}/{max_iter} Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc}')
         res_dict = dict()
         for metric in metric_list:
             assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
@@ -56,6 +62,12 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             for i in range(num_task):
                 multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
                 multi_task_label_list[i].extend(list(data[f'task{i + 1}_label'].squeeze(-1).cpu().detach().numpy()))
+
+            if idx % 20 ==0 and device.type != 'cpu':
+                logger.info(f'Iter {idx}/{max_iter} Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
+            else:
+                logger.info(f'Iter {idx}/{max_iter} Loss:{round(float(loss.detach().cpu().numpy()), 4)}')
+
             if idx % 20 == 0:
                 logger.info(f'Iter {idx} Loss:{loss}')
 

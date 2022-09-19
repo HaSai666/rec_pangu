@@ -38,7 +38,7 @@ if __name__=='__main__':
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=5, lr=1e-3, device=device)
     #保存模型权重
-    trainer.save_model(model, './model_ckpt')
+    # trainer.save_model(model, './model_ckpt')
     #保存模型权重和enc_dict
     trainer.save_all(model, enc_dict, './model_ckpt')
     #模型验证

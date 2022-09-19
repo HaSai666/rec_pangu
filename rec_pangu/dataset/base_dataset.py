@@ -3,10 +3,10 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+import numpy as np
 import torch
 from torch.utils.data import Dataset
-import torch.utils.data as D
-import copy
+from collections import defaultdict
 
 class BaseDataset(Dataset):
     def __init__(self,config,df,enc_dict=None):
@@ -16,7 +16,7 @@ class BaseDataset(Dataset):
         self.df = self.df.rename(columns={self.config['label_col']:'label'})
         self.dense_cols = list(set(self.config['dense_cols']))
         self.sparse_cols = list(set(self.config['sparse_cols']))
-        self.feature_name = self.dense_cols+self.sparse_cols+['label']
+        self.feature_name = self.dense_cols+self.sparse_cols
 
         #数据编码
         if self.enc_dict == None:
@@ -46,25 +46,25 @@ class BaseDataset(Dataset):
 
     def enc_data(self):
         #使用enc_dict对数据进行编码
-        self.enc_df = copy.deepcopy(self.df)
+        self.enc_data = defaultdict(np.array)
 
         for col in self.dense_cols:
-            self.enc_df[col] = self.enc_dense_data(col)
+            self.enc_data[col] = torch.Tensor(np.array(self.enc_dense_data(col)))
         for col in self.sparse_cols:
-            self.enc_df[col] = self.enc_sparse_data(col)
+            self.enc_data[col] = torch.Tensor(np.array(self.enc_sparse_data(col))).long()
 
     def __getitem__(self, index):
-        data = dict()
-        for col in self.feature_name:
-            if col in self.dense_cols:
-                data[col] = torch.Tensor([self.enc_df[col].iloc[index]]).squeeze(-1)
-            elif col in self.sparse_cols:
-                data[col] = torch.Tensor([self.enc_df[col].iloc[index]]).long().squeeze(-1)
-        data['label'] = torch.Tensor([self.enc_df['label'].iloc[index]]).squeeze(-1)
+        data = defaultdict(np.array)
+        for col in self.dense_cols:
+            data[col] = self.enc_data[col][index]
+        for col in self.sparse_cols:
+            data[col] = self.enc_data[col][index]
+        if 'label' in self.df.columns :
+            data['label'] = torch.Tensor([self.df['label'].iloc[index]]).squeeze(-1)
         return data
 
     def __len__(self):
-        return len(self.enc_df)
+        return len(self.df)
 
 
 
