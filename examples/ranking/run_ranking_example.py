@@ -23,9 +23,9 @@ if __name__=='__main__':
         "label_col":'click',
     }
     #准备数据,这里只选择了100条数据,所以没有切分数据集
-    train_df = df
-    valid_df = df
-    test_df = df
+    train_df = df[:80]
+    valid_df = df[:90]
+    test_df = df[:95]
 
     #声明使用的device
     device = torch.device('cpu')
@@ -45,7 +45,7 @@ if __name__=='__main__':
     test_metric = trainer.evaluate_model(model, test_loader, device=device)
 
     # #测试 predict_dataframe
-    # y_pre_dataftame = trainer.predict_dataframe(model, test_df, enc_dict, schema)
+    y_pre_dataftame = trainer.predict_dataframe(model, test_df, enc_dict, schema)
     # #测试 predict_dataloader
     # y_pre_dataloader = trainer.predict_dataloader(model, test_loader)
     # assert y_pre_dataftame == y_pre_dataloader,"预测结果不一致"

@@ -39,3 +39,13 @@ def get_dataloader(train_df, valid_df, test_df, schema, batch_size=512*3):
         return get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
     else:
         return get_base_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
+
+def get_test_dataloader(test_df, schema, enc_dict, batch_size = 512):
+    if isinstance(schema['label_col'], list):
+        test_dataset = MultiTaskDataset(schema, test_df,enc_dict=enc_dict)
+        test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+        return test_loader
+    else:
+        test_dataset = BaseDataset(schema, test_df,enc_dict=enc_dict)
+        test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+        return test_loader
