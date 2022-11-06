@@ -8,18 +8,19 @@
 <img src='https://img.shields.io/badge/pandas-1.0.5+-brightgreen'>
 <img src='https://img.shields.io/badge/pypi-0.0.3-brightgreen'>
 <a href="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab"><img src="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab.svg" alt="wakatime"></a>
-
-## 1.开源定位
+[![Downloads](https://pepy.tech/badge/rec-pangu)](https://pepy.tech/project/rec-pangu)
+[![Downloads](https://pepy.tech/badge/rec-pangu/month)](https://pepy.tech/project/rec-pangu)
+[![Downloads](https://pepy.tech/badge/rec-pangu/week)](https://pepy.tech/project/rec-pangu)
+## 1.开源定位 
 - 使用pytorch对经典的rank/多任务模型进行实现，并且对外提供统一调用的API接口，极大的降低了使用Rank/多任务模型的时间成本
 - 该项目使用了pytorch来实现我们的各种模型，以便于初学推荐系统的人可以更好的理解算法的核心思想
 - 由于已经有了很多类似的优秀的开源，我们这里对那些十分通用的模块参考了已有的开源，十分感谢这些开源贡献者的贡献
-## 2.安装
-这里把项目已经提交到pypi上面了，可以通过pip进行快速安装  
+## 2.安装  
 ```bash
 #最新版
-1. git clone https://github.com/HaSai666/rec_pangu.git
-2. cd rec_pangu
-3. pip install -e . --verbose
+git clone https://github.com/HaSai666/rec_pangu.git
+cd rec_pangu
+pip install -e . --verbose
 
 #稳定版 
 pip install rec_pangu --upgrade
