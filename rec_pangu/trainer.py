@@ -15,20 +15,33 @@ import torch.utils.data as D
 class RankTraniner:
     def __init__(self, num_task = 1):
         self.num_task = num_task
-    def fit(self, model, train_loader, valid_loader=None, epoch=10, lr=1e-3, device=torch.device('cpu')):
+    def fit(self, model, train_loader, valid_loader=None, epoch=10, lr=1e-3, device=torch.device('cpu'),
+            use_earlystoping=False,max_patience=999,monitor_metric=None):
         # 声明optimizer
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999),eps=1e-08, weight_decay=0)
         model = model.to(device)
         # 模型训练流程
         logger.info('Model Starting Training ')
-        for i in range(epoch):
+        best_epoch = -1
+        best_metric = -1
+        for i in range(1,epoch+1):
             # 模型训练
             train_metric = train_model(model, train_loader, optimizer=optimizer, device=device,num_task=self.num_task)
             logger.info(f"Train Metric:{beautify_json(train_metric)}")
             # 模型验证
             if valid_loader != None:
                 valid_metric = valid_model(model, valid_loader, device, num_task=self.num_task)
+                if use_earlystoping:
+                    assert monitor_metric in valid_metric.keys(),f'{monitor_metric} not in Valid Metric {valid_metric.keys()}'
+                    if valid_metric[monitor_metric] > best_metric:
+                        best_epoch = i
+                        best_metric = valid_metric[monitor_metric]
+
+                    if i - best_epoch >= max_patience:
+                        logger.info(f"EarlyStopping at the Epoch {i} Valid Metric:{beautify_json(valid_metric)}")
+                        break
                 logger.info(f"Valid Metric:{beautify_json(valid_metric)}")
+
         return valid_metric
 
     def save_model(self, model, model_ckpt_dir):

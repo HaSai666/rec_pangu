@@ -14,35 +14,39 @@ import torch
 def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1):
     model.train()
     max_iter = int(train_loader.dataset.__len__() / train_loader.batch_size)
-    scaler = torch.cuda.amp.GradScaler()
+    # scaler = torch.cuda.amp.GradScaler()
     if num_task == 1:
         pred_list = []
         label_list = []
+        start_time = time.time()
         for idx,data in enumerate(train_loader):
-            start_time = time.time()
 
             for key in data.keys():
                 data[key] = data[key].to(device)
 
-            with torch.cuda.amp.autocast():
-                output = model(data)
+            # with torch.cuda.amp.autocast():
+            output = model(data)
             pred = output['pred']
             loss = output['loss']
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            # scaler.scale(loss).backward()
+            # scaler.step(optimizer)
+            # scaler.update()
+            loss.backward()
+            optimizer.step()
+            model.zero_grad()
 
             pred_list.extend(pred.squeeze(-1).cpu().detach().numpy())
             label_list.extend(data['label'].squeeze(-1).cpu().detach().numpy())
 
             auc = round(roc_auc_score(label_list, pred_list), 4)
             iter_time = time.time() - start_time
+            remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
 
-            if idx % 20 ==0 and device.type != 'cpu':
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{iter_time*(max_iter-idx)/60 }min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc} GPU Mem:{get_gpu_usage(device)}')
-            else:
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{iter_time*(max_iter-idx)/60 }min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc}')
+            if idx % 20 == 0 and device.type != 'cpu':
+                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc} GPU Mem:{get_gpu_usage(device)}')
+            elif idx % 20 == 0:
+                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc}')
         res_dict = dict()
         for metric in metric_list:
             assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
@@ -55,8 +59,9 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
     else:
         multi_task_pred_list = [[] for _ in range(num_task)]
         multi_task_label_list = [[] for _ in range(num_task)]
+        start_time = time.time()
         for idx,data in enumerate(train_loader):
-            start_time = time.time()
+
             for key in data.keys():
                 data[key] = data[key].to(device)
 
@@ -70,13 +75,11 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
                 multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
                 multi_task_label_list[i].extend(list(data[f'task{i + 1}_label'].squeeze(-1).cpu().detach().numpy()))
             iter_time = time.time() - start_time
+            remaining_time = round(((iter_time / (idx + 1)) * (max_iter - idx + 1)) / 60, 2)
             if idx % 20 ==0 and device.type != 'cpu':
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{iter_time*(max_iter-idx)/60 }min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
-            else:
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{iter_time*(max_iter-idx)/60 }min Loss:{round(float(loss.detach().cpu().numpy()), 4)}')
-
-            if idx % 20 == 0:
-                logger.info(f'Iter {idx} Loss:{loss}')
+                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
+            elif idx % 20 ==0:
+                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)}')
 
         res_dict = dict()
         for i in range(num_task):

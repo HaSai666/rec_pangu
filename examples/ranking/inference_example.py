@@ -37,6 +37,7 @@ if __name__=='__main__':
 
     #模拟测试集
     test_df = df[:8]
+    del test_df['click']
 
     # 声明Trainer
     trainer = RankTraniner(num_task=1)

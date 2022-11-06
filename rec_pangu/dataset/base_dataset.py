@@ -61,6 +61,8 @@ class BaseDataset(Dataset):
             data[col] = self.enc_data[col][index]
         if 'label' in self.df.columns :
             data['label'] = torch.Tensor([self.df['label'].iloc[index]]).squeeze(-1)
+        else:
+            data['label'] = torch.randint(0,2,size=[1]).float().squeeze(-1)
         return data
 
     def __len__(self):

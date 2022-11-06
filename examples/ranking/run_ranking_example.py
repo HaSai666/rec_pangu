@@ -36,7 +36,8 @@ if __name__=='__main__':
     #声明Trainer
     trainer = RankTraniner(num_task=1)
     #训练模型
-    trainer.fit(model, train_loader, valid_loader, epoch=5, lr=1e-3, device=device)
+    trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,
+                use_earlystoping=True, max_patience=5, monitor_metric='valid_roc_auc_score')
     #保存模型权重
     # trainer.save_model(model, './model_ckpt')
     #保存模型权重和enc_dict
