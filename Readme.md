@@ -6,7 +6,7 @@
 <img src='https://img.shields.io/badge/torch-1.7+-brightgreen'>
 <img src='https://img.shields.io/badge/scikit_learn-0.23.2+-brightgreen'>
 <img src='https://img.shields.io/badge/pandas-1.0.5+-brightgreen'>
-<img src='https://img.shields.io/badge/pypi-0.0.3-brightgreen'>
+<img src='https://img.shields.io/badge/pypi-0.2.4-brightgreen'>
 <a href="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab"><img src="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab.svg" alt="wakatime"></a>
 [![Downloads](https://pepy.tech/badge/rec-pangu)](https://pepy.tech/project/rec-pangu)
 [![Downloads](https://pepy.tech/badge/rec-pangu/month)](https://pepy.tech/project/rec-pangu)
