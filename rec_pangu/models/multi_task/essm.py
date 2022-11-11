@@ -33,7 +33,7 @@ class ESSM(BaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         hidden = self.embedding_layer(data).flatten(start_dim=1)
         click = self.sigmoid(self.ctr_layer(hidden))
         conversion = self.sigmoid(self.cvr_layer(hidden))
@@ -41,13 +41,18 @@ class ESSM(BaseModel):
         pctrcvr = click * conversion
 
         # get loss
-        loss = self.loss(click, pctrcvr, data)
-        output_dict = {
-            'task1_pred': click,
-            'task2_pred': conversion,
-            'loss': loss
-        }
-
+        if is_training:
+            loss = self.loss(click, pctrcvr, data)
+            output_dict = {
+                'task1_pred': click,
+                'task2_pred': conversion,
+                'loss': loss
+            }
+        else:
+            output_dict = {
+                'task1_pred': click,
+                'task2_pred': conversion,
+            }
         return output_dict
 
     def loss(self, click, conversion, data, weight=0.5):

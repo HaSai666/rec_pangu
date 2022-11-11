@@ -44,7 +44,7 @@ class AFN(BaseModel):
                                  use_bias=True)
             self.fc = nn.Linear(2, 1)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
 
         feature_emb = self.embedding_layer(data)
         dnn_input = self.logarithmic_net(feature_emb)
@@ -58,8 +58,11 @@ class AFN(BaseModel):
             y_pred = afn_out
         y_pred = y_pred.sigmoid()
         # 输出
-        loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
-        output_dict = {'pred': y_pred, 'loss': loss}
+        if is_training:
+            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+            output_dict = {'pred':y_pred,'loss':loss}
+        else:
+            output_dict = {'pred':y_pred}
         return output_dict
 
     def logarithmic_net(self, feature_emb):

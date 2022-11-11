@@ -26,7 +26,7 @@ class DeepFM(BaseModel):
                                  hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         sparse_embedding = self.embedding_layer(data)
         dense_input = get_linear_input(self.enc_dict, data)
         # FM
@@ -37,7 +37,10 @@ class DeepFM(BaseModel):
         dnn_output = self.dnn(dnn_input)
 
         y_pred = torch.sigmoid(fm_out + dnn_output)
-        loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-        output_dict = {'pred':y_pred,'loss':loss} 
+        if is_training:
+            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+            output_dict = {'pred':y_pred,'loss':loss}
+        else:
+            output_dict = {'pred':y_pred}
         return output_dict
 

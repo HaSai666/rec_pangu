@@ -39,7 +39,7 @@ class AITM(BaseModel):
                                               nn.Sigmoid())
         self.apply(self._init_weights)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         feature_embedding = self.embedding_layer(data)
         feature_embedding = feature_embedding.flatten(start_dim=1)
 
@@ -55,14 +55,18 @@ class AITM(BaseModel):
         click = torch.squeeze(self.click_layer(tower_click), dim=1)
         conversion = torch.squeeze(self.conversion_layer(ait), dim=1)
 
-        loss = self.loss(data['task1_label'], click, data['task2_label'], conversion)
-
-        output_dict = {
-            'task1_pred': click,
-            'task2_pred': conversion,
-            'loss': loss
-        }
-
+        if is_training:
+            loss = self.loss(data['task1_label'], click, data['task2_label'], conversion)
+            output_dict = {
+                'task1_pred': click,
+                'task2_pred': conversion,
+                'loss': loss
+            }
+        else:
+            output_dict = {
+                'task1_pred': click,
+                'task2_pred': conversion,
+            }
         return output_dict
 
     def loss(self,

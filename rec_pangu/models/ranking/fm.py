@@ -21,11 +21,14 @@ class FM(BaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         feature_emb = self.embedding_layer(data)
         y_pred = self.fm(feature_emb)
         y_pred = y_pred.sigmoid()
         # 输出
-        loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
-        output_dict = {'pred': y_pred, 'loss': loss}
+        if is_training:
+            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+            output_dict = {'pred':y_pred,'loss':loss}
+        else:
+            output_dict = {'pred':y_pred}
         return output_dict

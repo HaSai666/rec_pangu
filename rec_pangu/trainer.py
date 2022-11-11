@@ -69,7 +69,7 @@ class RankTraniner:
             for data in test_loader:
                 for key in data.keys():
                     data[key] = data[key].to(device)
-                output = model(data)
+                output = model(data,is_training=False)
                 pred = output['pred']
                 pred_list.extend(pred.squeeze(-1).cpu().detach().numpy())
             return pred_list
@@ -78,14 +78,14 @@ class RankTraniner:
             for data in test_loader:
                 for key in data.keys():
                     data[key] = data[key].to(device)
-                output = model(data)
+                output = model(data,is_training=False)
                 for i in range(self.num_task):
                     multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
             return multi_task_pred_list
 
-    def predict_dataframe(self,model, test_df, enc_dict, schema, device=torch.device('cpu')):
+    def predict_dataframe(self,model, test_df, enc_dict, schema, device=torch.device('cpu'),batch_size=1024):
         test_dataset = BaseDataset(schema, test_df, enc_dict=enc_dict)
-        test_loader = D.DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=0)
+        test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
         return self.predict_dataloader(model, test_loader, device=device)
 
 class GraphTrainer:

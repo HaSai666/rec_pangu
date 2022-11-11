@@ -8,6 +8,8 @@ from torch.utils.data import Dataset
 import torch.utils.data as D
 from .base_dataset import  BaseDataset
 import copy
+from collections import defaultdict
+import numpy as np
 
 class MultiTaskDataset(BaseDataset):
     def __init__(self,config,df,enc_dict=None):
@@ -26,16 +28,16 @@ class MultiTaskDataset(BaseDataset):
         self.enc_data()
 
     def __getitem__(self, index):
-        data = dict()
-        for col in self.feature_name:
-            if col in self.dense_cols:
-                data[col] = torch.Tensor([self.enc_df[col].iloc[index]]).squeeze(-1)
-            elif col in self.sparse_cols:
-                data[col] = torch.Tensor([self.enc_df[col].iloc[index]]).long().squeeze(-1)
+        data = defaultdict(np.array)
+        for col in self.dense_cols:
+            data[col] = self.enc_data[col][index]
+        for col in self.sparse_cols:
+            data[col] = self.enc_data[col][index]
         for idx, col in enumerate(self.config['label_col']):
-            data[f'task{idx + 1}_label'] = torch.Tensor([self.enc_df[f'task{idx + 1}_label'].iloc[index]]).squeeze(-1)
+            if f'task{idx + 1}_label' in self.df.columns:
+                data[f'task{idx + 1}_label'] = torch.Tensor([self.df[f'task{idx + 1}_label'].iloc[index]]).squeeze(-1)
         return data
 
     def __len__(self):
-        return len(self.enc_df)
+        return len(self.df)
 

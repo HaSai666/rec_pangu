@@ -32,7 +32,7 @@ class CCPM(BaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
 
         feature_emb = self.embedding_layer(data)
         conv_in = torch.unsqueeze(feature_emb, 1)  # shape (bs, 1, field, emb)
@@ -42,8 +42,11 @@ class CCPM(BaseModel):
 
         y_pred = y_pred.sigmoid()
         # 输出
-        loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
-        output_dict = {'pred': y_pred, 'loss': loss}
+        if is_training:
+            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+            output_dict = {'pred':y_pred,'loss':loss}
+        else:
+            output_dict = {'pred':y_pred}
         return output_dict
 
 class CCPM_ConvLayer(nn.Module):

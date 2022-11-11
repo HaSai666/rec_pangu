@@ -17,10 +17,13 @@ class LR(nn.Module):
         self.enc_dict = enc_dict
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         y_pred = self.lr_layer(data)
         y_pred = y_pred.sigmoid()
         # 输出
-        loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
-        output_dict = {'pred': y_pred, 'loss': loss}
+        if is_training:
+            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+            output_dict = {'pred':y_pred,'loss':loss}
+        else:
+            output_dict = {'pred':y_pred}
         return output_dict

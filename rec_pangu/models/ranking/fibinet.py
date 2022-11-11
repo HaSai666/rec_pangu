@@ -31,7 +31,7 @@ class FiBiNet(BaseModel):
                              hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         y_pred = self.lr(data)  # Batch,1
 
         feature_emb = self.embedding_layer(data)
@@ -46,6 +46,9 @@ class FiBiNet(BaseModel):
         y_pred = y_pred.sigmoid()
 
         # 输出
-        loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
-        output_dict = {'pred': y_pred, 'loss': loss}
+        if is_training:
+            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+            output_dict = {'pred':y_pred,'loss':loss}
+        else:
+            output_dict = {'pred':y_pred}
         return output_dict

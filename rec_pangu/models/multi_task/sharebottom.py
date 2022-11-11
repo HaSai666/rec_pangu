@@ -41,7 +41,7 @@ class ShareBottom(BaseModel):
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_last_layer', nn.Linear(hid_dim[-1], 1))
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         feature_emb = self.embedding_layer(data).flatten(start_dim=1)
         dense_fea = get_linear_input(self.enc_dict, data)
         out = torch.cat([feature_emb, dense_fea], axis=-1)
@@ -56,8 +56,9 @@ class ShareBottom(BaseModel):
             task_outputs.append(x)
             output_dict[f'task{i + 1}_pred'] = x
         # get loss
-        loss = self.loss(task_outputs, data)
-        output_dict['loss'] = loss
+        if is_training:
+            loss = self.loss(task_outputs, data)
+            output_dict['loss'] = loss
 
         return output_dict
 

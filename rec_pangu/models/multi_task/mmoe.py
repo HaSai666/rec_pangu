@@ -66,7 +66,7 @@ class MMOE(BaseModel):
             self.gates_bias[i] = self.gates_bias[i].to(device)
         print(f'Successfully set device:{device}')
 
-    def forward(self, data):
+    def forward(self, data,is_training=True):
         hidden = self.embedding_layer(data).flatten(start_dim=1)
         dense_fea = get_linear_input(self.enc_dict, data)
         hidden = torch.cat([hidden, dense_fea], axis=-1)
@@ -102,8 +102,9 @@ class MMOE(BaseModel):
             task_outputs.append(x)
             output_dict[f'task{i + 1}_pred'] = x
         # get loss
-        loss = self.loss(task_outputs, data)
-        output_dict['loss'] = loss
+        if is_training:
+            loss = self.loss(task_outputs, data)
+            output_dict['loss'] = loss
 
         return output_dict
 
