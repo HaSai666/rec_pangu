@@ -11,12 +11,22 @@ from .utils import beautify_json
 from .dataset import BaseDataset,MultiTaskDataset
 from loguru import logger
 import torch.utils.data as D
+import wandb
 
 class RankTraniner:
-    def __init__(self, num_task = 1):
+    def __init__(self, num_task = 1,wandb_config=None):
         self.num_task = num_task
+        self.wandb_config = wandb_config
+        self.use_wandb = self.wandb_config!=None
+        if self.use_wandb:
+            wandb.login(key=self.wandb_config['key'])
+            self.wandb_config.pop('key')
     def fit(self, model, train_loader, valid_loader=None, epoch=10, lr=1e-3, device=torch.device('cpu'),
             use_earlystoping=False,max_patience=999,monitor_metric=None):
+        if self.use_wandb:
+            wandb.init(
+                **self.wandb_config
+            )
         # 声明optimizer
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999),eps=1e-08, weight_decay=0)
         model = model.to(device)
@@ -26,11 +36,12 @@ class RankTraniner:
         best_metric = -1
         for i in range(1,epoch+1):
             # 模型训练
-            train_metric = train_model(model, train_loader, optimizer=optimizer, device=device,num_task=self.num_task)
+            train_metric = train_model(model, train_loader, optimizer=optimizer, device=device,num_task=self.num_task, use_wandb=self.use_wandb)
             logger.info(f"Train Metric:{beautify_json(train_metric)}")
             # 模型验证
             if valid_loader != None:
                 valid_metric = valid_model(model, valid_loader, device, num_task=self.num_task)
+                wandb.log(valid_metric)
                 if use_earlystoping:
                     assert monitor_metric in valid_metric.keys(),f'{monitor_metric} not in Valid Metric {valid_metric.keys()}'
                     if valid_metric[monitor_metric] > best_metric:
@@ -41,7 +52,7 @@ class RankTraniner:
                         logger.info(f"EarlyStopping at the Epoch {i} Valid Metric:{beautify_json(valid_metric)}")
                         break
                 logger.info(f"Valid Metric:{beautify_json(valid_metric)}")
-
+        wandb.finish()
         return valid_metric
 
     def save_model(self, model, model_ckpt_dir):

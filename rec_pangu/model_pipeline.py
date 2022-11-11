@@ -10,8 +10,9 @@ from sklearn.metrics import roc_auc_score,log_loss
 from loguru import logger
 from .utils import get_gpu_usage
 import torch
+import wandb
 
-def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1):
+def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1, use_wandb=False):
     model.train()
     max_iter = int(train_loader.dataset.__len__() / train_loader.batch_size)
     # scaler = torch.cuda.amp.GradScaler()
@@ -40,6 +41,11 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             label_list.extend(data['label'].squeeze(-1).cpu().detach().numpy())
 
             auc = round(roc_auc_score(label_list, pred_list), 4)
+
+            if use_wandb:
+                wandb.log({'train_loss':loss.item(),
+                           'train_auc':auc})
+
             iter_time = time.time() - start_time
             remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
 
@@ -74,6 +80,8 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             for i in range(num_task):
                 multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
                 multi_task_label_list[i].extend(list(data[f'task{i + 1}_label'].squeeze(-1).cpu().detach().numpy()))
+            if use_wandb:
+                wandb.log({'train_loss':loss.item()})
             iter_time = time.time() - start_time
             remaining_time = round(((iter_time / (idx + 1)) * (max_iter - idx + 1)) / 60, 2)
             if idx % 20 ==0 and device.type != 'cpu':
