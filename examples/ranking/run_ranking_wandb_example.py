@@ -22,7 +22,7 @@ if __name__=='__main__':
                        'item_clk_7d','item_clk_14d','item_clk_30d','use_duration'],
         "label_col":'click',
     }
-
+    # 只需要额外增加wandb_config即可
     wandb_config = {
         'key':'ca0a80eab60eff065b8c16ab3f41dec4783e60ae',
         'project':'pangu_ranking_example',
