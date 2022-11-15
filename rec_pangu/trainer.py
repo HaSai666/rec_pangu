@@ -14,9 +14,10 @@ import torch.utils.data as D
 import wandb
 
 class RankTraniner:
-    def __init__(self, num_task = 1,wandb_config=None):
+    def __init__(self, num_task = 1,wandb_config=None,model_ckpt_dir='./model_ckpt'):
         self.num_task = num_task
         self.wandb_config = wandb_config
+        self.model_ckpt_dir = model_ckpt_dir
         self.use_wandb = self.wandb_config!=None
         if self.use_wandb:
             wandb.login(key=self.wandb_config['key'])
@@ -37,10 +38,12 @@ class RankTraniner:
         for i in range(1,epoch+1):
             # 模型训练
             train_metric = train_model(model, train_loader, optimizer=optimizer, device=device,num_task=self.num_task, use_wandb=self.use_wandb)
-            logger.info(f"Train Metric:{beautify_json(train_metric)}")
+            logger.info(f"Train Metric:{train_metric}")
             # 模型验证
             if valid_loader != None:
                 valid_metric = valid_model(model, valid_loader, device, num_task=self.num_task)
+                model_str = f'e_{i}_v_{valid_metric}'
+                self.save_train_model(model,self.model_ckpt_dir,model_str)
                 if self.use_wandb:
                     wandb.log(valid_metric)
                 if use_earlystoping:
@@ -50,9 +53,9 @@ class RankTraniner:
                         best_metric = valid_metric[monitor_metric]
 
                     if i - best_epoch >= max_patience:
-                        logger.info(f"EarlyStopping at the Epoch {i} Valid Metric:{beautify_json(valid_metric)}")
+                        logger.info(f"EarlyStopping at the Epoch {i} Valid Metric:{valid_metric}")
                         break
-                logger.info(f"Valid Metric:{beautify_json(valid_metric)}")
+                logger.info(f"Valid Metric:{valid_metric}")
         if self.use_wandb:
             wandb.finish()
         return valid_metric
@@ -68,6 +71,12 @@ class RankTraniner:
         save_dict = {'model': model.state_dict(),
                      'enc_dict': enc_dict}
         torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
+        logger.info(f'Enc_dict and Model Saved to {model_ckpt_dir}')
+
+    def save_train_model(self, model, model_ckpt_dir, model_str):
+        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+        save_dict = {'model': model.state_dict()}
+        torch.save(save_dict, os.path.join(model_ckpt_dir, f'model_{model_str}.pth'))
         logger.info(f'Enc_dict and Model Saved to {model_ckpt_dir}')
 
     def evaluate_model(self, model, test_loader, device=torch.device('cpu')):

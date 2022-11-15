@@ -58,9 +58,9 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                 metric, ['roc_auc_score', 'log_loss'])
             if metric =='log_loss':
-                res_dict[f'train_{metric}'] = log_loss(label_list,pred_list, eps=1e-7)
+                res_dict[f'train_{metric}'] = round(log_loss(label_list,pred_list, eps=1e-7),4)
             else:
-                res_dict[f'train_{metric}'] = eval(metric)(label_list,pred_list)
+                res_dict[f'train_{metric}'] = round(eval(metric)(label_list,pred_list),4)
         return res_dict
     else:
         multi_task_pred_list = [[] for _ in range(num_task)]
@@ -95,9 +95,9 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
                 assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                     metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
-                    res_dict[f'train_task{i+1}_{metric}'] = log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7)
+                    res_dict[f'train_task{i+1}_{metric}'] = round(log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7),4)
                 else:
-                    res_dict[f'train_task{i+1}_{metric}'] = eval(metric)(multi_task_label_list[i], multi_task_pred_list[i])
+                    res_dict[f'train_task{i+1}_{metric}'] = round(eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]),4)
         return res_dict
 
 def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_loss'],num_task =1):
@@ -121,9 +121,9 @@ def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_l
             assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                 metric, ['roc_auc_score', 'log_loss'])
             if metric =='log_loss':
-                res_dict[f'valid_{metric}'] = log_loss(label_list,pred_list, eps=1e-7)
+                res_dict[f'valid_{metric}'] = round(log_loss(label_list,pred_list, eps=1e-7),4)
             else:
-                res_dict[f'valid_{metric}'] = eval(metric)(label_list,pred_list)
+                res_dict[f'valid_{metric}'] = round(eval(metric)(label_list,pred_list),4)
 
         return res_dict
     else:
@@ -146,9 +146,9 @@ def valid_model(model, valid_loader, device, metric_list=['roc_auc_score','log_l
                 assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                     metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
-                    res_dict[f'valid_task{i+1}_{metric}'] = log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7)
+                    res_dict[f'valid_task{i+1}_{metric}'] = round(log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7),4)
                 else:
-                    res_dict[f'valid_task{i+1}_{metric}'] = eval(metric)(multi_task_label_list[i], multi_task_pred_list[i])
+                    res_dict[f'valid_task{i+1}_{metric}'] = round(eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]),4)
         return res_dict
 
 def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_loss'],num_task =1):
@@ -172,9 +172,9 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
             assert metric in ['roc_auc_score','log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                 metric,['roc_auc_score','log_loss'])
             if metric == 'log_loss':
-                res_dict[f'test_{metric}'] = log_loss(label_list, pred_list, eps=1e-7)
+                res_dict[f'test_{metric}'] = round(log_loss(label_list, pred_list, eps=1e-7),4)
             else:
-                res_dict[f'test_{metric}'] = eval(metric)(label_list, pred_list)
+                res_dict[f'test_{metric}'] = round(eval(metric)(label_list, pred_list),4)
 
         return res_dict
     else:
@@ -197,10 +197,10 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
                 assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                     metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
-                    res_dict[f'test_task{i + 1}_{metric}'] = log_loss(multi_task_label_list[i], multi_task_pred_list[i],
-                                                                 eps=1e-7)
+                    res_dict[f'test_task{i + 1}_{metric}'] = round(log_loss(multi_task_label_list[i], multi_task_pred_list[i],
+                                                                 eps=1e-7),4)
                 else:
-                    res_dict[f'test_task{i + 1}_{metric}'] = eval(metric)(multi_task_label_list[i], multi_task_pred_list[i])
+                    res_dict[f'test_task{i + 1}_{metric}'] = round(eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]),4)
         return res_dict
 
 

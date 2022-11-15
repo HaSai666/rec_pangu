@@ -34,7 +34,7 @@ if __name__=='__main__':
     #声明模型,排序模型目前支持：WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM
     model = xDeepFM(enc_dict=enc_dict)
     #声明Trainer
-    trainer = RankTraniner(num_task=1)
+    trainer = RankTraniner(num_task=1,model_ckpt_dir='./model_ckpt')
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,
                 use_earlystoping=True, max_patience=5, monitor_metric='valid_roc_auc_score')
