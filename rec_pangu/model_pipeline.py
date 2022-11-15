@@ -12,7 +12,7 @@ from .utils import get_gpu_usage
 import torch
 import wandb
 
-def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1, use_wandb=False):
+def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_score','log_loss'], num_task =1, use_wandb=False,log_rounds=100):
     model.train()
     max_iter = int(train_loader.dataset.__len__() / train_loader.batch_size)
     # scaler = torch.cuda.amp.GradScaler()
@@ -40,7 +40,7 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             pred_list.extend(pred.squeeze(-1).cpu().detach().numpy())
             label_list.extend(data['label'].squeeze(-1).cpu().detach().numpy())
 
-            auc = round(roc_auc_score(label_list, pred_list), 4)
+            auc = round(roc_auc_score(label_list[-1000:], pred_list[-1000:]), 4)
 
             if use_wandb:
                 wandb.log({'train_loss':loss.item(),
@@ -49,9 +49,9 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
             iter_time = time.time() - start_time
             remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
 
-            if idx % 20 == 0 and device.type != 'cpu':
+            if idx % log_rounds == 0 and device.type != 'cpu':
                 logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc} GPU Mem:{get_gpu_usage(device)}')
-            elif idx % 20 == 0:
+            elif idx % log_rounds == 0:
                 logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc}')
         res_dict = dict()
         for metric in metric_list:
@@ -84,9 +84,9 @@ def train_model(model, train_loader, optimizer, device, metric_list=['roc_auc_sc
                 wandb.log({'train_loss':loss.item()})
             iter_time = time.time() - start_time
             remaining_time = round(((iter_time / (idx + 1)) * (max_iter - idx + 1)) / 60, 2)
-            if idx % 20 ==0 and device.type != 'cpu':
+            if idx % log_rounds ==0 and device.type != 'cpu':
                 logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
-            elif idx % 20 ==0:
+            elif idx % log_rounds ==0:
                 logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)}')
 
         res_dict = dict()

@@ -41,7 +41,8 @@ class RankTraniner:
             # 模型验证
             if valid_loader != None:
                 valid_metric = valid_model(model, valid_loader, device, num_task=self.num_task)
-                wandb.log(valid_metric)
+                if self.use_wandb:
+                    wandb.log(valid_metric)
                 if use_earlystoping:
                     assert monitor_metric in valid_metric.keys(),f'{monitor_metric} not in Valid Metric {valid_metric.keys()}'
                     if valid_metric[monitor_metric] > best_metric:
@@ -52,7 +53,8 @@ class RankTraniner:
                         logger.info(f"EarlyStopping at the Epoch {i} Valid Metric:{beautify_json(valid_metric)}")
                         break
                 logger.info(f"Valid Metric:{beautify_json(valid_metric)}")
-        wandb.finish()
+        if self.use_wandb:
+            wandb.finish()
         return valid_metric
 
     def save_model(self, model, model_ckpt_dir):
