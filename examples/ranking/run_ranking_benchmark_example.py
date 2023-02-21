@@ -42,8 +42,8 @@ if __name__=='__main__':
     benchmark_trainer.run(enc_dict=enc_dict,
                           train_loader=train_loader,
                           valid_loader=valid_loader,
-                          test_loader=test_loader,
-                          epoch=3,
+                          test_loader=None,
+                          epoch=10,
                           lr=1e-3,
                           device=device
                           )

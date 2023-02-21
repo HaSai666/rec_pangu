@@ -10,5 +10,5 @@ from .deep import *
 from .sequence import *
 from .attention import *
 from .interaction import *
-# from .graph import *
+from .graph import *
 # from .LGConv import *

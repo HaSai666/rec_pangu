@@ -6,3 +6,4 @@
 from .json_utils import beautify_json
 from .check_version import check_version
 from .gpu_utils import get_gpu_usage
+from .evaluate import evaluate_recall

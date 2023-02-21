@@ -11,7 +11,7 @@ with open("Readme.md", "r") as f:
 
 setup(
     name='rec_pangu',
-    version='0.2.7',
+    version='0.2.8',
     description='Some Rank/Multi-task model implemented by Pytorch',
     long_description=long_description,
     long_description_content_type="text/markdown",

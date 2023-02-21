@@ -8,9 +8,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import product
-from torch_geometric.nn.conv import MessagePassing
-from torch_geometric.nn.conv.gcn_conv import gcn_norm
+import dgl.function as fn
 
+# from torch_geometric.nn.conv import MessagePassing
+# from torch_geometric.nn.conv.gcn_conv import gcn_norm
 
 class FiGNN_Layer(nn.Module):
     def __init__(self,
@@ -68,7 +69,6 @@ class FiGNN_Layer(nn.Module):
                 h += feature_emb
         return h
 
-
 class GraphLayer(nn.Module):
     def __init__(self, num_fields, embedding_dim):
         super(GraphLayer, self).__init__()
@@ -85,21 +85,59 @@ class GraphLayer(nn.Module):
         return a
 
 
-class LGConv(MessagePassing):
-    def __init__(self, normalize=True, **kwargs):
-        kwargs.setdefault('aggr', 'add') # 设置聚合信息的方式为求和(add)
-        super().__init__()
-        self.normalize = normalize
+class NGCFLayer(nn.Module):
+    def __init__(self, in_size, out_size, dropout):
+        super(NGCFLayer, self).__init__()
+        self.in_size = in_size
+        self.out_size = out_size
+        self.dropout = dropout
 
-    def forward(self, x, edge_index, edge_weight=None):
-        """前向传播，聚合邻居的信息"""
-        if self.normalize:
-            out = gcn_norm(edge_index, edge_weight, x.size(self.node_dim),
-                           add_self_loops=False, dtype=x.dtype) # LightGCN中不需要对图加一个自环。
-            edge_index, edge_weight = out
+        self.in_size = in_size
+        self.out_size = out_size
 
-        return self.propagate(edge_index, x=x, edge_weight=edge_weight, size=None)
+        # weights for different types of messages
+        self.W1 = nn.Linear(in_size, out_size, bias=False)
+        self.W2 = nn.Linear(in_size, out_size, bias=False)
 
-    def message(self, x_j, edge_weight):
-        """聚合信息的时候，怎么加权"""
-        return x_j if edge_weight is None else edge_weight.view(-1, 1) * x_j
+        # leaky relu
+        self.leaky_relu = nn.LeakyReLU(0.2)
+
+        # dropout layer
+        self.dropout = nn.Dropout(dropout)
+
+    def message_fun(self, edges):
+        edge_feature = self.W1(edges.src['h']) + self.W2(edges.src['h'] * edges.dst['h'])
+        edge_feature = edge_feature * (edges.src['norm'] * edges.dst['norm'])
+        return {'e': edge_feature}
+
+    def forward(self, g, ego_embedding):
+        g.ndata['h'] = ego_embedding
+        g.update_all(message_func=self.message_fun, reduce_func=fn.sum('e', 'h_N'))
+
+        g.ndata['h_N'] = g.ndata['h_N'] + self.W1(g.ndata['h'])
+
+        h = self.leaky_relu(g.ndata['h_N'])  # leaky relu
+        h = self.dropout(h)  # dropout
+        h = F.normalize(h, dim=1, p=2)  # l2 normalize
+
+        return h
+
+
+# class LGConv(MessagePassing):
+#     def __init__(self, normalize=True, **kwargs):
+#         kwargs.setdefault('aggr', 'add') # 设置聚合信息的方式为求和(add)
+#         super().__init__()
+#         self.normalize = normalize
+#
+#     def forward(self, x, edge_index, edge_weight=None):
+#         """前向传播，聚合邻居的信息"""
+#         if self.normalize:
+#             out = gcn_norm(edge_index, edge_weight, x.size(self.node_dim),
+#                            add_self_loops=False, dtype=x.dtype) # LightGCN中不需要对图加一个自环。
+#             edge_index, edge_weight = out
+#
+#         return self.propagate(edge_index, x=x, edge_weight=edge_weight, size=None)
+#
+#     def message(self, x_j, edge_weight):
+#         """聚合信息的时候，怎么加权"""
+#         return x_j if edge_weight is None else edge_weight.view(-1, 1) * x_j

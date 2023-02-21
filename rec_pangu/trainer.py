@@ -114,19 +114,21 @@ class GraphTrainer:
     def __init__(self):
         logger.info("Graph Trainer")
 
-    def fit(self,model,train_data,epoch,lr):
+    def fit(self,model,train_dataset,epoch,lr,device=torch.device('cpu'),batch_size=1024):
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
 
-        for epoch in range(1, epoch+1):
-            train_metric = train_graph_model(model,optimizer,train_data)
-            logger.info(f"Train Metric:{beautify_json(train_metric)}")
+        for i in range(1, epoch+1):
+            epoch_loss = train_graph_model(model=model,train_dataset=train_dataset,optimizer=optimizer,device=device,batch_size=batch_size)
+            logger.info(f"Epoch:{i}/{epoch} Train Loss:{epoch_loss}")
 
     def save_model(self, model, model_ckpt_dir):
         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
         save_dict = {'model': model.state_dict()}
         torch.save(save_dict,os.path.join(model_ckpt_dir, 'model.pth'))
 
-    def evaluate_model(self, model, test_data):
-        test_metric = test_graph_model(model,test_data)
+    def evaluate_model(self, model, train_dataset,test_dataset,hidden_size,topN=50):
+        train_gd = train_dataset.generate_test_gd()
+        test_gd = test_dataset.generate_test_gd()
+        test_metric = test_graph_model(model,train_gd=train_gd,test_gd=test_gd,hidden_size=hidden_size,topN=topN)
         logger.info(f"Test Metric:{beautify_json(test_metric)}")
         return test_metric

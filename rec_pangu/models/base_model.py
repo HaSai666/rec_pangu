@@ -41,3 +41,38 @@ class BaseModel(nn.Module):
         embedding_matrix = torch.nn.Parameter(embeddings)
         self.embedding_layer.set_weights(col_name=col_name, embedding_matrix=embedding_matrix, trainable=trainable)
         logger.info('Successfully Set The Pretrained Embedding Weights for the column:{} With Trainable={}'.format(col_name, trainable))
+
+class GraphBasedModel(nn.Module):
+    def __int__(self,num_user,num_item,embedding_dim):
+        super(GraphBasedModel, self).__init__()
+        self.embedding_dim = embedding_dim
+        self.num_user = num_item
+        self.num_item = num_item
+
+        self.user_emb_layer = nn.Embedding(self.num_user, self.embedding_dim)
+        self.item_emb_layer = nn.Embedding(self.num_item, self.embedding_dim)
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Embedding):
+            xavier_normal_(module.weight.data)
+        elif isinstance(module, nn.Linear):
+            xavier_normal_(module.weight.data)
+            if module.bias is not None:
+                constant_(module.bias.data, 0)
+
+    def create_bpr_loss(self, users, pos_items, neg_items):
+        pos_scores = (users * pos_items).sum(1)
+        neg_scores = (users * neg_items).sum(1)
+
+        mf_loss = nn.LogSigmoid()(pos_scores - neg_scores).mean()
+        mf_loss = -1 * mf_loss
+
+        regularizer = (torch.norm(users) ** 2 + torch.norm(pos_items) ** 2 + torch.norm(neg_items) ** 2) / 2
+        emb_loss = self.lmbd * regularizer / users.shape[0]
+
+        return mf_loss + emb_loss
+    def get_ego_embedding(self):
+        user_emb = self.user_emb_layer.weight
+        item_emb = self.item_emb_layer.weight
+
+        return torch.cat([user_emb, item_emb], 0)

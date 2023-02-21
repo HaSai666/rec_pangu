@@ -12,7 +12,7 @@ from rec_pangu.trainer import RankTraniner
 from rec_pangu.models.ranking import *
 from rec_pangu.models.multi_task import *
 from loguru import logger
-from .utils import beautify_json
+# from .utils import beautify_json
 
 class BenchmarkTrainer:
     def __init__(self, num_task = 1, model_list = None, benhcmark_res_path = None, ckpt_root='./benchmark_ckpt'):
@@ -31,23 +31,26 @@ class BenchmarkTrainer:
             else:
                 model = model_class(enc_dict=enc_dict)
 
-            model_trainer = RankTraniner(num_task=self.num_task)
+            model_trainer = RankTraniner(num_task=self.num_task,model_ckpt_dir=os.path.join(self.ckpt_root,model_name))
 
             start_time = time.time()
             valid_metric = model_trainer.fit(model, train_loader, valid_loader, epoch=epoch, lr=lr, device=device)
             train_time = time.time() - start_time
 
             start_time = time.time()
-            test_metric = model_trainer.evaluate_model(model,test_loader,device=device)
+            if test_loader!= None:
+                test_metric = model_trainer.evaluate_model(model,test_loader,device=device)
+            else:
+                test_metric = {}
             test_time = time.time() - start_time
             model_ckpt = os.path.join(self.ckpt_root, model_name)
-            model_trainer.save_model(model, model_ckpt)
+            model_trainer.save_all(model, enc_dict, os.path.join(self.ckpt_root,model_name))
             log_dict = {
                 'model_name':model_name,
                 'train_model_time':train_time * 1000,
                 'test_model_time':test_time * 1000
             }
-            logger.info(f'Model {model_name} Training Log :{beautify_json(log_dict)}')
+            logger.info(f'Model {model_name} Training Log :{log_dict}')
             log_dict.update(valid_metric)
             log_dict.update(test_metric)
             self.benchmark_res_df = self.benchmark_res_df.append(log_dict, ignore_index=True)
