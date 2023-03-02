@@ -17,7 +17,6 @@ class BaseModel(nn.Module):
         self.embedding_dim = embedding_dim
         self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
-
     def _init_weights(self, module):
         if isinstance(module, nn.Embedding):
             xavier_normal_(module.weight.data)
@@ -25,7 +24,6 @@ class BaseModel(nn.Module):
             xavier_normal_(module.weight.data)
             if module.bias is not None:
                 constant_(module.bias.data, 0)
-
 
     def set_pretrained_weights(self, col_name, pretrained_dict, trainable=True):
         assert col_name in self.enc_dict.keys(),"Pretrained Embedding Col: {} must be in the {}".fotmat(col_name,self.enc_dict.keys())

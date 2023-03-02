@@ -26,7 +26,7 @@ class DeepFM(BaseModel):
                                  hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         sparse_embedding = self.embedding_layer(data)
         dense_input = get_linear_input(self.enc_dict, data)
         # FM
