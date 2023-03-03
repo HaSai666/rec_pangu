@@ -107,3 +107,11 @@ class SequenceDataset(Dataset):
 
     def __len__(self):
         return len(self.user_list)
+
+    def get_test_gd(self):
+        self.test_gd = {}
+        for user in self.user2item:
+            item_list = self.user2item[user]
+            test_item_index = int(0.8 * len(item_list))
+            self.test_gd[user] = item_list[test_item_index:]
+        return self.test_gd
