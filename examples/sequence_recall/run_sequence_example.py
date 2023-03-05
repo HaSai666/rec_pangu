@@ -48,11 +48,12 @@ if __name__=='__main__':
     #声明使用的device
     device = torch.device('cpu')
     #获取dataloader
-    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=4)
+    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=100)
     #声明模型,排序模型目前支持：xxx,xxx,xxx,xxx
     model = ComirecSA(enc_dict=enc_dict,config=config)
     #声明Trainer
-    trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt')
+    trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt',wandb_config=wandb_config)
+    # trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt')
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,log_rounds=10,
                 use_earlystoping=True, max_patience=5, monitor_metric='recall@20',)

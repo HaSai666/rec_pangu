@@ -257,25 +257,25 @@ def train_sequence_model(model, train_loader, optimizer, device, use_wandb=False
         for key in data.keys():
             data[key] = data[key].to(device)
 
-            output = model(data,is_training=True)
-            loss = output['loss']
+        output = model(data,is_training=True)
+        loss = output['loss']
 
-            loss.backward()
-            optimizer.step()
-            model.zero_grad()
+        loss.backward()
+        optimizer.step()
+        model.zero_grad()
 
-            if use_wandb:
-                wandb.log({'train_loss':loss.item()})
+        if use_wandb:
+            wandb.log({'train_loss':loss.item()})
 
-            iter_time = time.time() - start_time
-            remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
+        iter_time = time.time() - start_time
+        remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
 
-            if idx % log_rounds == 0 and device.type != 'cpu':
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
-            elif idx % log_rounds == 0:
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
+        if idx % log_rounds == 0 and device.type != 'cpu':
+            logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
+        elif idx % log_rounds == 0:
+            logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
 
-def test_sequence_model(model, test_loader, device, topk_list=[20,50,100], log_df=None, use_wandb=False):
+def test_sequence_model(model, test_loader, device, topk_list=[20,50,100],use_wandb=False):
     model.eval()
     test_gd = test_loader.dataset.get_test_gd()
     preds = get_recall_predict(model, test_loader, device, topN=200)
@@ -286,9 +286,8 @@ def test_sequence_model(model, test_loader, device, topk_list=[20,50,100], log_d
         logger.info(temp_metric_dict)
         metric_dict.update(temp_metric_dict)
 
-    log_df = log_df.append(metric_dict, ignore_index=True)
     if use_wandb:
         wandb.log(metric_dict)
-    return log_df
+    return metric_dict
 
 

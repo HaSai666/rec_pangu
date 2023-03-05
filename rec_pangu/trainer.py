@@ -43,7 +43,7 @@ class RankTraniner:
             # 模型验证
             if valid_loader != None:
                 valid_metric = valid_model(model, valid_loader, device, num_task=self.num_task)
-                model_str = f'e_{i}_v_{valid_metric}'
+                model_str = f'e_{i}'
                 self.save_train_model(model,self.model_ckpt_dir,model_str)
                 if self.use_wandb:
                     wandb.log(valid_metric)
@@ -52,7 +52,7 @@ class RankTraniner:
                     if valid_metric[monitor_metric] > best_metric:
                         best_epoch = i
                         best_metric = valid_metric[monitor_metric]
-
+                        self.save_train_model(model, self.model_ckpt_dir, 'best')
                     if i - best_epoch >= max_patience:
                         logger.info(f"EarlyStopping at the Epoch {i} Valid Metric:{valid_metric}")
                         break
@@ -137,6 +137,7 @@ class GraphTrainer:
 class SequenceTrainer:
     def __init__(self,wandb_config=None,model_ckpt_dir='./model_ckpt'):
         self.wandb_config = wandb_config
+        self.log_df = pd.DataFrame()
         self.model_ckpt_dir = model_ckpt_dir
         self.use_wandb = self.wandb_config!=None
         if self.use_wandb:
@@ -161,7 +162,7 @@ class SequenceTrainer:
         best_epoch = -1
         best_metric = -1
         best_metric_dict = dict()
-        log_df = pd.DataFrame()
+
         for i in range(1,epoch+1):
             # 模型训练
             train_sequence_model(model, train_loader, optimizer=optimizer, device=device, use_wandb=self.use_wandb,
@@ -169,9 +170,12 @@ class SequenceTrainer:
             # 模型验证
             if valid_loader != None:
                 valid_metric = test_sequence_model(model=model, test_loader=valid_loader,topk_list=topk_list,
-                                                   device=device, use_wandb=self.use_wandb, log_df=log_df)
-                model_str = f'e_{i}_v_{valid_metric}'
+                                                   device=device, use_wandb=self.use_wandb)
+                valid_metric['phase'] = 'valid'
+                self.log_df = self.log_df.append(valid_metric, ignore_index=True)
+                model_str = f'e_{i}'
                 self.save_train_model(model,self.model_ckpt_dir,model_str)
+                self.log_df.to_csv(os.path.join(self.model_ckpt_dir,'log.csv'),index=False)
                 if self.use_wandb:
                     wandb.log(valid_metric)
                 if use_earlystoping:
@@ -185,15 +189,19 @@ class SequenceTrainer:
                         logger.info(f"EarlyStopping at the Epoch {best_epoch} Valid Metric:{best_metric_dict}")
                         break
                 logger.info(f"Valid Metric:{valid_metric}")
-        if self.use_wandb:
-            wandb.finish()
 
-    def evaluate_model(self, model, test_loader, device=torch.device('cpu'), log_df=None, topk_list=None):
+
+    def evaluate_model(self, model, test_loader, device=torch.device('cpu'), topk_list=None):
         if topk_list is None:
             topk_list = [20, 50, 100]
         test_metric = test_sequence_model(model=model, test_loader=test_loader, topk_list=topk_list,
-                                           device=device, use_wandb=self.use_wandb, log_df=log_df)
+                                           device=device, use_wandb=self.use_wandb)
+        test_metric['phase'] = 'test'
+        self.log_df = self.log_df.append(test_metric, ignore_index=True)
+        self.log_df.to_csv(os.path.join(self.model_ckpt_dir, 'log.csv'), index=False)
         logger.info(f"Test Metric:{test_metric}")
+        if self.use_wandb:
+            wandb.finish()
 
     def save_model(self, model, model_ckpt_dir):
         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
