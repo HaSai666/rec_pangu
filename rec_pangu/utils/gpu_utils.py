@@ -17,3 +17,10 @@ def get_gpu_usage(device=None):
     total = torch.cuda.get_device_properties(device).total_memory / 1024 ** 3
 
     return '{:.2f} G/{:.2f} G'.format(reserved, total)
+
+def set_device(device_id):
+    device_id = int(device_id)
+    if device_id<0:
+        return torch.device('cpu')
+    else:
+        return  torch.device(f'cuda:{device_id}')

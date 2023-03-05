@@ -6,6 +6,7 @@
 
 from .base_dataset import BaseDataset
 from .multi_task_dataset import MultiTaskDataset
+from .sequence_dataset import SequenceDataset,seq_collate
 import torch.utils.data as D
 
 def get_base_dataloader(train_df, valid_df, test_df, schema, batch_size = 512*3):
@@ -34,11 +35,27 @@ def get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size = 
 
     return train_loader,valid_loader,test_loader, enc_dict
 
+def get_sequence_dataloader(train_df, valid_df, test_df, schema, batch_size = 512*3):
+    train_dataset = SequenceDataset(schema, df=train_df, phase='train')
+    enc_dict = train_dataset.get_enc_dict()
+    valid_dataset = SequenceDataset(schema, df=valid_df, enc_dict=enc_dict, phase='test')
+    test_dataset = SequenceDataset(schema, df=test_df, enc_dict=enc_dict, phase='test')
+
+    train_loader = D.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+    valid_loader = D.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True, collate_fn=seq_collate)
+    test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True, collate_fn=seq_collate)
+
+    return train_loader, valid_loader, test_loader, enc_dict
+
 def get_dataloader(train_df, valid_df, test_df, schema, batch_size=512*3):
-    if isinstance(schema['label_col'], list):
+    if schema['task_type']=='ranking':
         return get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
-    else:
+    elif schema['task_type']=='multitask':
         return get_base_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
+    elif schema['task_type']=='sequence':
+        return get_sequence_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
+    else:
+        raise Exception(f"""task_type:{schema['task_type']} must be in ['ranking','multitask','sequence']""")
 
 def get_single_dataloader(test_df, schema, enc_dict, batch_size = 512, num_workers=0):
     if isinstance(schema['label_col'], list):

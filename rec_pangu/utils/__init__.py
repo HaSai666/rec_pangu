@@ -5,5 +5,5 @@
 # @Time: 2022/8/11 1:43 PM
 from .json_utils import beautify_json
 from .check_version import check_version
-from .gpu_utils import get_gpu_usage
-from .evaluate import evaluate_recall
+from .gpu_utils import get_gpu_usage, set_device
+from .evaluate import evaluate_recall,get_recall_predict

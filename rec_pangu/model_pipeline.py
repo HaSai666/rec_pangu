@@ -8,7 +8,7 @@ import time
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score,log_loss
 from loguru import logger
-from .utils import get_gpu_usage,evaluate_recall
+from .utils import get_gpu_usage,evaluate_recall,get_recall_predict
 import torch
 import faiss
 import wandb
@@ -204,7 +204,6 @@ def test_model(model, test_loader, device, metric_list=['roc_auc_score','log_los
                     res_dict[f'test_task{i + 1}_{metric}'] = round(eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]),4)
         return res_dict
 
-
 def train_graph_model(model, train_dataset, optimizer, device, batch_size=1024):
     model.train()
     epoch_loss = 0
@@ -227,8 +226,7 @@ def train_graph_model(model, train_dataset, optimizer, device, batch_size=1024):
         pbar.set_description("Loss {}".format(round(epoch_loss, 4)))
     return epoch_loss
 
-
-def test_graph_model(model, train_gd, test_gd, device, hidden_size, topN=50):
+def test_graph_model(model, train_gd, test_gd, hidden_size, topN=50):
     model.eval()
     output = model(None, is_training=False)
     user_embs = output['user_emb'].detach().cpu().numpy()
@@ -250,3 +248,47 @@ def test_graph_model(model, train_gd, test_gd, device, hidden_size, topN=50):
             train_items = train_gd.get(user_ids[i], [])
             preds[user_ids[i]] = [x for x in list(I[i, :]) if x not in train_items]
     return evaluate_recall(preds, test_gd, topN=topN)
+
+def train_sequence_model(model, train_loader, optimizer, device, use_wandb=False,log_rounds=100):
+    model.train()
+    max_iter = int(train_loader.dataset.__len__() / train_loader.batch_size)
+    start_time = time.time()
+    for idx,data in enumerate(train_loader):
+        for key in data.keys():
+            data[key] = data[key].to(device)
+
+            output = model(data,is_training=True)
+            loss = output['loss']
+
+            loss.backward()
+            optimizer.step()
+            model.zero_grad()
+
+            if use_wandb:
+                wandb.log({'train_loss':loss.item()})
+
+            iter_time = time.time() - start_time
+            remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
+
+            if idx % log_rounds == 0 and device.type != 'cpu':
+                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
+            elif idx % log_rounds == 0:
+                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
+
+def test_sequence_model(model, test_loader, device, embedding_dim, topk_list=[20,50,100], log_df=None, use_wandb=False):
+    model.eval()
+    test_gd, preds = get_recall_predict(model, test_loader, embedding_dim, device, topN=200)
+
+    metric_dict = dict()
+    for i, k in enumerate(topk_list):
+        temp_metric_dict = evaluate_recall(preds, test_gd, k)
+        logger.info(temp_metric_dict)
+        metric_dict.update(temp_metric_dict)
+
+    if use_wandb:
+        wandb.log(metric_dict)
+
+    if log_df:
+        log_df = log_df.append(metric_dict, ignore_index=True)
+
+

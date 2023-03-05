@@ -108,10 +108,14 @@ class SequenceDataset(Dataset):
     def __len__(self):
         return len(self.user_list)
 
-    def get_test_gd(self):
-        self.test_gd = {}
-        for user in self.user2item:
-            item_list = self.user2item[user]
-            test_item_index = int(0.8 * len(item_list))
-            self.test_gd[user] = item_list[test_item_index:]
-        return self.test_gd
+def seq_collate(batch):
+    hist_item = torch.rand(len(batch),batch[0][0].shape[0])
+    hist_mask = torch.rand(len(batch),batch[0][0].shape[0])
+    item_list = []
+    for i in range(len(batch)):
+        hist_item[i,:] = batch[i][0]
+        hist_mask[i, :] = batch[i][1]
+        item_list.append(batch[i][2])
+    hist_item = hist_item.long()
+    hist_mask = hist_mask.long()
+    return hist_item,hist_mask,item_list

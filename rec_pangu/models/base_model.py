@@ -84,8 +84,6 @@ class SequenceBaseModel(nn.Module):
         self.embedding_dim = self.config['embedding_dim']
         self.max_length = self.config['max_length']
         self.device = self.config['device']
-        self.n_items = self.config['n_items']
-        self.neg_num = self.config['neg_num']
 
         self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim,padding_idx=0)
         for col in self.config['cate_cols']:
