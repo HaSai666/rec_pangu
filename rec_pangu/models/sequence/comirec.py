@@ -20,7 +20,6 @@ class ComirecSA(SequenceBaseModel):
 
         item_seq = data['hist_item_list']
         mask = data['hist_mask_list']
-        item = data['target_item']
         if is_training:
             item = data['target_item'].squeeze()
             seq_emb = self.item_emb(item_seq)  # Batch,Seq,Emb

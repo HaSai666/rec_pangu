@@ -275,9 +275,10 @@ def train_sequence_model(model, train_loader, optimizer, device, use_wandb=False
             elif idx % log_rounds == 0:
                 logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
 
-def test_sequence_model(model, test_loader, device, embedding_dim, topk_list=[20,50,100], log_df=None, use_wandb=False):
+def test_sequence_model(model, test_loader, device, topk_list=[20,50,100], log_df=None, use_wandb=False):
     model.eval()
-    test_gd, preds = get_recall_predict(model, test_loader, embedding_dim, device, topN=200)
+    test_gd = test_loader.dataset.get_test_gd()
+    preds = get_recall_predict(model, test_loader, device, topN=200)
 
     metric_dict = dict()
     for i, k in enumerate(topk_list):
@@ -285,10 +286,9 @@ def test_sequence_model(model, test_loader, device, embedding_dim, topk_list=[20
         logger.info(temp_metric_dict)
         metric_dict.update(temp_metric_dict)
 
+    log_df = log_df.append(metric_dict, ignore_index=True)
     if use_wandb:
         wandb.log(metric_dict)
-
-    if log_df:
-        log_df = log_df.append(metric_dict, ignore_index=True)
+    return log_df
 
 

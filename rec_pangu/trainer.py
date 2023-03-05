@@ -144,7 +144,7 @@ class SequenceTrainer:
             self.wandb_config.pop('key')
 
     def fit(self, model, train_loader, valid_loader=None, epoch=50, lr=1e-3, device=torch.device('cpu'),
-            topk_list=None, use_earlystoping=False, max_patience=999, monitor_metric=None):
+            topk_list=None, use_earlystoping=False, max_patience=999, monitor_metric=None, log_rounds=100):
 
         if topk_list is None:
             topk_list = [20, 50, 100]
@@ -164,7 +164,8 @@ class SequenceTrainer:
         log_df = pd.DataFrame()
         for i in range(1,epoch+1):
             # 模型训练
-            train_sequence_model(model, train_loader, optimizer=optimizer, device=device, use_wandb=self.use_wandb)
+            train_sequence_model(model, train_loader, optimizer=optimizer, device=device, use_wandb=self.use_wandb,
+                                 log_rounds=log_rounds)
             # 模型验证
             if valid_loader != None:
                 valid_metric = test_sequence_model(model=model, test_loader=valid_loader,topk_list=topk_list,

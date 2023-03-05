@@ -30,7 +30,15 @@ if __name__=='__main__':
         'device':-1,
     }
     config['device'] = set_device(config['device'])
-    config = config.update(schema)
+    config.update(schema)
+
+    # wandb配置
+    wandb_config = {
+        'key': 'ca0a80eab60eff065b8c16ab3f41dec4783e60ae',
+        'project': 'pangu_sequence_example',
+        'name': 'exp_1',
+        'config': config
+    }
 
     #样例数据
     train_df = pd.read_csv('./sample_data/sample_train.csv')
@@ -40,14 +48,14 @@ if __name__=='__main__':
     #声明使用的device
     device = torch.device('cpu')
     #获取dataloader
-    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=512)
+    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=4)
     #声明模型,排序模型目前支持：xxx,xxx,xxx,xxx
     model = ComirecSA(enc_dict=enc_dict,config=config)
     #声明Trainer
-    trainer = SequenceTrainer(num_task=1,model_ckpt_dir='./model_ckpt')
+    trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt')
     #训练模型
-    trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,
-                use_earlystoping=True, max_patience=5, monitor_metric='valid_roc_auc_score')
+    trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,log_rounds=10,
+                use_earlystoping=True, max_patience=5, monitor_metric='recall@20',)
     #保存模型权重和enc_dict
     trainer.save_all(model, enc_dict, './model_ckpt')
     #模型验证

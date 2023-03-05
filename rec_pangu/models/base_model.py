@@ -87,7 +87,7 @@ class SequenceBaseModel(nn.Module):
 
         self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim,padding_idx=0)
         for col in self.config['cate_cols']:
-            setattr(self,f'{col}_emb',nn.Embedding(self.enc_dict[self.config[col]]['vocab_size'], self.embedding_dim,padding_idx=0))
+            setattr(self,f'{col}_emb',nn.Embedding(self.enc_dict[col]['vocab_size'], self.embedding_dim,padding_idx=0))
 
         self.loss_fun = nn.CrossEntropyLoss()
 

@@ -98,8 +98,9 @@ class SequenceDataset(Dataset):
                     cate_seq = getattr(self,f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
             data = {
-                'hist_item_list':torch.Tensor(hist_item_list).squeeze(0).long(),
-                'hist_mask_list':torch.Tensor(hist_mask_list).squeeze(0).long(),
+                'user': user_id,
+                'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
+                'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
             }
             for col in self.cate_cols:
                 data.update({f'hist_{col}_list':torch.Tensor(getattr(self,f'hist_{col}_list')).squeeze(0).long()})
@@ -107,6 +108,14 @@ class SequenceDataset(Dataset):
 
     def __len__(self):
         return len(self.user_list)
+
+    def get_test_gd(self):
+        self.test_gd = dict()
+        for user in self.user2item:
+            item_list = self.user2item[user]
+            test_item_index = int(0.8 * len(item_list))
+            self.test_gd[str(user)] = item_list[test_item_index:]
+        return self.test_gd
 
 def seq_collate(batch):
     hist_item = torch.rand(len(batch),batch[0][0].shape[0])
