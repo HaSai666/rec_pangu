@@ -61,4 +61,3 @@ if __name__=='__main__':
     trainer.save_all(model, enc_dict, './model_ckpt')
     #模型验证
     test_metric = trainer.evaluate_model(model, test_loader, device=device)
-
