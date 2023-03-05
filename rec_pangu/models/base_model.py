@@ -40,9 +40,9 @@ class BaseModel(nn.Module):
         self.embedding_layer.set_weights(col_name=col_name, embedding_matrix=embedding_matrix, trainable=trainable)
         logger.info('Successfully Set The Pretrained Embedding Weights for the column:{} With Trainable={}'.format(col_name, trainable))
 
-class GraphBasedModel(nn.Module):
+class GraphBaseModel(nn.Module):
     def __int__(self,num_user,num_item,embedding_dim):
-        super(GraphBasedModel, self).__init__()
+        super(GraphBaseModel, self).__init__()
         self.embedding_dim = embedding_dim
         self.num_user = num_item
         self.num_item = num_item
@@ -74,3 +74,39 @@ class GraphBasedModel(nn.Module):
         item_emb = self.item_emb_layer.weight
 
         return torch.cat([user_emb, item_emb], 0)
+
+class SequenceBaseModel(nn.Module):
+    def __init__(self,enc_dict,config):
+        super(SequenceBaseModel, self).__init__()
+
+        self.enc_dict = enc_dict
+        self.config = config
+        self.embedding_dim = self.config['embedding_dim']
+        self.max_length = self.config['max_length']
+        self.device = self.config['device']
+        self.n_items = self.config['n_items']
+        self.neg_num = self.config['neg_num']
+
+        self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim,padding_idx=0)
+        for col in self.config['cate_cols']:
+            setattr(self,f'{col}_emb',nn.Embedding(self.enc_dict[self.config[col]]['vocab_size'], self.embedding_dim,padding_idx=0))
+
+        self.loss_fun = nn.CrossEntropyLoss()
+
+    def calculate_loss(self, user_emb, pos_item):
+        all_items = self.output_items()
+        scores = torch.matmul(user_emb, all_items.transpose(1, 0))
+        loss = self.loss_fun(scores, pos_item)
+        return loss
+
+    def output_items(self):
+        self.eval()
+        return self.item_emb.weight
+
+    def _init_weights(self, module):
+        if isinstance(module, nn.Embedding):
+            xavier_normal_(module.weight.data)
+        elif isinstance(module, nn.Linear):
+            xavier_normal_(module.weight.data)
+            if module.bias is not None:
+                constant_(module.bias.data, 0)

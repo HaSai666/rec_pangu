@@ -7,9 +7,9 @@ from torch import nn
 import torch
 from ..layers import NGCFLayer
 from ..utils import get_feature_num, get_linear_input
-from ..base_model import GraphBasedModel
+from ..base_model import GraphBaseModel
 
-class NGCF(GraphBasedModel):
+class NGCF(GraphBaseModel):
     def __init__(self, g, num_user, num_item, embedding_dim, hidden_size, dropout=0.1, lmbd=1e-5):
         super(NGCF, self).__init__(num_user, num_item, embedding_dim)
         self.g = g
