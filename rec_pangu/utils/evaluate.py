@@ -35,7 +35,7 @@ def get_recall_predict(model, test_data, device, topN=20,):
         if len(user_embs.shape) == 2:  # 非多兴趣模型评估
             user_embs = normalize(user_embs, norm='l2').astype('float32')
             D, I = faiss_index.search(user_embs, topN)  # Inner Product近邻搜索，D为distance，I是index
-            for user in user_list:  # 每个用户的label列表，此处item_id为一个二维list，验证和测试是多label的
+            for i,user in enumerate(user_list):  # 每个用户的label列表，此处item_id为一个二维list，验证和测试是多label的
                 preds[str(user)] = I[i, :]
         else:  # 多兴趣模型评估
             ni = user_embs.shape[1]  # num_interest
