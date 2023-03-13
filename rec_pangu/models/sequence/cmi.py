@@ -7,7 +7,6 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from ..layers import MultiInterest_SA,CapsuleNetwork
 from ..base_model import SequenceBaseModel
 
 class CMI(SequenceBaseModel):
