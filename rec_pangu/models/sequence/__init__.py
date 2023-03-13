@@ -3,7 +3,7 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2023/3/5 15:08
-from .comirec import ComirecDR,ComirecSA
+from .comirec import ComirecDR, ComirecSA
 from .mind import MIND
 from .yotubednn import YotubeDNN
 from .cmi import CMI

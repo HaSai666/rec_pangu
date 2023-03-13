@@ -3,7 +3,7 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2023/3/10 15:28
-# Improving Micro-video Recommendation via Contrastive Multiple Interests
+# <Improving Micro-video Recommendation via Contrastive Multiple Interests> SIGIR 2022
 import torch
 from torch import nn
 import torch.nn.functional as F
