@@ -35,6 +35,8 @@ class Re4(SequenceBaseModel):
         self.mse_loss = nn.MSELoss(reduce=True, size_average=True)
         self.recons_mse_loss = nn.MSELoss(reduce=False)
 
+        self.apply(self._init_weights)
+
     def forward(self, data, is_training=True):
         item_seq = data['hist_item_list']
         item_mask = data['hist_mask_list']

@@ -41,6 +41,8 @@ class CMI(SequenceBaseModel):
             nn.ReLU()
         )
 
+        self.apply(self._init_weights)
+
     def forward(self, data, is_training=True):
         with torch.no_grad():
             w = self.item_emb.weight.data.clone()
