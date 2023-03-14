@@ -5,7 +5,6 @@
 # @Time: 2023/3/14 16:10
 import torch
 from torch import nn
-from ..layers import MultiInterest_SA,CapsuleNetwork
 from ..base_model import SequenceBaseModel
 
 class NARM(SequenceBaseModel):
