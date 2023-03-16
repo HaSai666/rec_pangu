@@ -22,6 +22,7 @@ if __name__=='__main__':
         "dense_cols" : ['item_expo_1d','item_expo_7d','item_expo_14d','item_expo_30d','item_clk_1d',
                        'item_clk_7d','item_clk_14d','item_clk_30d','use_duration'],
         "label_col":['click','scroll'],
+        'task_type': 'multitask'
     }
     #准备数据,这里只选择了100条数据,所以没有切分数据集
     train_df = df

@@ -49,9 +49,9 @@ def get_sequence_dataloader(train_df, valid_df, test_df, schema, batch_size = 51
 
 def get_dataloader(train_df, valid_df, test_df, schema, batch_size=512*3):
     if schema['task_type']=='ranking':
-        return get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
-    elif schema['task_type']=='multitask':
         return get_base_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
+    elif schema['task_type']=='multitask':
+        return get_multi_task_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
     elif schema['task_type']=='sequence':
         return get_sequence_dataloader(train_df, valid_df, test_df, schema, batch_size=batch_size)
     else:

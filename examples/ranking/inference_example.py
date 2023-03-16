@@ -22,6 +22,7 @@ if __name__=='__main__':
         "dense_cols" : ['item_expo_1d','item_expo_7d','item_expo_14d','item_expo_30d','item_clk_1d',
                        'item_clk_7d','item_clk_14d','item_clk_30d','use_duration'],
         "label_col":'click',
+        'task_type':'ranking'
     }
 
     # 模型ckpt地址

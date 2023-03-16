@@ -13,7 +13,7 @@ class BaseDataset(Dataset):
         self.config = config
         self.df = df
         self.enc_dict = enc_dict
-        self.df = self.df.rename(columns={self.config['label_col']:'label'})
+        self.df = self.df.rename(columns={self.config['label_col']: 'label'})
         self.dense_cols = list(set(self.config['dense_cols']))
         self.sparse_cols = list(set(self.config['sparse_cols']))
         self.feature_name = self.dense_cols+self.sparse_cols
@@ -59,7 +59,7 @@ class BaseDataset(Dataset):
             data[col] = self.enc_data[col][index]
         for col in self.sparse_cols:
             data[col] = self.enc_data[col][index]
-        if 'label' in self.df.columns :
+        if 'label' in self.df.columns:
             data['label'] = torch.Tensor([self.df['label'].iloc[index]]).squeeze(-1)
         return data
 
