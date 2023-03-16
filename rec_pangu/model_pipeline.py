@@ -9,7 +9,6 @@ from tqdm import tqdm
 from sklearn.metrics import roc_auc_score,log_loss
 from loguru import logger
 from .utils import get_gpu_usage,evaluate_recall,get_recall_predict
-import torch
 import faiss
 import wandb
 

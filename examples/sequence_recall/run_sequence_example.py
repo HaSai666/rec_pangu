@@ -7,7 +7,7 @@ import sys
 sys.path.append('../../')
 import torch
 from rec_pangu.dataset import get_dataloader
-from rec_pangu.models.sequence import ComirecSA,ComirecDR,MIND,YotubeDNN,CMI,Re4,NARM
+from rec_pangu.models.sequence import ComirecSA,ComirecDR,MIND,CMI,Re4,NARM,YotubeDNN,SRGNN
 from rec_pangu.trainer import SequenceTrainer
 from rec_pangu.utils import set_device
 import pandas as pd
@@ -50,7 +50,7 @@ if __name__=='__main__':
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=50)
     #声明模型,排序模型目前支持：xxx,xxx,xxx,xxx
-    model = NARM(enc_dict=enc_dict,config=config)
+    model = SRGNN(enc_dict=enc_dict,config=config)
     #声明Trainer
     # trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt',wandb_config=wandb_config)
     trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt')

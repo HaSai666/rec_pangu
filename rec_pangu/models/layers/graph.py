@@ -10,9 +10,6 @@ import torch.nn.functional as F
 from itertools import product
 import dgl.function as fn
 
-# from torch_geometric.nn.conv import MessagePassing
-# from torch_geometric.nn.conv.gcn_conv import gcn_norm
-
 class FiGNN_Layer(nn.Module):
     def __init__(self,
                  num_fields,
@@ -84,7 +81,6 @@ class GraphLayer(nn.Module):
         a = torch.matmul(self.W_in, aggr.unsqueeze(-1)).squeeze(-1) + self.bias_p
         return a
 
-
 class NGCFLayer(nn.Module):
     def __init__(self, in_size, out_size, dropout):
         super(NGCFLayer, self).__init__()
@@ -123,21 +119,52 @@ class NGCFLayer(nn.Module):
         return h
 
 
-# class LGConv(MessagePassing):
-#     def __init__(self, normalize=True, **kwargs):
-#         kwargs.setdefault('aggr', 'add') # 设置聚合信息的方式为求和(add)
-#         super().__init__()
-#         self.normalize = normalize
-#
-#     def forward(self, x, edge_index, edge_weight=None):
-#         """前向传播，聚合邻居的信息"""
-#         if self.normalize:
-#             out = gcn_norm(edge_index, edge_weight, x.size(self.node_dim),
-#                            add_self_loops=False, dtype=x.dtype) # LightGCN中不需要对图加一个自环。
-#             edge_index, edge_weight = out
-#
-#         return self.propagate(edge_index, x=x, edge_weight=edge_weight, size=None)
-#
-#     def message(self, x_j, edge_weight):
-#         """聚合信息的时候，怎么加权"""
-#         return x_j if edge_weight is None else edge_weight.view(-1, 1) * x_j
+class SRGNNConv(nn.Module):
+    """
+    只是一个图，实现公式(1)
+    """
+
+    def __init__(self, dim):
+        super(SRGNNConv, self).__init__()
+        self.lin = torch.nn.Linear(dim, dim)
+
+    def forward(self, g, ego_embedding):
+        hidden = self.lin(ego_embedding)
+        g.ndata['h'] = hidden
+
+        g.update_all(message_func=fn.u_mul_e('h', 'edge_weight', 'm'),
+                     reduce_func=fn.sum(msg="m", out="h"))
+        return g.ndata['h']
+
+
+class SRGNNCell(nn.Module):
+    """
+    实现公式(2)(3)(4)(5)
+    """
+
+    def __init__(self, dim):
+        super(SRGNNCell, self).__init__()
+
+        self.dim = dim
+        self.incomming_conv = SRGNNConv(dim)
+        self.outcomming_conv = SRGNNConv(dim)
+
+        self.lin_ih = nn.Linear(2 * dim, 3 * dim)  # 3个W a
+        self.lin_hh = nn.Linear(dim, 3 * dim)  # 3个U v
+
+    def forward(self, in_graph, out_graph, hidden):
+        # 图相关
+        input_in = self.incomming_conv(in_graph, hidden)
+        input_out = self.outcomming_conv(out_graph, hidden)
+        # 将两个图的结果进行拼接
+        inputs = torch.cat([input_in, input_out], dim=-1)
+
+        gi = self.lin_ih(inputs)  # gi: 3个W*a
+        gh = self.lin_hh(hidden)  # gh: 3个U*v
+        i_r, i_i, i_n = gi.chunk(3, -1)  # 分裂成3个W*a
+        h_r, h_i, h_n = gh.chunk(3, -1)  # 分裂成3个U*v
+        reset_gate = torch.sigmoid(i_r + h_r)  # 公式(2)
+        input_gate = torch.sigmoid(i_i + h_i)  # 公式(3)
+        new_gate = torch.tanh(i_n + reset_gate * h_n)  # 公式(4)
+        hy = (1 - input_gate) * hidden + input_gate * new_gate  # 公式(5)
+        return hy
