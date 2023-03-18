@@ -8,7 +8,7 @@ sys.path.append('../../')
 import torch
 from rec_pangu.dataset import get_dataloader
 from rec_pangu.models.ranking import WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM, DCN
-from rec_pangu.trainer import RankTraniner
+from rec_pangu.trainer import RankTrainer
 import pandas as pd
 
 if __name__=='__main__':
@@ -35,10 +35,10 @@ if __name__=='__main__':
     #声明模型,排序模型目前支持：WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM
     model = xDeepFM(enc_dict=enc_dict)
     #声明Trainer
-    trainer = RankTraniner(num_task=1,model_ckpt_dir='./model_ckpt')
+    trainer = RankTrainer(num_task=1, model_ckpt_dir='./model_ckpt')
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,
-                use_earlystoping=True, max_patience=5, monitor_metric='valid_roc_auc_score')
+                use_earlystopping=True, max_patience=5, monitor_metric='valid_roc_auc_score')
     #保存模型权重
     # trainer.save_model(model, './model_ckpt')
     #保存模型权重和enc_dict

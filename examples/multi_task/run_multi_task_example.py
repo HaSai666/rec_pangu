@@ -8,7 +8,7 @@ sys.path.append('../../')
 import torch
 from rec_pangu.dataset import get_dataloader
 from rec_pangu.models.multi_task import AITM,ShareBottom,ESSM,MMOE,OMOE,MLMMOE
-from rec_pangu.trainer import RankTraniner
+from rec_pangu.trainer import RankTrainer
 import pandas as pd
 
 if __name__=='__main__':
@@ -36,7 +36,7 @@ if __name__=='__main__':
     #声明模型,多任务模型目前支持：AITM,ShareBottom,ESSM,MMOE,OMOE,MLMMOE
     model = AITM(enc_dict=enc_dict,device=device)
     #声明Trainer
-    trainer = RankTraniner(num_task=2)
+    trainer = RankTrainer(num_task=2)
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=5, lr=1e-3, device=device)
     #保存模型权重

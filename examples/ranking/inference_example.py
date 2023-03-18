@@ -7,7 +7,7 @@ import sys
 sys.path.append('../../')
 import torch
 from rec_pangu.models.ranking import WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM, DCN
-from rec_pangu.trainer import RankTraniner
+from rec_pangu.trainer import RankTrainer
 import pandas as pd
 from loguru import logger
 
@@ -41,7 +41,7 @@ if __name__=='__main__':
     del test_df['click']
 
     # 声明Trainer
-    trainer = RankTraniner(num_task=1)
+    trainer = RankTrainer(num_task=1)
 
     # #测试 predict_dataframe
     y_pre_dataftame = trainer.predict_dataframe(model, test_df, enc_dict, schema)

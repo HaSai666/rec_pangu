@@ -8,7 +8,7 @@ sys.path.append('../../')
 import torch
 from rec_pangu.dataset import get_dataloader
 from rec_pangu.models.ranking import WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM, DCN
-from rec_pangu.trainer import RankTraniner
+from rec_pangu.trainer import RankTrainer
 import pandas as pd
 import numpy as np
 
@@ -42,7 +42,7 @@ if __name__=='__main__':
     #设置预训练权重
     model.set_pretrained_weights('user_id', pretrained_dict, trainable=False)
     #声明Trainer
-    trainer = RankTraniner(num_task=1)
+    trainer = RankTrainer(num_task=1)
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=5, lr=1e-3, device=device)
     #保存模型权重

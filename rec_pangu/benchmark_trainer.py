@@ -8,7 +8,7 @@ import torch
 import time
 import os
 from tqdm import tqdm
-from rec_pangu.trainer import RankTraniner
+from rec_pangu.trainer import RankTrainer
 from rec_pangu.models.ranking import *
 from rec_pangu.models.multi_task import *
 from loguru import logger
@@ -31,7 +31,7 @@ class BenchmarkTrainer:
             else:
                 model = model_class(enc_dict=enc_dict)
 
-            model_trainer = RankTraniner(num_task=self.num_task,model_ckpt_dir=os.path.join(self.ckpt_root,model_name))
+            model_trainer = RankTrainer(num_task=self.num_task, model_ckpt_dir=os.path.join(self.ckpt_root, model_name))
 
             start_time = time.time()
             valid_metric = model_trainer.fit(model, train_loader, valid_loader, epoch=epoch, lr=lr, device=device)
