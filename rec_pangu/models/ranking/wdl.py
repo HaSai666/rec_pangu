@@ -8,43 +8,104 @@ from torch import nn
 from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
+
 class WDL(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 hidden_units=[64, 64, 64],
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(WDL, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 hidden_units: list = [64, 64, 64],
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: dict = None) -> None:
+        """Initialize the WDL model.
+
+        Args:
+            embedding_dim (int): Dimension of the embedding vectors. Defaults to 32.
+            hidden_units (list): Number of units in each hidden layer of the MLP. Defaults to [64, 64, 64].
+            loss_fun (str): String representation of the loss function. Defaults to 'torch.nn.BCELoss()'.
+            enc_dict (dict): Dictionary for encoding input features.
+        """
+        super(WDL, self).__init__(enc_dict, embedding_dim)
 
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
-        # Wide部分
+        # Wide part
         self.lr = LR_Layer(enc_dict=self.enc_dict)
-        # Deep部分
+        # Deep part
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
         self.dnn = MLP_Layer(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
                              hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data: dict, is_training: bool = True) -> dict:
+        """Perform a forward pass on the WDL model.
+
+        Args:
+            data (dict): Input data.
+            is_training (bool): If True, computes the loss. Defaults to True.
+
+        Returns:
+            dict: A dictionary containing the model's prediction and loss (if is_training is True).
+        """
         # Wide
-        wide_logit = self.lr(data)  # Batch,1
+        wide_logit = self.lr(data)  # Batch, 1
 
         # Deep
         sparse_emb = self.embedding_layer(data)
         sparse_emb = sparse_emb.flatten(start_dim=1)
         dense_input = get_linear_input(self.enc_dict, data)
-        dnn_input = torch.cat([sparse_emb, dense_input], dim=1)  # Batch,num_sparse_fea*embedding_dim+num_dense
+        dnn_input = torch.cat([sparse_emb, dense_input], dim=1)  # Batch, num_sparse_fea*embedding_dim+num_dense
         deep_logit = self.dnn(dnn_input)
 
-        # Wide+Deep
+        # Wide + Deep
         y_pred = (wide_logit + deep_logit).sigmoid()
 
-        # 输出
+        # Output
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
+
         return output_dict
+
+#
+# class WDL(BaseModel):
+#     def __init__(self,
+#                  embedding_dim=32,
+#                  hidden_units=[64, 64, 64],
+#                  loss_fun='torch.nn.BCELoss()',
+#                  enc_dict=None):
+#         super(WDL, self).__init__(enc_dict,embedding_dim)
+#
+#         self.hidden_units = hidden_units
+#         self.loss_fun = eval(loss_fun)
+#         self.enc_dict = enc_dict
+#         # Wide部分
+#         self.lr = LR_Layer(enc_dict=self.enc_dict)
+#         # Deep部分
+#         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
+#         self.dnn = MLP_Layer(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
+#                              hidden_activations='relu', dropout_rates=0)
+#         self.apply(self._init_weights)
+#
+#     def forward(self, data,is_training=True):
+#         # Wide
+#         wide_logit = self.lr(data)  # Batch,1
+#
+#         # Deep
+#         sparse_emb = self.embedding_layer(data)
+#         sparse_emb = sparse_emb.flatten(start_dim=1)
+#         dense_input = get_linear_input(self.enc_dict, data)
+#         dnn_input = torch.cat([sparse_emb, dense_input], dim=1)  # Batch,num_sparse_fea*embedding_dim+num_dense
+#         deep_logit = self.dnn(dnn_input)
+#
+#         # Wide+Deep
+#         y_pred = (wide_logit + deep_logit).sigmoid()
+#
+#         # 输出
+#         if is_training:
+#             loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
+#             output_dict = {'pred':y_pred,'loss':loss}
+#         else:
+#             output_dict = {'pred':y_pred}
+#         return output_dict
