@@ -14,6 +14,7 @@ from .dataset import BaseDataset,MultiTaskDataset
 from loguru import logger
 import torch.utils.data as D
 import wandb
+from typing import List, Optional
 import pandas as pd
 
 class RankTrainer:
@@ -27,7 +28,7 @@ class RankTrainer:
         use_wandb (bool): Whether to use Weights and Biases integration.
     """
 
-    def __init__(self, num_task=1, wandb_config=None, model_ckpt_dir='./model_ckpt'):
+    def __init__(self, num_task: int =1, wandb_config:dict =None, model_ckpt_dir:str ='./model_ckpt'):
         """
         Initializes RankTrainer with the given number of tasks, wandb_config, and model_ckpt_dir.
 
@@ -44,8 +45,9 @@ class RankTrainer:
             wandb.login(key=self.wandb_config['key'])
             self.wandb_config.pop('key')
 
-    def fit(self, model, train_loader, valid_loader=None, epoch=10, lr=1e-3, device=torch.device('cpu'),
-            use_earlystopping=False, max_patience=999, monitor_metric=None):
+    def fit(self, model, train_loader, valid_loader: Optional = None, epoch: int = 10, lr : float = 1e-3,
+            device: torch.device = torch.device('cpu'), use_earlystopping: bool = False,
+            max_patience:int = 999, monitor_metric: Optional[str] = None):
         """
         Train the model using the given data loaders and hyperparameters.
 
@@ -98,7 +100,7 @@ class RankTrainer:
             wandb.finish()
         return valid_metric
 
-    def save_model(self, model, model_ckpt_dir):
+    def save_model(self, model, model_ckpt_dir: str):
         """
         Save the model to the specified directory.
 
@@ -111,7 +113,7 @@ class RankTrainer:
         torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
         logger.info(f'Model Saved to {model_ckpt_dir}')
 
-    def save_all(self, model, enc_dict, model_ckpt_dir):
+    def save_all(self, model, enc_dict: dict, model_ckpt_dir: str):
         """
         Save the model and encoding dictionary to the specified directory.
 
@@ -126,7 +128,7 @@ class RankTrainer:
         torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
         logger.info(f'Enc_dict and Model Saved to {model_ckpt_dir}')
 
-    def save_train_model(self, model, model_ckpt_dir, model_str):
+    def save_train_model(self, model, model_ckpt_dir: str, model_str: str):
         """
         Save the model during training to the specified directory with a specified name.
 
@@ -140,7 +142,7 @@ class RankTrainer:
         torch.save(save_dict, os.path.join(model_ckpt_dir, f'model_{model_str}.pth'))
         logger.info(f'Model Saved to {model_ckpt_dir}')
 
-    def evaluate_model(self, model, test_loader, device=torch.device('cpu')):
+    def evaluate_model(self, model, test_loader, device: torch.device = torch.device('cpu')):
         """
         Evaluate the model using the given test loader and device.
 
@@ -156,7 +158,7 @@ class RankTrainer:
         logger.info(f"Test Metric:{beautify_json(test_metric)}")
         return test_metric
 
-    def predict_dataloader(self, model, test_loader, device=torch.device('cpu')):
+    def predict_dataloader(self, model, test_loader, device: torch.device = torch.device('cpu')):
         """
         Make predictions for the data in the given data loader using the model and device.
 
@@ -189,7 +191,8 @@ class RankTrainer:
                     multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
             return multi_task_pred_list
 
-    def predict_dataframe(self, model, test_df, enc_dict, schema, device=torch.device('cpu'), batch_size=1024):
+    def predict_dataframe(self, model, test_df, enc_dict: dict, schema: dict,
+                          device:torch.device = torch.device('cpu'), batch_size: int = 1024):
         """
         Make predictions for the data in the given DataFrame using the model, encoding dictionary, and schema.
 
@@ -211,6 +214,243 @@ class RankTrainer:
         test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
         return self.predict_dataloader(model, test_loader, device=device)
 
+class SequenceTrainer:
+    """
+    Sequence Trainer class for training and evaluating sequence models.
+    """
+    def __init__(self, wandb_config: Optional[dict] = None,
+                 model_ckpt_dir: str = './model_ckpt'):
+        """
+        Initializes the SequenceTrainer class.
+
+        Args:
+            wandb_config (Optional[dict], optional): Wandb configuration dictionary. Defaults to None.
+            model_ckpt_dir (str, optional): Directory for saving model checkpoints. Defaults to './model_ckpt'.
+        """
+        self.wandb_config = wandb_config
+        self.log_df = pd.DataFrame()
+        self.model_ckpt_dir = model_ckpt_dir
+        self.use_wandb = self.wandb_config is not None
+        if self.use_wandb:
+            wandb.login(key=self.wandb_config['key'])
+            self.wandb_config.pop('key')
+
+    def fit(self, model, train_loader, valid_loader: Optional = None, epoch: int = 50, lr: float = 1e-3,
+            device: torch.device = torch.device('cpu'), topk_list: Optional[List[int]] = None,
+            use_earlystoping: bool = False, max_patience: int = 999, monitor_metric: Optional[str] = None,
+            log_rounds: int = 100):
+        """
+        Fits the model using the given data loaders.
+
+        Args:
+            model: The model to train.
+            train_loader: DataLoader for training data.
+            valid_loader (Optional): DataLoader for validation data. Defaults to None.
+            epoch (int, optional): Number of training epochs. Defaults to 50.
+            lr (float, optional): Learning rate for the optimizer. Defaults to 1e-3.
+            device (torch.device, optional): Device to train the model on. Defaults to torch.device('cpu').
+            topk_list (Optional[List[int]], optional): List of top-k values to compute metrics. Defaults to None.
+            use_earlystoping (bool, optional): Whether to use early stopping. Defaults to False.
+            max_patience (int, optional): Maximum number of epochs without improvement for early stopping. Defaults to 999.
+            monitor_metric (Optional[str], optional): Metric to monitor for early stopping. Defaults to None.
+            log_rounds (int, optional): Number of training rounds between logging. Defaults to 100.
+        """
+        if topk_list is None:
+            topk_list = [20, 50, 100]
+
+        if self.use_wandb:
+            wandb.init(
+                **self.wandb_config
+            )
+
+        # Define the optimizer
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
+        model = model.to(device)
+
+        # Training process
+        logger.info('Model Starting Training')
+        best_epoch = -1
+        best_metric = -1
+        best_metric_dict = dict()
+
+        for i in range(1, epoch + 1):
+            # Train the model
+            train_sequence_model(model, train_loader, optimizer=optimizer, device=device,
+                                 use_wandb=self.use_wandb, log_rounds=log_rounds)
+
+            # Validate the model
+            if valid_loader is not None:
+                valid_metric = test_sequence_model(model=model, test_loader=valid_loader, topk_list=topk_list,
+                                                   device=device, use_wandb=self.use_wandb)
+                valid_metric['phase'] = 'valid'
+                self.log_df = self.log_df.append(valid_metric, ignore_index=True)
+                model_str = f'e_{i}'
+                self.save_train_model(model, self.model_ckpt_dir, model_str)
+                self.log_df.to_csv(os.path.join(self.model_ckpt_dir, 'log.csv'), index=False)
+                if self.use_wandb:
+                    wandb.log(valid_metric)
+                if use_earlystoping:
+                    assert monitor_metric in valid_metric.keys(), f'{monitor_metric} not in Valid Metric {valid_metric.keys()}'
+                    if valid_metric[monitor_metric] > best_metric:
+                        best_epoch = i
+                        best_metric = valid_metric[monitor_metric]
+                        best_metric_dict = valid_metric
+                        self.save_train_model(model, self.model_ckpt_dir, 'best')
+                    if i - best_epoch >= max_patience:
+                        logger.info(f"EarlyStopping at the Epoch {best_epoch} Valid Metric:{best_metric_dict}")
+                        break
+                logger.info(f"Valid Metric:{valid_metric}")
+
+    def evaluate_model(self, model, test_loader, device: torch.device = torch.device('cpu'),
+                       topk_list: Optional[List[int]] = None):
+        """
+        Evaluates the model using the given test loader.
+
+        Args:
+            model: The model to evaluate.
+            test_loader: DataLoader for test data.
+            device (torch.device, optional): Device to evaluate the model on. Defaults to torch.device('cpu').
+            topk_list (Optional[List[int]], optional): List of top-k values to compute metrics. Defaults to None.
+        """
+        if topk_list is None:
+            topk_list = [20, 50, 100]
+        test_metric = test_sequence_model(model=model, test_loader=test_loader, topk_list=topk_list,
+                                          device=device, use_wandb=self.use_wandb)
+        test_metric['phase'] = 'test'
+        self.log_df = self.log_df.append(test_metric, ignore_index=True)
+        self.log_df.to_csv(os.path.join(self.model_ckpt_dir, 'log.csv'), index=False)
+        logger.info(f"Test Metric:{test_metric}")
+        if self.use_wandb:
+            wandb.finish()
+
+    def save_model(self, model, model_ckpt_dir: str):
+        """
+        Saves the model to the specified directory.
+
+        Args:
+            model: The model to save.
+            model_ckpt_dir (str): Directory to save the model.
+        """
+        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+        save_dict = {'model': model.state_dict()}
+        torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
+        logger.info(f'Model Saved to {model_ckpt_dir}')
+
+    def save_all(self, model, enc_dict, model_ckpt_dir: str):
+        """
+        Saves the model and encoder dictionary to the specified directory.
+
+        Args:
+            model: The model to save.
+            enc_dict: The encoder dictionary to save.
+            model_ckpt_dir (str): Directory to save the model and encoder dictionary.
+        """
+        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+        save_dict = {'model': model.state_dict(),
+                     'enc_dict': enc_dict}
+        torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
+        logger.info(f'Enc_dict and Model Saved to {model_ckpt_dir}')
+
+    def save_train_model(self, model, model_ckpt_dir: str, model_str: str):
+        """
+        Saves the model during training to the specified directory.
+
+        Args:
+            model: The model to save.
+            model_ckpt_dir (str): Directory to save the model.
+            model_str (str): String to add to the model file name.
+        """
+        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+        save_dict = {'model': model.state_dict()}
+        torch.save(save_dict, os.path.join(model_ckpt_dir, f'model_{model_str}.pth'))
+        logger.info(f'Model Saved to {model_ckpt_dir}')
+# class SequenceTrainer:
+#     def __init__(self,wandb_config=None,model_ckpt_dir='./model_ckpt'):
+#         self.wandb_config = wandb_config
+#         self.log_df = pd.DataFrame()
+#         self.model_ckpt_dir = model_ckpt_dir
+#         self.use_wandb = self.wandb_config!=None
+#         if self.use_wandb:
+#             wandb.login(key=self.wandb_config['key'])
+#             self.wandb_config.pop('key')
+#
+#     def fit(self, model, train_loader, valid_loader=None, epoch=50, lr=1e-3, device=torch.device('cpu'),
+#             topk_list=None, use_earlystoping=False, max_patience=999, monitor_metric=None, log_rounds=100):
+#
+#         if topk_list is None:
+#             topk_list = [20, 50, 100]
+#
+#         if self.use_wandb:
+#             wandb.init(
+#                 **self.wandb_config
+#             )
+#         # 声明optimizer
+#         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999),eps=1e-08, weight_decay=0)
+#         model = model.to(device)
+#         # 模型训练流程
+#         logger.info('Model Starting Training ')
+#         best_epoch = -1
+#         best_metric = -1
+#         best_metric_dict = dict()
+#
+#         for i in range(1,epoch+1):
+#             # 模型训练
+#             train_sequence_model(model, train_loader, optimizer=optimizer, device=device, use_wandb=self.use_wandb,
+#                                  log_rounds=log_rounds)
+#             # 模型验证
+#             if valid_loader != None:
+#                 valid_metric = test_sequence_model(model=model, test_loader=valid_loader,topk_list=topk_list,
+#                                                    device=device, use_wandb=self.use_wandb)
+#                 valid_metric['phase'] = 'valid'
+#                 self.log_df = self.log_df.append(valid_metric, ignore_index=True)
+#                 model_str = f'e_{i}'
+#                 self.save_train_model(model,self.model_ckpt_dir,model_str)
+#                 self.log_df.to_csv(os.path.join(self.model_ckpt_dir,'log.csv'),index=False)
+#                 if self.use_wandb:
+#                     wandb.log(valid_metric)
+#                 if use_earlystoping:
+#                     assert monitor_metric in valid_metric.keys(),f'{monitor_metric} not in Valid Metric {valid_metric.keys()}'
+#                     if valid_metric[monitor_metric] > best_metric:
+#                         best_epoch = i
+#                         best_metric = valid_metric[monitor_metric]
+#                         best_metric_dict = valid_metric
+#                         self.save_train_model(model, self.model_ckpt_dir, 'best')
+#                     if i - best_epoch >= max_patience:
+#                         logger.info(f"EarlyStopping at the Epoch {best_epoch} Valid Metric:{best_metric_dict}")
+#                         break
+#                 logger.info(f"Valid Metric:{valid_metric}")
+#
+#
+#     def evaluate_model(self, model, test_loader, device=torch.device('cpu'), topk_list=None):
+#         if topk_list is None:
+#             topk_list = [20, 50, 100]
+#         test_metric = test_sequence_model(model=model, test_loader=test_loader, topk_list=topk_list,
+#                                            device=device, use_wandb=self.use_wandb)
+#         test_metric['phase'] = 'test'
+#         self.log_df = self.log_df.append(test_metric, ignore_index=True)
+#         self.log_df.to_csv(os.path.join(self.model_ckpt_dir, 'log.csv'), index=False)
+#         logger.info(f"Test Metric:{test_metric}")
+#         if self.use_wandb:
+#             wandb.finish()
+#
+#     def save_model(self, model, model_ckpt_dir):
+#         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+#         save_dict = {'model': model.state_dict()}
+#         torch.save(save_dict,os.path.join(model_ckpt_dir, 'model.pth'))
+#         logger.info(f'Model Saved to {model_ckpt_dir}')
+#
+#     def save_all(self, model, enc_dict, model_ckpt_dir):
+#         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+#         save_dict = {'model': model.state_dict(),
+#                      'enc_dict': enc_dict}
+#         torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
+#         logger.info(f'Enc_dict and Model Saved to {model_ckpt_dir}')
+#
+#     def save_train_model(self, model, model_ckpt_dir, model_str):
+#         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
+#         save_dict = {'model': model.state_dict()}
+#         torch.save(save_dict, os.path.join(model_ckpt_dir, f'model_{model_str}.pth'))
+#         logger.info(f'Model Saved to {model_ckpt_dir}')
 
 class GraphTrainer:
     def __init__(self):
@@ -235,90 +475,3 @@ class GraphTrainer:
         logger.info(f"Test Metric:{beautify_json(test_metric)}")
         return test_metric
 
-class SequenceTrainer:
-    def __init__(self,wandb_config=None,model_ckpt_dir='./model_ckpt'):
-        self.wandb_config = wandb_config
-        self.log_df = pd.DataFrame()
-        self.model_ckpt_dir = model_ckpt_dir
-        self.use_wandb = self.wandb_config!=None
-        if self.use_wandb:
-            wandb.login(key=self.wandb_config['key'])
-            self.wandb_config.pop('key')
-
-    def fit(self, model, train_loader, valid_loader=None, epoch=50, lr=1e-3, device=torch.device('cpu'),
-            topk_list=None, use_earlystoping=False, max_patience=999, monitor_metric=None, log_rounds=100):
-
-        if topk_list is None:
-            topk_list = [20, 50, 100]
-
-        if self.use_wandb:
-            wandb.init(
-                **self.wandb_config
-            )
-        # 声明optimizer
-        optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999),eps=1e-08, weight_decay=0)
-        model = model.to(device)
-        # 模型训练流程
-        logger.info('Model Starting Training ')
-        best_epoch = -1
-        best_metric = -1
-        best_metric_dict = dict()
-
-        for i in range(1,epoch+1):
-            # 模型训练
-            train_sequence_model(model, train_loader, optimizer=optimizer, device=device, use_wandb=self.use_wandb,
-                                 log_rounds=log_rounds)
-            # 模型验证
-            if valid_loader != None:
-                valid_metric = test_sequence_model(model=model, test_loader=valid_loader,topk_list=topk_list,
-                                                   device=device, use_wandb=self.use_wandb)
-                valid_metric['phase'] = 'valid'
-                self.log_df = self.log_df.append(valid_metric, ignore_index=True)
-                model_str = f'e_{i}'
-                self.save_train_model(model,self.model_ckpt_dir,model_str)
-                self.log_df.to_csv(os.path.join(self.model_ckpt_dir,'log.csv'),index=False)
-                if self.use_wandb:
-                    wandb.log(valid_metric)
-                if use_earlystoping:
-                    assert monitor_metric in valid_metric.keys(),f'{monitor_metric} not in Valid Metric {valid_metric.keys()}'
-                    if valid_metric[monitor_metric] > best_metric:
-                        best_epoch = i
-                        best_metric = valid_metric[monitor_metric]
-                        best_metric_dict = valid_metric
-                        self.save_train_model(model, self.model_ckpt_dir, 'best')
-                    if i - best_epoch >= max_patience:
-                        logger.info(f"EarlyStopping at the Epoch {best_epoch} Valid Metric:{best_metric_dict}")
-                        break
-                logger.info(f"Valid Metric:{valid_metric}")
-
-
-    def evaluate_model(self, model, test_loader, device=torch.device('cpu'), topk_list=None):
-        if topk_list is None:
-            topk_list = [20, 50, 100]
-        test_metric = test_sequence_model(model=model, test_loader=test_loader, topk_list=topk_list,
-                                           device=device, use_wandb=self.use_wandb)
-        test_metric['phase'] = 'test'
-        self.log_df = self.log_df.append(test_metric, ignore_index=True)
-        self.log_df.to_csv(os.path.join(self.model_ckpt_dir, 'log.csv'), index=False)
-        logger.info(f"Test Metric:{test_metric}")
-        if self.use_wandb:
-            wandb.finish()
-
-    def save_model(self, model, model_ckpt_dir):
-        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
-        save_dict = {'model': model.state_dict()}
-        torch.save(save_dict,os.path.join(model_ckpt_dir, 'model.pth'))
-        logger.info(f'Model Saved to {model_ckpt_dir}')
-
-    def save_all(self, model, enc_dict, model_ckpt_dir):
-        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
-        save_dict = {'model': model.state_dict(),
-                     'enc_dict': enc_dict}
-        torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
-        logger.info(f'Enc_dict and Model Saved to {model_ckpt_dir}')
-
-    def save_train_model(self, model, model_ckpt_dir, model_str):
-        os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
-        save_dict = {'model': model.state_dict()}
-        torch.save(save_dict, os.path.join(model_ckpt_dir, f'model_{model_str}.pth'))
-        logger.info(f'Model Saved to {model_ckpt_dir}')
