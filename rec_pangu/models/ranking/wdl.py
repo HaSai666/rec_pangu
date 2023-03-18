@@ -4,7 +4,7 @@
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer
+from ..layers import MLP_Layer, LR_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
 
