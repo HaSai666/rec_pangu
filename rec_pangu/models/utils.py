@@ -10,8 +10,14 @@ import numpy as np
 import torch
 from torch import nn
 import random
+from typing import Dict, List, Tuple, Union
 
-def seed_everything(seed=1029):
+def seed_everything(seed: int = 1029) -> None:
+    """Set the random seed for reproducibility.
+
+    Args:
+        seed (int, optional): The random seed. Defaults to 1029.
+    """
     random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
@@ -19,7 +25,15 @@ def seed_everything(seed=1029):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
 
-def set_device(gpu=-1):
+def set_device(gpu: int = -1) -> torch.device:
+    """Set the device to use for computation.
+
+    Args:
+        gpu (int, optional): GPU index to use if available. Defaults to -1 (use CPU).
+
+    Returns:
+        torch.device: The device to use for computation.
+    """
     if gpu >= 0 and torch.cuda.is_available():
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
         device = torch.device("cuda")
@@ -27,22 +41,44 @@ def set_device(gpu=-1):
         device = torch.device("cpu")
     return device
 
-def set_optimizer(optimizer):
-    if isinstance(optimizer, str):
-        if optimizer.lower() == "adam":
-            optimizer = "Adam"
-        return getattr(torch.optim, optimizer)
+def set_optimizer(optimizer: str) -> torch.optim.Optimizer:
+    """Set the optimizer for training.
 
-def set_loss(loss):
-    if isinstance(loss, str):
-        if loss in ["bce", "binary_crossentropy", "binary_cross_entropy"]:
-            loss = "binary_cross_entropy"
-        else:
-            raise NotImplementedError("loss={} is not supported.".format(loss))
+    Args:
+        optimizer (str): Name of the optimizer.
+
+    Returns:
+        torch.optim.Optimizer: The optimizer object.
+    """
+    if optimizer.lower() == "adam":
+        optimizer = "Adam"
+    return getattr(torch.optim, optimizer)
+
+def set_loss(loss: str) -> str:
+    """Set the loss function for training.
+
+    Args:
+        loss (str): Name of the loss function.
+
+    Returns:
+        str: The loss function name.
+    """
+    if loss in ["bce", "binary_crossentropy", "binary_cross_entropy"]:
+        loss = "binary_cross_entropy"
+    else:
+        raise NotImplementedError(f"loss={loss} is not supported.")
     return loss
 
-def set_regularizer(reg):
-    reg_pair = [] # of tuples (p_norm, weight)
+def set_regularizer(reg: Union[float, str]) -> List[Tuple[int, float]]:
+    """Set the regularizer for the model.
+
+    Args:
+        reg (Union[float, str]): Regularizer value or string.
+
+    Returns:
+        List[Tuple[int, float]]: List of regularizer pairs (p_norm, weight).
+    """
+    reg_pair = []  # of tuples (p_norm, weight)
     if isinstance(reg, float):
         reg_pair.append((2, reg))
     elif isinstance(reg, str):
@@ -56,52 +92,85 @@ def set_regularizer(reg):
             else:
                 raise NotImplementedError
         except:
-            raise NotImplementedError("regularizer={} is not supported.".format(reg))
+            raise NotImplementedError(f"regularizer={reg} is not supported.")
     return reg_pair
 
-def set_activation(activation):
-    if isinstance(activation, str):
-        if activation.lower() == "relu":
-            return nn.ReLU()
-        elif activation.lower() == "sigmoid":
-            return nn.Sigmoid()
-        elif activation.lower() == "tanh":
-            return nn.Tanh()
-        else:
-            return getattr(nn, activation)()
-    else:
-        return activation
+def set_activation(activation: str) -> nn.Module:
+    """Set the activation function for the model.
 
-def get_linear_input(enc_dict,data):
+    Args:
+        activation (str): Name of the activation function.
+
+    Returns:
+        nn.Module: The activation function object.
+    """
+    if activation.lower() == "relu":
+        return nn.ReLU()
+    elif activation.lower() == "sigmoid":
+        return nn.Sigmoid()
+    elif activation.lower() == "tanh":
+        return nn.Tanh()
+    else:
+        return getattr(nn, activation)()
+
+def get_linear_input(enc_dict: Dict, data: Dict) -> torch.Tensor:
+    """Get the input tensor for linear layers.
+
+    Args:
+        enc_dict (Dict): Encoding dictionary.
+        data (Dict): Data dictionary.
+
+    Returns:
+        torch.Tensor: The input tensor for linear layers.
+    """
     res_data = []
     for col in enc_dict.keys():
         if 'min' in enc_dict[col].keys():
             res_data.append(data[col])
-    res_data = torch.stack(res_data,axis=1)
+    res_data = torch.stack(res_data, axis=1)
     return res_data
 
-def get_dnn_input_dim(enc_dict,embedding_dim):
+def get_dnn_input_dim(enc_dict: Dict, embedding_dim: int) -> int:
+    """Get the input dimension for DNN layers.
+
+    Args:
+        enc_dict (Dict): Encoding dictionary.
+        embedding_dim (int): Embedding dimension.
+
+    Returns:
+        int: The input dimension for DNN layers.
+    """
+    num_sparse, num_dense = get_feature_num(enc_dict)
+    return num_sparse * embedding_dim + num_dense
+
+def get_feature_num(enc_dict: Dict) -> Tuple[int, int]:
+    """Get the number of sparse and dense features.
+
+    Args:
+        enc_dict (Dict): Encoding dictionary.
+
+    Returns:
+        Tuple[int, int]: The number of sparse and dense features.
+    """
     num_sparse = 0
     num_dense = 0
     for col in enc_dict.keys():
         if 'min' in enc_dict[col].keys():
-            num_dense+=1
+            num_dense += 1
         elif 'vocab_size' in enc_dict[col].keys():
-            num_sparse+=1
-    return num_sparse*embedding_dim+num_dense
+            num_sparse += 1
+    return num_sparse, num_dense
 
-def get_feature_num(enc_dict):
-    num_sparse = 0
-    num_dense = 0
-    for col in enc_dict.keys():
-        if 'min' in enc_dict[col].keys():
-            num_dense+=1
-        elif 'vocab_size' in enc_dict[col].keys():
-            num_sparse+=1
-    return num_sparse,num_dense
+def pad_sequence(seqs: List[torch.Tensor], max_len: int) -> torch.Tensor:
+    """Pad sequences to the same length.
 
+    Args:
+        seqs (List[torch.Tensor]): List of sequences.
+        max_len (int): Maximum length to pad.
 
-def pad_sequence(seqs, max_len):
+    Returns:
+        torch.Tensor: Padded sequences tensor.
+    """
     padded_seqs = []
     for seq in seqs:
         seq_len = seq.shape[0]
@@ -114,11 +183,15 @@ def pad_sequence(seqs, max_len):
     padded_seqs = torch.stack(padded_seqs, dim=0)
     return padded_seqs
 
-def generate_graph(batch_data):
-    '''
-    构建Session Graph
-    每一条序列都是一个独立的图，为了把一个batch的数据放在一起建模，我们对这个batch每一条序列在图中index必须独立
-    '''
+def generate_graph(batch_data: Dict) -> Dict:
+    """Generate session graph.
+
+    Args:
+    batch_data (Dict): Batch data dictionary.
+
+    Returns:
+        Dict: New batch data dictionary with graph information.
+    """
     x = []
     edge_index = []
     alias_inputs = []
