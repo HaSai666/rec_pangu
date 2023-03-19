@@ -30,6 +30,16 @@ class DCN(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
+        f""" 
+        Perform forward propagation on the DCN model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
+        """
         feature_emb = self.embedding_layer(data)
         dense_input = get_linear_input(self.enc_dict, data)
         flat_feature_emb = feature_emb.flatten(start_dim=1)

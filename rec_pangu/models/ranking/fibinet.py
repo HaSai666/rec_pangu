@@ -3,18 +3,28 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from torch import nn
+from typing import Dict,List
 import torch
-from ..layers import EmbeddingLayer, LR_Layer, MLP_Layer, BilinearInteractionLayer, SENET_Layer
+from ..layers import LR_Layer, MLP_Layer, BilinearInteractionLayer, SENET_Layer
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
+
 class FiBiNet(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 hidden_units=[64, 64, 64],
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(FiBiNet, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 hidden_units: List[int] = [64, 64, 64],
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Dict[str, dict] = None):
+        """
+        FiBiNet model.
+
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            hidden_units (list[int]): The list of hidden units for the DNN. Default is [64, 64, 64].
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            enc_dict (Dict[str, dict]): The dictionary containing the encoding information for the features.
+        """
+        super(FiBiNet, self).__init__(enc_dict, embedding_dim)
 
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
@@ -31,7 +41,18 @@ class FiBiNet(BaseModel):
                              hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data: Dict[str, torch.Tensor],
+                is_training: bool = True) -> Dict[str, torch.Tensor]:
+        f""" 
+        Perform forward propagation on the FiBiNet model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
+        """
         y_pred = self.lr(data)  # Batch,1
 
         feature_emb = self.embedding_layer(data)
@@ -45,10 +66,10 @@ class FiBiNet(BaseModel):
         y_pred += self.dnn(comb_out)
         y_pred = y_pred.sigmoid()
 
-        # 输出
+        # Output
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict

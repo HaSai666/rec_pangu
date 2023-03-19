@@ -37,14 +37,15 @@ class WDL(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
-        """Perform a forward pass on the WDL model.
+        f""" 
+        Perform forward propagation on the WDL model.
 
         Args:
-            data (dict): Input data.
-            is_training (bool): If True, computes the loss. Defaults to True.
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
 
         Returns:
-            dict: A dictionary containing the model's prediction and loss (if is_training is True).
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
         """
         # Wide
         wide_logit = self.lr(data)  # Batch, 1

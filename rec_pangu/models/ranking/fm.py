@@ -12,7 +12,7 @@ class FM(BaseModel):
     def __init__(self,
                  embedding_dim: int = 32,
                  loss_fun: str = 'torch.nn.BCELoss()',
-                 enc_dict: Dict[str, int] = None):
+                 enc_dict: Dict[str, dict] = None):
         """
         Factorization Machine (FM) model.
 
@@ -30,17 +30,16 @@ class FM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor],
-                is_training: bool = True) -> Dict[str, Union[torch.Tensor, float]]:
-        """
-        Forward pass of the FM model.
+                is_training: bool = True) -> Dict[str, torch.Tensor]:
+        f""" 
+        Perform forward propagation on the FM model.
 
         Args:
             data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
-            is_training (bool): A flag to indicate whether the model is in training mode. Default is True.
+            is_training (bool): If True, compute the loss. Default is True.
 
         Returns:
-            output_dict (Dict[str, Union[torch.Tensor, float]]): The output dictionary containing the predictions and
-            optional loss value.
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
         """
         feature_emb = self.embedding_layer(data)
         y_pred = self.fm(feature_emb)

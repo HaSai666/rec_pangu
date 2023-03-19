@@ -11,7 +11,7 @@ from ..layers import LR_Layer
 class LR(nn.Module):
     def __init__(self,
                  loss_fun: str = 'torch.nn.BCELoss()',
-                 enc_dict: Dict[str, int] = None):
+                 enc_dict: Dict[str, dict]= None):
         """
         Logistic Regression (LR) model.
 
@@ -26,17 +26,16 @@ class LR(nn.Module):
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
 
     def forward(self, data: Dict[str, torch.Tensor],
-                is_training: bool = True) -> Dict[str, Union[torch.Tensor, float]]:
-        """
-        Forward pass of the LR model.
+                is_training: bool = True) -> Dict[str, torch.Tensor]:
+        f""" 
+        Perform forward propagation on the LR model.
 
         Args:
             data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
-            is_training (bool): A flag to indicate whether the model is in training mode. Default is True.
+            is_training (bool): If True, compute the loss. Default is True.
 
         Returns:
-            output_dict (Dict[str, Union[torch.Tensor, float]]): The output dictionary containing the predictions and
-            optional loss value.
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
         """
         y_pred = self.lr_layer(data)
         y_pred = y_pred.sigmoid()

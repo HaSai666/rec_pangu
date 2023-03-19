@@ -42,6 +42,16 @@ class AutoInt(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
+        f""" 
+        Perform forward propagation on the AutoInt model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
+        """
 
         feature_emb = self.embedding_layer(data)
         attention_out = self.self_attention(feature_emb)

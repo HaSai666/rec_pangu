@@ -16,7 +16,7 @@ class NFM(BaseModel):
                  embedding_dim: int = 32,
                  hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
-                 enc_dict: Optional[Dict[str, int]] = None):
+                 enc_dict: Dict[str, dict] = None):
         """
         Neural Factorization Machine (NFM) model.
 
@@ -41,15 +41,15 @@ class NFM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
-        """
-        Forward pass of the NFM model.
+        f""" 
+        Perform forward propagation on the NFM model.
 
         Args:
-            data (Dict[str, torch.Tensor]): The input data.
-            is_training (bool, optional): Whether the model is in training mode. Defaults to True.
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
 
         Returns:
-            Dict[str, torch.Tensor]: The output dictionary containing predictions and, if in training mode, the loss.
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
         """
         # Linear part
         y_pred = self.lr(data)  # Batch, 1

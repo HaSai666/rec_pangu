@@ -44,15 +44,17 @@ class xDeepFM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
-        """Perform forward propagation on the xDeepFM model.
+        f""" 
+        Perform forward propagation on the xDeepFM model.
 
         Args:
-            data (Dict[str, torch.Tensor]): Input data.
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
             is_training (bool): If True, compute the loss. Default is True.
 
         Returns:
             Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
         """
+
         feature_emb = self.embedding_layer(data)
         lr_logit = self.lr_layer(data)
         cin_logit = self.cin(feature_emb)
