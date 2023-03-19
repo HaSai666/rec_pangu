@@ -5,16 +5,28 @@
 # @Time: 2022/6/10 7:40 PM
 from torch import nn
 import torch
-from ..layers import EmbeddingLayer, LR_Layer, MLP_Layer, InnerProductLayer
+from typing import Optional, Dict, Union, List
+from ..layers import LR_Layer, MLP_Layer, InnerProductLayer
 from ..utils import get_dnn_input_dim
 from ..base_model import BaseModel
+
+
 class NFM(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 hidden_units=[64, 64, 64],
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(NFM, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 hidden_units: List[int] = [64, 64, 64],
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Optional[Dict[str, int]] = None):
+        """
+        Neural Factorization Machine (NFM) model.
+
+        Args:
+            embedding_dim (int, optional): The dimension of the embedding layer. Defaults to 32.
+            hidden_units (List[int], optional): The number of hidden units in the DNN layers. Defaults to [64, 64, 64].
+            loss_fun (str, optional): The loss function. Defaults to 'torch.nn.BCELoss()'.
+            enc_dict (Optional[Dict[str, int]], optional): The encoding dictionary. Defaults to None.
+        """
+        super(NFM, self).__init__(enc_dict, embedding_dim)
 
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
@@ -28,20 +40,37 @@ class NFM(BaseModel):
                              hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
-        y_pred = self.lr(data)  # Batch,1
+    def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
+        """
+        Forward pass of the NFM model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data.
+            is_training (bool, optional): Whether the model is in training mode. Defaults to True.
+
+        Returns:
+            Dict[str, torch.Tensor]: The output dictionary containing predictions and, if in training mode, the loss.
+        """
+        # Linear part
+        y_pred = self.lr(data)  # Batch, 1
         batch_size = y_pred.shape[0]
 
+        # Embedding part
         sparse_embedding = self.embedding_layer(data)
+
+        # Bi-interaction pooling
         inner_product_tensor = self.inner_product_layer(sparse_embedding)
         bi_pooling_tensor = inner_product_tensor.view(batch_size, -1)
+
+        # DNN part
         y_pred += self.dnn(bi_pooling_tensor)
         y_pred = y_pred.sigmoid()
 
-        # 输出
+        # Output
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
+
         return output_dict

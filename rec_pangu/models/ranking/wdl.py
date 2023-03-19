@@ -36,7 +36,7 @@ class WDL(BaseModel):
                              hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> dict:
+    def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
         """Perform a forward pass on the WDL model.
 
         Args:
