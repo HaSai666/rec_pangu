@@ -3,10 +3,11 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from typing import Dict, Union
+from typing import Dict
 from torch import nn
 import torch
 from ..layers import LR_Layer
+
 
 class LR(nn.Module):
     def __init__(self,

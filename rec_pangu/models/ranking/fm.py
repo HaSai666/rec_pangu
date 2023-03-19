@@ -8,6 +8,7 @@ import torch
 from ..layers import FM_Layer
 from ..base_model import BaseModel
 
+
 class FM(BaseModel):
     def __init__(self,
                  embedding_dim: int = 32,

@@ -17,7 +17,7 @@ class NFM(BaseModel):
                  hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
-        """
+        f"""
         Neural Factorization Machine (NFM) model.
 
         Args:

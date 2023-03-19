@@ -3,11 +3,13 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+from typing import Dict, List
 from torch import nn
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, SENET_Layer, BilinearInteractionLayer
-from ..utils import get_feature_num, get_linear_input
+from ..layers import EmbeddingLayer, MLP_Layer
+from ..utils import get_feature_num
 from ..base_model import BaseModel
+
 class AFN(BaseModel):
     def __init__(self,
                  embedding_dim=32,
@@ -18,7 +20,18 @@ class AFN(BaseModel):
                  logarithmic_neurons = 5,
                  enc_dict=None):
         super(AFN, self).__init__(enc_dict,embedding_dim)
+        f"""
+        AFN model.
 
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            dnn_hidden_units (List[int]): The list of hidden units for the DNN. Default is [64, 64, 64].
+            afn_hidden_units (List[int]): The list of hidden units for the AFN. Default is [64, 64, 64].
+            ensemble_dnn (bool): Whether to use ensemble DNN. Default is True.
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            logarithmic_neurons (int): The number of logarithmic neurons. Default is 5.
+            enc_dict (Dict[str, int]): The dictionary containing the encoding information for the features.
+        """
         self.dnn_hidden_units = dnn_hidden_units
         self.afn_hidden_units = afn_hidden_units
         self.loss_fun = eval(loss_fun)

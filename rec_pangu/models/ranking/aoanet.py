@@ -3,21 +3,33 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+from typing import Dict, List
 from torch import nn
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer
+from ..layers import MLP_Layer
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
 class AOANet(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 dnn_hidden_units=[64, 64, 64],
-                 num_interaction_layers = 3,
-                 num_subspaces = 4,
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(AOANet, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 dnn_hidden_units: List[int] = [64, 64, 64],
+                 num_interaction_layers: int = 3,
+                 num_subspaces: int = 4,
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Dict[str, dict] = None):
+        super(AOANet, self).__init__(enc_dict, embedding_dim)
+        f"""
+        AOANet model.
+
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            dnn_hidden_units (List[int]): The list of hidden units for the DNN. Default is [64, 64, 64].
+            num_interaction_layers (int): The number of interaction layers in the Generalized Interaction Net. Default is 3.
+            num_subspaces (int): The number of subspaces for the interaction layer. Default is 4.
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            enc_dict (Dict[str, int]): The dictionary containing the encoding information for the features.
+        """
 
         self.dnn_hidden_units = dnn_hidden_units
         self.loss_fun = eval(loss_fun)

@@ -9,13 +9,15 @@ from ..layers import MLP_Layer, LR_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
 
+
 class WDL(BaseModel):
     def __init__(self,
                  embedding_dim: int = 32,
                  hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None) -> None:
-        """Initialize the WDL model.
+        f"""
+        Wide and Deep (WDL) Model
 
         Args:
             embedding_dim (int): Dimension of the embedding vectors. Defaults to 32.

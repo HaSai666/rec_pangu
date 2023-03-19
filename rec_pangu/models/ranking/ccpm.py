@@ -3,22 +3,35 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+from typing import Dict, List
 from torch import nn
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer, KMaxPooling, get_activation
-from ..utils import get_feature_num, get_linear_input
+from ..layers import KMaxPooling, get_activation
+from ..utils import get_feature_num
 from ..base_model import BaseModel
+
+
 class CCPM(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 dnn_hidden_units=[64, 64, 64],
-                 channels = [4, 4, 2],
-                 kernel_heights=[6, 5, 3],
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(CCPM, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 hidden_units: List[int] = [64, 64, 64],
+                 channels: List[int] = [4, 4, 2],
+                 kernel_heights: List[int] = [6, 5, 3],
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Dict[str, dict] = None):
+        super(CCPM, self).__init__(enc_dict, embedding_dim)
+        f"""
+        Convolutional Click Prediction Model (CCPM) model.
 
-        self.dnn_hidden_units = dnn_hidden_units
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            hidden_units (list[int]): The list of hidden units for the DNN. Default is [64, 64, 64].
+            channels (List[int]): convolution neural network's kernel size.
+            kernel_heights (List[int]): convolution neural network's kernel size.
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            enc_dict (Dict[str, dict]): The dictionary containing the encoding information for the features.
+        """
+        self.dnn_hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
 

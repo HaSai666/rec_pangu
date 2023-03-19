@@ -9,6 +9,7 @@ from ..layers import LR_Layer, MLP_Layer, BilinearInteractionLayer, SENET_Layer
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
+
 class FiBiNet(BaseModel):
     def __init__(self,
                  embedding_dim: int = 32,

@@ -3,18 +3,29 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from torch import nn
+from typing import Dict,List
 import torch
-from ..layers import EmbeddingLayer, FM_Layer, MLP_Layer
+from ..layers import FM_Layer, MLP_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
+
+
 class DeepFM(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 hidden_units=[64, 64, 64],
-                 loss_fun = 'torch.nn.BCELoss()',
-                 enc_dict=None):
+                 embedding_dim: int = 32,
+                 hidden_units: List[int] = [64, 64, 64],
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Dict[str, dict] = None):
         super(DeepFM, self).__init__(enc_dict,embedding_dim)
+        f"""
+        DeepFM model.
+
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            hidden_units (list[int]): The list of hidden units for the DNN. Default is [64, 64, 64].
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            enc_dict (Dict[str, dict]): The dictionary containing the encoding information for the features.
+        """
 
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)

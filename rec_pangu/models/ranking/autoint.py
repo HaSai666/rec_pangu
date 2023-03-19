@@ -3,22 +3,36 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+from typing import Dict, List
 from torch import nn
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, MultiHeadSelfAttention
+from ..layers import MLP_Layer, LR_Layer, MultiHeadSelfAttention
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
+
 class AutoInt(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 dnn_hidden_units=[64, 64, 64],
-                 attention_layers = 1,
-                 num_heads = 1,
-                 attention_dim = 8,
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(AutoInt, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 dnn_hidden_units: List[int] = [64, 64, 64],
+                 attention_layers: int = 1,
+                 num_heads: int = 1,
+                 attention_dim: int = 8,
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Dict[str, dict] = None):
+        super(AutoInt, self).__init__(enc_dict, embedding_dim)
+        f"""
+        AutoInt model.
+
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            dnn_hidden_units (List[int]): The list of hidden units for the DNN. Default is [64, 64, 64].
+            attention_layers (int): The number of attention layers. Default is 1.
+            num_heads (int): The number of attention heads. Default is 1.
+            attention_dim (int): The dimension of the attention layer. Default is 8.
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            enc_dict (Dict[str, int]): The dictionary containing the encoding information for the features.
+        """
 
         self.dnn_hidden_units = dnn_hidden_units
         self.loss_fun = eval(loss_fun)
