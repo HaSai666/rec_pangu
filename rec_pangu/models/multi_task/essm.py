@@ -34,6 +34,16 @@ class ESSM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
+        f""" 
+        Perform forward propagation on the ESSM model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
+        """
         hidden = self.embedding_layer(data).flatten(start_dim=1)
         click = self.sigmoid(self.ctr_layer(hidden))
         conversion = self.sigmoid(self.cvr_layer(hidden))

@@ -58,6 +58,16 @@ class OMOE(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
+        f""" 
+        Perform forward propagation on the OMOE model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
+        """
         hidden = self.embedding_layer(data).flatten(start_dim=1)
         dense_fea = get_linear_input(self.enc_dict, data)
         hidden = torch.cat([hidden, dense_fea], axis=-1)

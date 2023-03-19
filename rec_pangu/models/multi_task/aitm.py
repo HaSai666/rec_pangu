@@ -3,19 +3,21 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+from typing import Dict, List
 import torch
 from torch import nn
-from ..layers import EmbeddingLayer,MLP_Layer,MultiHeadSelfAttention
+from ..layers import MLP_Layer,MultiHeadSelfAttention
 from ..utils import get_feature_num
 from ..base_model import BaseModel
+
+
 class AITM(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 tower_dims=[400, 400, 400],
-                 drop_prob=[0.1, 0.1, 0.1],
-                 enc_dict=None,
-                 device=None):
-        super(AITM, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 tower_dims: List[int] = [400, 400, 400],
+                 drop_prob: List[float] = [0.1, 0.1, 0.1],
+                 enc_dict: Dict[str, dict] = None):
+        super(AITM, self).__init__(enc_dict, embedding_dim)
         self.enc_dict = enc_dict
         self.tower_dims = tower_dims
         self.drop_prob = drop_prob
@@ -40,6 +42,16 @@ class AITM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
+        f""" 
+        Perform forward propagation on the AITM model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): If True, compute the loss. Default is True.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary containing model predictions and loss (if is_training is True).
+        """
         feature_embedding = self.embedding_layer(data)
         feature_embedding = feature_embedding.flatten(start_dim=1)
 
@@ -75,7 +87,7 @@ class AITM(BaseModel):
              conversion_label,
              conversion_pred,
              constraint_weight=0.6):
-        click_label = click_label
+
         conversion_label = conversion_label
 
         click_loss = nn.functional.binary_cross_entropy(click_pred, click_label)
