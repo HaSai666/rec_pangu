@@ -4,6 +4,7 @@
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
 import torch
+from typing import Dict, List
 from ..layers import MLP_Layer, LR_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
@@ -11,9 +12,9 @@ from ..base_model import BaseModel
 class WDL(BaseModel):
     def __init__(self,
                  embedding_dim: int = 32,
-                 hidden_units: list = [64, 64, 64],
+                 hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
-                 enc_dict: dict = None) -> None:
+                 enc_dict: Dict[str, dict] = None) -> None:
         """Initialize the WDL model.
 
         Args:
@@ -35,7 +36,7 @@ class WDL(BaseModel):
                              hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data: dict, is_training: bool = True) -> dict:
+    def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> dict:
         """Perform a forward pass on the WDL model.
 
         Args:
