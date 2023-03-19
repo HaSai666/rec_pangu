@@ -3,17 +3,25 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from torch import nn
+from typing import Dict, Union
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer, FM_Layer
-from ..utils import get_feature_num, get_linear_input
+from ..layers import FM_Layer
 from ..base_model import BaseModel
+
 class FM(BaseModel):
     def __init__(self,
-                 embedding_dim=32,
-                 loss_fun='torch.nn.BCELoss()',
-                 enc_dict=None):
-        super(FM, self).__init__(enc_dict,embedding_dim)
+                 embedding_dim: int = 32,
+                 loss_fun: str = 'torch.nn.BCELoss()',
+                 enc_dict: Dict[str, int] = None):
+        """
+        Factorization Machine (FM) model.
+
+        Args:
+            embedding_dim (int): The size of the embedding vector. Default is 32.
+            loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
+            enc_dict (Dict[str, int]): The dictionary containing the encoding information for the features.
+        """
+        super(FM, self).__init__(enc_dict, embedding_dim)
 
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
@@ -21,14 +29,27 @@ class FM(BaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data: Dict[str, torch.Tensor],
+                is_training: bool = True) -> Dict[str, Union[torch.Tensor, float]]:
+        """
+        Forward pass of the FM model.
+
+        Args:
+            data (Dict[str, torch.Tensor]): The input data in the form of a dictionary containing the features and labels.
+            is_training (bool): A flag to indicate whether the model is in training mode. Default is True.
+
+        Returns:
+            output_dict (Dict[str, Union[torch.Tensor, float]]): The output dictionary containing the predictions and
+            optional loss value.
+        """
         feature_emb = self.embedding_layer(data)
         y_pred = self.fm(feature_emb)
         y_pred = y_pred.sigmoid()
-        # 输出
+
+        # Output
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict
