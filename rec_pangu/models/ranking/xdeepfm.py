@@ -17,7 +17,7 @@ class xDeepFM(BaseModel):
                  cin_layer_units: List[int] = [16, 16, 16],
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None) -> None:
-        f"""
+        """
         xDeepFM model.
 
         Args:
@@ -45,7 +45,7 @@ class xDeepFM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
-        f""" 
+        """
         Perform forward propagation on the xDeepFM model.
 
         Args:

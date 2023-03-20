@@ -45,7 +45,7 @@ class CMI(SequenceBaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
-        f"""
+        """
         This method initializes the forward step to compute the user embeddings which will then be used for 
         recommendations.
 

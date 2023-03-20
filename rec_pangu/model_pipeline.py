@@ -22,7 +22,7 @@ def train_model(model: torch.nn.Module,
                 num_task: int = 1,
                 use_wandb: bool = False,
                 log_rounds: int = 100) -> dict:
-    f"""
+    """
     Trains the provided model using the given data and optimizer. Computes evaluation metrics and logs the training progress.
 
     Args:

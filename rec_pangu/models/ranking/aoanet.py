@@ -19,7 +19,7 @@ class AOANet(BaseModel):
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
         super(AOANet, self).__init__(enc_dict, embedding_dim)
-        f"""
+        """
         AOANet model.
 
         Args:
@@ -49,7 +49,7 @@ class AOANet(BaseModel):
 
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the AoaNet model.
 
         Args:

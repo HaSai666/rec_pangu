@@ -58,7 +58,7 @@ class OMOE(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the OMOE model.
 
         Args:

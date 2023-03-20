@@ -21,7 +21,7 @@ class AutoInt(BaseModel):
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
         super(AutoInt, self).__init__(enc_dict, embedding_dim)
-        f"""
+        """
         AutoInt model.
 
         Args:
@@ -56,7 +56,7 @@ class AutoInt(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the AutoInt model.
 
         Args:

@@ -67,7 +67,7 @@ class MMOE(BaseModel):
         print(f'Successfully set device:{device}')
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the MMOE model.
 
         Args:

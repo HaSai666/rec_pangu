@@ -20,7 +20,7 @@ class CCPM(BaseModel):
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
         super(CCPM, self).__init__(enc_dict, embedding_dim)
-        f"""
+        """
         Convolutional Click Prediction Model (CCPM) model.
 
         Args:
@@ -46,7 +46,7 @@ class CCPM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the CCPM model.
 
         Args:

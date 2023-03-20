@@ -20,7 +20,7 @@ class AFN(BaseModel):
                  logarithmic_neurons = 5,
                  enc_dict=None):
         super(AFN, self).__init__(enc_dict,embedding_dim)
-        f"""
+        """
         AFN model.
 
         Args:
@@ -58,7 +58,7 @@ class AFN(BaseModel):
             self.fc = nn.Linear(2, 1)
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the AFN model.
 
         Args:

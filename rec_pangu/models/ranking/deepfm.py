@@ -17,7 +17,7 @@ class DeepFM(BaseModel):
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
         super(DeepFM, self).__init__(enc_dict,embedding_dim)
-        f"""
+        """
         DeepFM model.
 
         Args:
@@ -38,7 +38,7 @@ class DeepFM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data, is_training=True):
-        f""" 
+        """
         Perform forward propagation on the DeepFM model.
 
         Args:

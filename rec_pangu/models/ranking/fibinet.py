@@ -44,7 +44,7 @@ class FiBiNet(BaseModel):
 
     def forward(self, data: Dict[str, torch.Tensor],
                 is_training: bool = True) -> Dict[str, torch.Tensor]:
-        f""" 
+        """
         Perform forward propagation on the FiBiNet model.
 
         Args:

@@ -17,7 +17,7 @@ class NFM(BaseModel):
                  hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
-        f"""
+        """
         Neural Factorization Machine (NFM) model.
 
         Args:
@@ -41,7 +41,7 @@ class NFM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
-        f""" 
+        """
         Perform forward propagation on the NFM model.
 
         Args:

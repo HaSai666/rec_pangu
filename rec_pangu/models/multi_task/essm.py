@@ -34,7 +34,7 @@ class ESSM(BaseModel):
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):
-        f""" 
+        """
         Perform forward propagation on the ESSM model.
 
         Args:

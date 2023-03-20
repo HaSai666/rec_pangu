@@ -51,7 +51,7 @@ class ShareBottom(BaseModel):
             getattr(self, 'task_{}_dnn'.format(i + 1)).add_module('task_sigmoid', nn.Sigmoid())
 
     def forward(self, data, is_training=True):
-        f""" 
+        """
         Perform forward propagation on the ShareBottom model.
 
         Args:

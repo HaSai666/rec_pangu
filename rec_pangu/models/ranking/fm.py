@@ -32,7 +32,7 @@ class FM(BaseModel):
 
     def forward(self, data: Dict[str, torch.Tensor],
                 is_training: bool = True) -> Dict[str, torch.Tensor]:
-        f""" 
+        """
         Perform forward propagation on the FM model.
 
         Args:
