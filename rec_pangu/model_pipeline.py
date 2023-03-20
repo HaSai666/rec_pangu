@@ -266,7 +266,7 @@ def train_sequence_model(model: torch.nn.Module,
 def test_sequence_model(model: torch.nn.Module,
                         test_loader: torch.utils.data.DataLoader,
                         device: torch.device,
-                        topk_list: list[int] = [20, 50, 100],
+                        topk_list: List[int] = [20, 50, 100],
                         use_wandb: bool = False) -> dict:
     """
     Test a sequence model's accuracy on a test dataset by returning recall metrics for various top k values.
