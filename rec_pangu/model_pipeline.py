@@ -124,7 +124,7 @@ def test_model(model: torch.nn.Module,
                test_loader: torch.utils.data.DataLoader,
                device: torch.device,
                metric_list: List[str] = ['roc_auc_score', 'log_loss'],
-               num_task: int = 1) -> Dict:
+               num_task: int = 1) -> dict:
     """
     Evaluate the performance of a given model on the test set.
 
@@ -207,7 +207,12 @@ def test_model(model: torch.nn.Module,
 
         return res_dict
 
-def train_sequence_model(model, train_loader, optimizer, device, use_wandb=False, log_rounds=100):
+def train_sequence_model(model: torch.nn.Module,
+                         train_loader: torch.utils.data.DataLoader,
+                         optimizer: torch.optim.Optimizer,
+                         device: torch.device,
+                         use_wandb: bool = False,
+                         log_rounds: int = 100):
     """
     Function to train a sequence model.
 
@@ -258,46 +263,59 @@ def train_sequence_model(model, train_loader, optimizer, device, use_wandb=False
         elif idx % log_rounds == 0:
             logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
 
-# def train_sequence_model(model, train_loader, optimizer, device, use_wandb=False,log_rounds=100):
-#     model.train()
-#     max_iter = int(train_loader.dataset.__len__() / train_loader.batch_size)
-#     start_time = time.time()
-#     for idx,data in enumerate(train_loader):
-#         for key in data.keys():
-#             data[key] = data[key].to(device)
-#
-#         output = model(data,is_training=True)
-#         loss = output['loss']
-#
-#         loss.backward()
-#         optimizer.step()
-#         model.zero_grad()
-#
-#         if use_wandb:
-#             wandb.log({'train_loss':loss.item()})
-#
-#         iter_time = time.time() - start_time
-#         remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
-#
-#         if idx % log_rounds == 0 and device.type != 'cpu':
-#             logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
-#         elif idx % log_rounds == 0:
-#             logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
+def test_sequence_model(model: torch.nn.Module,
+                        test_loader: torch.utils.data.DataLoader,
+                        device: torch.device,
+                        topk_list: list[int] = [20, 50, 100],
+                        use_wandb: bool = False) -> dict:
+    """
+    Test a sequence model's accuracy on a test dataset by returning recall metrics for various top k values.
+    Args:
+        model (nn.Module): Sequence model being tested.
+        test_loader (DataLoader): Test data loader.
+        device (torch.device): Device where the model is being trained.
+        topk_list (list[int]): List of top k values being evaluated. Default: [20, 50, 100].
+        use_wandb (bool): Flag to use Weights & Biases for logging. Default: False.
 
-def test_sequence_model(model, test_loader, device, topk_list=[20,50,100],use_wandb=False):
+    Returns:
+        A dictionary containing recall metrics corresponding to each top k value.
+    """
+    # Set the model in evaluation mode
     model.eval()
+
+    # Get test ground truth
     test_gd = test_loader.dataset.get_test_gd()
+
+    # Get sequence model's prediction for top N values
     preds = get_recall_predict(model, test_loader, device, topN=200)
 
-    metric_dict = dict()
+    # Calculate recall metrics for each top k value
+    metric_dict = {}
     for i, k in enumerate(topk_list):
         temp_metric_dict = evaluate_recall(preds, test_gd, k)
         logger.info(temp_metric_dict)
         metric_dict.update(temp_metric_dict)
 
+    # Log metrics using Weights & Biases
     if use_wandb:
         wandb.log(metric_dict)
+
     return metric_dict
+
+# def test_sequence_model(model, test_loader, device, topk_list=[20,50,100],use_wandb=False):
+#     model.eval()
+#     test_gd = test_loader.dataset.get_test_gd()
+#     preds = get_recall_predict(model, test_loader, device, topN=200)
+#
+#     metric_dict = dict()
+#     for i, k in enumerate(topk_list):
+#         temp_metric_dict = evaluate_recall(preds, test_gd, k)
+#         logger.info(temp_metric_dict)
+#         metric_dict.update(temp_metric_dict)
+#
+#     if use_wandb:
+#         wandb.log(metric_dict)
+#     return metric_dict
 
 def train_graph_model(model, train_dataset, optimizer, device, batch_size=1024):
     model.train()
