@@ -3,10 +3,8 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2023/3/5 15:25
+from typing import Dict
 import torch
-from torch import nn
-import torch.nn.functional as F
-import numpy as np
 from ..base_model import SequenceBaseModel
 
 class YotubeDNN(SequenceBaseModel):
@@ -15,7 +13,19 @@ class YotubeDNN(SequenceBaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self,data, is_training=True):
+    def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
+        f"""
+        This method initializes the forward step to compute the user embeddings which will then be used for 
+        recommendations.
+
+        Args:
+            data (dict): a dictionary with input features as keys and the corresponding tensors as values .
+            is_training (bool): a flag variable to set the mode of the model; default is True.
+
+        Returns:
+            dict: a dictionary with the user embeddings and model loss (if training) as keys and the corresponding 
+            tensors as values.
+        """
         item_seq = data['hist_item_list']
         mask = data['hist_mask_list']
 

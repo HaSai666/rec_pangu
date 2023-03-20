@@ -4,6 +4,7 @@
 # @Email: 306178200@qq.com
 # @Time: 2023/3/14 14:57
 # <Re4: Learning to Re-contrast, Re-attend, Re-construct for Multi-interest Recommendation> WWW 2022
+from typing import Dict
 import numpy as np
 import torch
 from torch import nn
@@ -37,7 +38,19 @@ class Re4(SequenceBaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data, is_training=True):
+    def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
+        f"""
+        This method initializes the forward step to compute the user embeddings which will then be used for 
+        recommendations.
+
+        Args:
+            data (dict): a dictionary with input features as keys and the corresponding tensors as values .
+            is_training (bool): a flag variable to set the mode of the model; default is True.
+
+        Returns:
+            dict: a dictionary with the user embeddings and model loss (if training) as keys and the corresponding 
+            tensors as values.
+        """
         item_seq = data['hist_item_list']
         item_mask = data['hist_mask_list']
         dim0, dim1 = item_seq.shape

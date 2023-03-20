@@ -3,10 +3,11 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2023/3/5 15:08
+from typing import Dict
 import torch
-from torch import nn
 from ..layers import MultiInterest_SA,CapsuleNetwork
 from ..base_model import SequenceBaseModel
+
 
 class ComirecSA(SequenceBaseModel):
 
@@ -16,8 +17,19 @@ class ComirecSA(SequenceBaseModel):
         self.multi_interest_sa = MultiInterest_SA(embedding_dim=self.embedding_dim, K=self.config['K'])
         self.apply(self._init_weights)
 
-    def forward(self, data, is_training=True):
+    def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
+        f"""
+        This method initializes the forward step to compute the user embeddings which will then be used for 
+        recommendations.
 
+        Args:
+            data (dict): a dictionary with input features as keys and the corresponding tensors as values .
+            is_training (bool): a flag variable to set the mode of the model; default is True.
+
+        Returns:
+            dict: a dictionary with the user embeddings and model loss (if training) as keys and the corresponding 
+            tensors as values.
+        """
         item_seq = data['hist_item_list']
         mask = data['hist_mask_list']
         if is_training:
@@ -57,7 +69,19 @@ class ComirecDR(SequenceBaseModel):
         self.capsule = CapsuleNetwork(self.embedding_dim,self.max_length,bilinear_type=2,interest_num=self.config['K'])
         self.apply(self._init_weights)
 
-    def forward(self, data, is_training=True):
+    def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
+        f"""
+        This method initializes the forward step to compute the user embeddings which will then be used for 
+        recommendations.
+
+        Args:
+            data (dict): a dictionary with input features as keys and the corresponding tensors as values .
+            is_training (bool): a flag variable to set the mode of the model; default is True.
+
+        Returns:
+            dict: a dictionary with the user embeddings and model loss (if training) as keys and the corresponding 
+            tensors as values.
+        """
         item_seq = data['hist_item_list']
         mask = data['hist_mask_list']
 

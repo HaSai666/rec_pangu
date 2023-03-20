@@ -4,13 +4,14 @@
 # @Email: 306178200@qq.com
 # @Time: 2023/3/10 15:28
 # <Improving Micro-video Recommendation via Contrastive Multiple Interests> SIGIR 2022
+from typing import Dict
 import torch
 from torch import nn
 import torch.nn.functional as F
 from ..base_model import SequenceBaseModel
 
 class CMI(SequenceBaseModel):
-    def __init__(self, enc_dict,config):
+    def __init__(self, enc_dict, config):
         super(CMI, self).__init__(enc_dict, config)
 
         self.hidden_size = self.config.get('hidden_size', 64)
@@ -43,7 +44,19 @@ class CMI(SequenceBaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data, is_training=True):
+    def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
+        f"""
+        This method initializes the forward step to compute the user embeddings which will then be used for 
+        recommendations.
+
+        Args:
+            data (dict): a dictionary with input features as keys and the corresponding tensors as values .
+            is_training (bool): a flag variable to set the mode of the model; default is True.
+
+        Returns:
+            dict: a dictionary with the user embeddings and model loss (if training) as keys and the corresponding 
+            tensors as values.
+        """
         with torch.no_grad():
             w = self.item_emb.weight.data.clone()
             w = F.normalize(w, dim=-1, p=2)
