@@ -8,6 +8,7 @@
 <img src='https://img.shields.io/badge/pandas-1.0.5+-brightgreen'>
 <img src='https://img.shields.io/badge/pypi-0.2.4-brightgreen'>
 <a href="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab"><img src="https://wakatime.com/badge/user/4f5f529d-94ee-4a12-94de-38e886b0219b/project/5b1e1c2d-5596-4335-937e-f2b5515a7fab.svg" alt="wakatime"></a>
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/27fce22d928f412bb7cb3dab813ab481)](https://app.codacy.com/gh/HaSai666/rec_pangu/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Downloads](https://pepy.tech/badge/rec-pangu)](https://pepy.tech/project/rec-pangu)
 [![Downloads](https://pepy.tech/badge/rec-pangu/month)](https://pepy.tech/project/rec-pangu)
 [![Downloads](https://pepy.tech/badge/rec-pangu/week)](https://pepy.tech/project/rec-pangu)
