@@ -11,13 +11,26 @@ from .layers import EmbeddingLayer
 from loguru import logger
 
 class BaseModel(nn.Module):
-    def __init__(self,enc_dict,embedding_dim):
-        super(BaseModel, self).__init__()
+    def __init__(self, enc_dict: dict, embedding_dim: int) -> None:
+        """
+        A base class for a neural network model.
+
+        Args:
+            enc_dict (dict): A dictionary containing the encoding details.
+            embedding_dim (int): Dimension of the embedding layer.
+        """
+        super().__init__()
         self.enc_dict = enc_dict
         self.embedding_dim = embedding_dim
         self.embedding_layer = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
 
-    def _init_weights(self, module):
+    def _init_weights(self, module: nn.Module) -> None:
+        """
+        Initialize the weights of the model.
+
+        Args:
+            module (nn.Module): A neural network module.
+        """
         if isinstance(module, nn.Embedding):
             xavier_normal_(module.weight.data)
         elif isinstance(module, nn.Linear):
@@ -25,10 +38,22 @@ class BaseModel(nn.Module):
             if module.bias is not None:
                 constant_(module.bias.data, 0)
 
-    def set_pretrained_weights(self, col_name, pretrained_dict, trainable=True):
-        assert col_name in self.enc_dict.keys(),"Pretrained Embedding Col: {} must be in the {}".fotmat(col_name,self.enc_dict.keys())
+    def set_pretrained_weights(self, col_name: str, pretrained_dict: dict, trainable: bool = True) -> None:
+        """
+        Set the pre-trained weights for the model.
+
+        Args:
+            col_name (str): Column name for the embedding layer.
+            pretrained_dict (dict): A pre-trained embedding dictionary.
+            trainable (bool, optional): Training flag. Defaults to True.
+
+        Raises:
+            AssertionError: If the column name is not in the encoding dictionary.
+                              If the pre-trained embedding dimension is not equal to the model embedding dimension.
+        """
+        assert col_name in self.enc_dict.keys(), "Pretrained Embedding Col: {} must be in the {}".format(col_name, self.enc_dict.keys())
         pretrained_emb_dim = len(list(pretrained_dict.values())[0])
-        assert self.embedding_dim == pretrained_emb_dim,"Pretrained Embedding Dim:{} must be equal to Model Embedding Dim:{}".format(pretrained_emb_dim, self.embedding_dim)
+        assert self.embedding_dim == pretrained_emb_dim, "Pretrained Embedding Dim:{} must be equal to Model Embedding Dim:{}".format(pretrained_emb_dim, self.embedding_dim)
         pretrained_emb = np.random.rand(self.enc_dict[col_name]['vocab_size'], pretrained_emb_dim)
         for k, v in self.enc_dict[col_name].items():
             if k == 'vocab_size':
@@ -39,6 +64,90 @@ class BaseModel(nn.Module):
         embedding_matrix = torch.nn.Parameter(embeddings)
         self.embedding_layer.set_weights(col_name=col_name, embedding_matrix=embedding_matrix, trainable=trainable)
         logger.info('Successfully Set The Pretrained Embedding Weights for the column:{} With Trainable={}'.format(col_name, trainable))
+
+class SequenceBaseModel(nn.Module):
+    """
+    Base sequence model for recommendation tasks.
+
+    Attributes:
+    enc_dict (dict): A dictionary mapping categorical variable names to their respective encoding dictionaries.
+    config (dict): A dictionary containing model hyperparameters such as the embedding size, max sequence length, and device.
+    embedding_dim (int): The embedding dimension size.
+    max_length (int): The maximum length for input sequences.
+    device (str): The device on which the model is run.
+    item_emb (nn.Embedding): An embedding layer for item features.
+    loss_fun: (nn.CrossEntropyLoss): A loss function used for training.
+    """
+
+    def __init__(self, enc_dict: dict, config: dict):
+        super().__init__()
+
+        self.enc_dict = enc_dict
+        self.config = config
+        self.embedding_dim = self.config['embedding_dim']
+        self.max_length = self.config['max_length']
+        self.device = self.config['device']
+
+        self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim, padding_idx=0)
+        for col in self.config['cate_cols']:
+            setattr(self,f'{col}_emb',nn.Embedding(self.enc_dict[col]['vocab_size'], self.embedding_dim, padding_idx=0))
+
+        self.loss_fun = nn.CrossEntropyLoss()
+
+    def calculate_loss(self, user_emb: torch.Tensor, pos_item: torch.Tensor) -> torch.Tensor:
+        """
+        Calculates the loss for the model given a user embedding and positive item.
+
+        Args:
+        user_emb (torch.Tensor): A tensor representing the user embedding.
+        pos_item (torch.Tensor): A tensor representing the positive item.
+
+        Returns:
+        The tensor representing the calculated loss value.
+        """
+        all_items = self.output_items()
+        scores = torch.matmul(user_emb, all_items.transpose(1, 0))
+        loss = self.loss_fun(scores, pos_item)
+        return loss
+
+    def gather_indexes(self, output: torch.Tensor, gather_index: torch.Tensor) -> torch.Tensor:
+        """
+        Gathers the vectors at the specific positions over a minibatch.
+
+        Args:
+        output (torch.Tensor): A tensor representing the output vectors.
+        gather_index (torch.Tensor): A tensor representing the index vectors.
+
+        Returns:
+        The tensor representing the gathered output vectors.
+        """
+        gather_index = gather_index.view(-1, 1, 1).expand(-1, -1, output.shape[-1])
+        output_tensor = output.gather(dim=1, index=gather_index)
+        return output_tensor.squeeze(1)
+
+    def output_items(self) -> torch.Tensor:
+        """
+        Returns the item embedding layer weight.
+
+        Returns:
+        The tensor representing the item embedding layer weight.
+        """
+        self.eval()
+        return self.item_emb.weight
+
+    def _init_weights(self, module: nn.Module):
+        """
+        Initializes the weight value for the given module.
+
+        Args:
+        module (nn.Module): The module whose weights need to be initialized.
+        """
+        if isinstance(module, nn.Embedding):
+            xavier_normal_(module.weight.data)
+        elif isinstance(module, nn.Linear):
+             xavier_normal_(module.weight.data)
+             if module.bias is not None:
+                constant_(module.bias.data, 0)
 
 class GraphBaseModel(nn.Module):
     def __int__(self,num_user,num_item,embedding_dim):
@@ -74,43 +183,3 @@ class GraphBaseModel(nn.Module):
         item_emb = self.item_emb_layer.weight
 
         return torch.cat([user_emb, item_emb], 0)
-
-class SequenceBaseModel(nn.Module):
-    def __init__(self,enc_dict,config):
-        super(SequenceBaseModel, self).__init__()
-
-        self.enc_dict = enc_dict
-        self.config = config
-        self.embedding_dim = self.config['embedding_dim']
-        self.max_length = self.config['max_length']
-        self.device = self.config['device']
-
-        self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim,padding_idx=0)
-        for col in self.config['cate_cols']:
-            setattr(self,f'{col}_emb',nn.Embedding(self.enc_dict[col]['vocab_size'], self.embedding_dim,padding_idx=0))
-
-        self.loss_fun = nn.CrossEntropyLoss()
-
-    def calculate_loss(self, user_emb, pos_item):
-        all_items = self.output_items()
-        scores = torch.matmul(user_emb, all_items.transpose(1, 0))
-        loss = self.loss_fun(scores, pos_item)
-        return loss
-
-    def gather_indexes(self, output, gather_index):
-        """Gathers the vectors at the specific positions over a minibatch"""
-        gather_index = gather_index.view(-1, 1, 1).expand(-1, -1, output.shape[-1])
-        output_tensor = output.gather(dim=1, index=gather_index)
-        return output_tensor.squeeze(1)
-
-    def output_items(self):
-        self.eval()
-        return self.item_emb.weight
-
-    def _init_weights(self, module):
-        if isinstance(module, nn.Embedding):
-            xavier_normal_(module.weight.data)
-        elif isinstance(module, nn.Linear):
-            xavier_normal_(module.weight.data)
-            if module.bias is not None:
-                constant_(module.bias.data, 0)
