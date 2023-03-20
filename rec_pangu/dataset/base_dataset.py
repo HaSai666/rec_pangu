@@ -1,15 +1,21 @@
-# -*- ecoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 # @ModuleName: base_dataset
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
+from typing import Dict, List
+import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from collections import defaultdict
 
+
 class BaseDataset(Dataset):
-    def __init__(self,config,df,enc_dict=None):
+    def __init__(self,
+                 config: dict,
+                 df: pd.DataFrame,
+                 enc_dict: Dict[str, dict] = None):
         self.config = config
         self.df = df
         self.enc_dict = enc_dict

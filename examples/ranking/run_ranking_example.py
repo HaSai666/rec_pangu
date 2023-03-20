@@ -38,7 +38,7 @@ if __name__=='__main__':
     trainer = RankTrainer(num_task=1, model_ckpt_dir='./model_ckpt')
     #训练模型
     trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device,
-                use_earlystopping=True, max_patience=5, monitor_metric='valid_roc_auc_score')
+                use_earlystopping=True, max_patience=5, monitor_metric='roc_auc_score')
     #保存模型权重
     # trainer.save_model(model, './model_ckpt')
     #保存模型权重和enc_dict
