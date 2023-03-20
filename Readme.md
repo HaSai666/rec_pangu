@@ -1,4 +1,5 @@
 # Rec PanGu
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dd12b74d804a4817aff89a320a6c97af)](https://app.codacy.com/gh/HaSai666/rec_pangu?utm_source=github.com&utm_medium=referral&utm_content=HaSai666/rec_pangu&utm_campaign=Badge_Grade)
 [![stars](https://img.shields.io/github/stars/HaSai666/rec_pangu?color=097abb)](https://github.com/HaSai666/rec_pangu/stargazers)
 [![issues](https://img.shields.io/github/issues/HaSai666/rec_pangu?color=097abb)](https://github.com/HaSai666/rec_pangu/issues)
 [![license](https://img.shields.io/github/license/HaSai666/rec_pangu?color=097abb)](https://github.com/HaSai666/rec_pangu/blob/main/LICENSE)
