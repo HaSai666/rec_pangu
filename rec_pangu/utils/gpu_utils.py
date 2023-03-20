@@ -18,9 +18,31 @@ def get_gpu_usage(device=None):
 
     return '{:.2f} G/{:.2f} G'.format(reserved, total)
 
-def set_device(device_id):
-    device_id = int(device_id)
-    if device_id<0:
+
+def set_device(device_id: int = -1) -> torch.device:
+    """
+    Sets the device to be used for tensor computations.
+
+    Args:
+        device_id: int, optional
+            An integer indicating the index of the GPU device to use for tensor computations.
+            `device_id` < 0 indicates that the computation should be performed on the CPU. Default -1.
+
+    Returns:
+        torch.device
+            A device representing the device to be used for tensor computations.
+
+    Raises:
+        TypeError
+            If `device_id` is not an integer.
+    """
+    # Check if `device_id` is of integer type
+    if not isinstance(device_id, int):
+        raise TypeError("Device ID should be an integer.")
+
+    # Set device to CPU if `device_id` is less than zero
+    if device_id < 0:
         return torch.device('cpu')
+    # Otherwise, return the specified GPU device
     else:
-        return  torch.device(f'cuda:{device_id}')
+        return torch.device(f'cuda:{device_id}')
