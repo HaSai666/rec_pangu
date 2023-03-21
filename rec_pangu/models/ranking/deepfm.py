@@ -5,7 +5,7 @@
 # @Time: 2022/6/10 7:40 PM
 from typing import Dict, List
 import torch
-from ..layers import FM_Layer, MLP_Layer
+from ..layers import FM_Layer, MLP
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
 
@@ -33,8 +33,8 @@ class DeepFM(BaseModel):
 
         self.fm = FM_Layer()
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
-        self.dnn = MLP_Layer(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
-                                 hidden_activations='relu', dropout_rates=0)
+        self.dnn = MLP(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
+                       hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
     def forward(self, data, is_training=True):

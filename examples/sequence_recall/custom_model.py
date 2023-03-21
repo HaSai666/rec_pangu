@@ -7,7 +7,6 @@ import sys
 sys.path.append('../../')
 import torch
 import torch.nn.functional as F
-from loguru import logger
 from rec_pangu.dataset import get_dataloader
 from rec_pangu.models.base_model import SequenceBaseModel
 from rec_pangu.trainer import SequenceTrainer

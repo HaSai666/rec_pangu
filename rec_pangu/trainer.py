@@ -302,7 +302,7 @@ class SequenceTrainer:
                 logger.info(f"Valid Metric:{valid_metric}")
 
     def evaluate_model(self, model, test_loader, device: torch.device = torch.device('cpu'),
-                       topk_list: Optional[List[int]] = None):
+                       topk_list: Optional[List[int]] = None) -> dict:
         """
         Evaluates the model using the given test loader.
 
@@ -311,6 +311,9 @@ class SequenceTrainer:
             test_loader: DataLoader for test data.
             device (torch.device, optional): Device to evaluate the model on. Defaults to torch.device('cpu').
             topk_list (Optional[List[int]], optional): List of top-k values to compute metrics. Defaults to None.
+
+        Returns:
+            Dict[str, torch.Tensor]: Top-K Recommendation Metric.
         """
         if topk_list is None:
             topk_list = [20, 50, 100]
@@ -322,6 +325,8 @@ class SequenceTrainer:
         logger.info(f"Test Metric:{test_metric}")
         if self.use_wandb:
             wandb.finish()
+
+        return test_metric
 
     def save_model(self, model, model_ckpt_dir: str):
         """

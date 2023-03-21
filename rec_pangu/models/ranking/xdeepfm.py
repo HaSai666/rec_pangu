@@ -5,7 +5,7 @@
 # @Time: 2022/6/10 7:40 PM
 import torch
 from typing import Dict, List
-from ..layers import MLP_Layer, LR_Layer, CompressedInteractionNet
+from ..layers import MLP, LR_Layer, CompressedInteractionNet
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
@@ -36,9 +36,9 @@ class xDeepFM(BaseModel):
 
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
 
-        self.dnn = MLP_Layer(input_dim=self.num_sparse * self.embedding_dim + self.num_dense,
-                             output_dim=1,
-                             hidden_units=self.dnn_hidden_units)
+        self.dnn = MLP(input_dim=self.num_sparse * self.embedding_dim + self.num_dense,
+                       output_dim=1,
+                       hidden_units=self.dnn_hidden_units)
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
         self.cin = CompressedInteractionNet(self.num_sparse, cin_layer_units, output_dim=1)
 

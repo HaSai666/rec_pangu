@@ -50,7 +50,7 @@ class MultiTaskDataset(BaseDataset):
         # If an encoding dictionary is not provided, create one and apply it to the data.
         if self.enc_dict is None:
             self.get_enc_dict()
-        self.enc_data()
+        self.data()
 
     def __getitem__(self, index: int) -> dict:
         """
@@ -64,9 +64,9 @@ class MultiTaskDataset(BaseDataset):
         """
         data = defaultdict(np.array)
         for col in self.dense_cols:
-            data[col] = self.enc_data[col][index]
+            data[col] = self.data[col][index]
         for col in self.sparse_cols:
-            data[col] = self.enc_data[col][index]
+            data[col] = self.data[col][index]
         for idx, col in enumerate(self.config['label_col']):
             if f'task{idx + 1}_label' in self.df.columns:
                 data[f'task{idx + 1}_label'] = torch.Tensor([self.df[f'task{idx + 1}_label'].iloc[index]]).squeeze(-1)

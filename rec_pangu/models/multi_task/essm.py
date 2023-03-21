@@ -4,7 +4,7 @@
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
 from torch import nn
-from ..layers import MLP_Layer
+from ..layers import MLP
 from ..utils import get_feature_num
 from ..base_model import BaseModel
 
@@ -25,11 +25,11 @@ class ESSM(BaseModel):
 
         hidden_size = self.num_sparse_fea * self.embedding_dim
 
-        self.ctr_layer = MLP_Layer(input_dim=hidden_size, output_dim=1, hidden_units=self.hidden_dim,
-                                   hidden_activations='relu', dropout_rates=self.dropouts)
+        self.ctr_layer = MLP(input_dim=hidden_size, output_dim=1, hidden_units=self.hidden_dim,
+                             hidden_activations='relu', dropout_rates=self.dropouts)
 
-        self.cvr_layer = MLP_Layer(input_dim=hidden_size, output_dim=1, hidden_units=self.hidden_dim,
-                                   hidden_activations='relu', dropout_rates=self.dropouts)
+        self.cvr_layer = MLP(input_dim=hidden_size, output_dim=1, hidden_units=self.hidden_dim,
+                             hidden_activations='relu', dropout_rates=self.dropouts)
         self.sigmoid = nn.Sigmoid()
 
         self.apply(self._init_weights)

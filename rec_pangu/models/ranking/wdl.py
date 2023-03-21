@@ -5,7 +5,7 @@
 # @Time: 2022/6/10 7:40 PM
 import torch
 from typing import Dict, List
-from ..layers import MLP_Layer, LR_Layer
+from ..layers import MLP, LR_Layer
 from ..utils import get_dnn_input_dim, get_linear_input
 from ..base_model import BaseModel
 
@@ -34,8 +34,8 @@ class WDL(BaseModel):
         self.lr = LR_Layer(enc_dict=self.enc_dict)
         # Deep part
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
-        self.dnn = MLP_Layer(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
-                             hidden_activations='relu', dropout_rates=0)
+        self.dnn = MLP(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
+                       hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:

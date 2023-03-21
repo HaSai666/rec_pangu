@@ -6,7 +6,7 @@
 from typing import Dict
 from torch import nn
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer
+from ..layers import EmbeddingLayer, MLP
 from ..utils import get_feature_num
 from ..base_model import BaseModel
 
@@ -40,10 +40,10 @@ class AFN(BaseModel):
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
         self.coefficient_W = nn.Linear(self.num_sparse, logarithmic_neurons, bias=False)
 
-        self.dense_layer = MLP_Layer(input_dim=embedding_dim * logarithmic_neurons,
-                                     output_dim=1,
-                                     hidden_units=afn_hidden_units,
-                                     use_bias=True)
+        self.dense_layer = MLP(input_dim=embedding_dim * logarithmic_neurons,
+                               output_dim=1,
+                               hidden_units=afn_hidden_units,
+                               use_bias=True)
         self.log_batch_norm = nn.BatchNorm1d(self.num_sparse)
         self.exp_batch_norm = nn.BatchNorm1d(logarithmic_neurons)
         self.ensemble_dnn = ensemble_dnn
@@ -51,10 +51,10 @@ class AFN(BaseModel):
 
         if ensemble_dnn:
             self.embedding_layer2 = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
-            self.dnn = MLP_Layer(input_dim=embedding_dim * self.num_sparse,
-                                 output_dim=1,
-                                 hidden_units=dnn_hidden_units,
-                                 use_bias=True)
+            self.dnn = MLP(input_dim=embedding_dim * self.num_sparse,
+                           output_dim=1,
+                           hidden_units=dnn_hidden_units,
+                           use_bias=True)
             self.fc = nn.Linear(2, 1)
 
     def forward(self, data,is_training=True):

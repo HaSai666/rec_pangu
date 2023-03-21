@@ -5,7 +5,7 @@
 # @Time: 2022/6/10 7:40 PM
 import torch
 from typing import Dict, List
-from ..layers import LR_Layer, MLP_Layer, InnerProductLayer
+from ..layers import LR_Layer, MLP, InnerProductLayer
 from ..utils import get_dnn_input_dim
 from ..base_model import BaseModel
 
@@ -35,8 +35,8 @@ class NFM(BaseModel):
 
         self.inner_product_layer = InnerProductLayer(output="Bi_interaction_pooling")
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
-        self.dnn = MLP_Layer(input_dim=self.embedding_dim, output_dim=1, hidden_units=self.hidden_units,
-                             hidden_activations='relu', dropout_rates=0)
+        self.dnn = MLP(input_dim=self.embedding_dim, output_dim=1, hidden_units=self.hidden_units,
+                       hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:

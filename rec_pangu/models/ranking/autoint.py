@@ -6,7 +6,7 @@
 from typing import Dict, List
 from torch import nn
 import torch
-from ..layers import MLP_Layer, LR_Layer, MultiHeadSelfAttention
+from ..layers import MLP, LR_Layer, MultiHeadSelfAttention
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
@@ -42,9 +42,9 @@ class AutoInt(BaseModel):
 
         self.lr_layer = LR_Layer(enc_dict=enc_dict)
 
-        self.dnn = MLP_Layer(input_dim=self.embedding_dim* self.num_sparse + self.num_dense,
-                             output_dim=1,
-                             hidden_units=self.dnn_hidden_units)
+        self.dnn = MLP(input_dim=self.embedding_dim * self.num_sparse + self.num_dense,
+                       output_dim=1,
+                       hidden_units=self.dnn_hidden_units)
 
         self.self_attention = nn.Sequential(
             *[MultiHeadSelfAttention(self.embedding_dim if i == 0 else num_heads * attention_dim,

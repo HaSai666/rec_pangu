@@ -6,7 +6,7 @@
 from typing import Dict, List
 import torch
 from torch import nn
-from ..layers import MLP_Layer,MultiHeadSelfAttention
+from ..layers import MLP,MultiHeadSelfAttention
 from ..utils import get_feature_num
 from ..base_model import BaseModel
 
@@ -26,10 +26,10 @@ class AITM(BaseModel):
 
         self.tower_input_size = self.num_sparse_fea * self.embedding_dim
 
-        self.click_tower = MLP_Layer(input_dim=self.tower_input_size, hidden_units=self.tower_dims,
-                                     hidden_activations='relu', dropout_rates=self.drop_prob)
-        self.conversion_tower = MLP_Layer(input_dim=self.tower_input_size, hidden_units=self.tower_dims,
-                                          hidden_activations='relu', dropout_rates=self.drop_prob)
+        self.click_tower = MLP(input_dim=self.tower_input_size, hidden_units=self.tower_dims,
+                               hidden_activations='relu', dropout_rates=self.drop_prob)
+        self.conversion_tower = MLP(input_dim=self.tower_input_size, hidden_units=self.tower_dims,
+                                    hidden_activations='relu', dropout_rates=self.drop_prob)
         self.attention_layer = MultiHeadSelfAttention(self.tower_dims[-1])
 
         self.info_layer = nn.Sequential(nn.Linear(tower_dims[-1], tower_dims[-1]), nn.ReLU(),

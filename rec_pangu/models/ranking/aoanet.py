@@ -6,7 +6,7 @@
 from typing import Dict, List
 from torch import nn
 import torch
-from ..layers import MLP_Layer
+from ..layers import MLP
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
@@ -37,9 +37,9 @@ class AOANet(BaseModel):
 
         self.num_sparse, self.num_dense = get_feature_num(self.enc_dict)
 
-        self.dnn = MLP_Layer(input_dim=self.embedding_dim * self.num_sparse + self.num_dense,
-                             output_dim=None,
-                             hidden_units=self.dnn_hidden_units)
+        self.dnn = MLP(input_dim=self.embedding_dim * self.num_sparse + self.num_dense,
+                       output_dim=None,
+                       hidden_units=self.dnn_hidden_units)
         self.gin = GeneralizedInteractionNet(num_interaction_layers,
                                              num_subspaces,
                                              self.num_sparse,

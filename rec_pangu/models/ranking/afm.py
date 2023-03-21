@@ -4,7 +4,7 @@
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
 import torch
-from ..layers import MLP_Layer, LR_Layer, SENET_Layer, BilinearInteractionLayer
+from ..layers import MLP, LR_Layer, SENET_Layer, BilinearInteractionLayer
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
@@ -29,8 +29,8 @@ class AFM(BaseModel):
         self.bilinear_interaction = BilinearInteractionLayer(self.num_sparse, embedding_dim, 'field_interaction')
 
         input_dim = self.num_sparse * (self.num_sparse - 1) * self.embedding_dim + self.num_dense
-        self.dnn = MLP_Layer(input_dim=input_dim, output_dim=1, hidden_units=self.hidden_units,
-                             hidden_activations='relu', dropout_rates=0)
+        self.dnn = MLP(input_dim=input_dim, output_dim=1, hidden_units=self.hidden_units,
+                       hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
     def forward(self, data,is_training=True):

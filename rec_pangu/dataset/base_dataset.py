@@ -27,7 +27,7 @@ class BaseDataset(Dataset):
         dense_cols(list): A list of the dense columns extracted from the given data.
         sparse_cols(list): A list of the sparse columns extracted from the given data.
         feature_name(list): A list of all the extracted features from the given data.
-        enc_data(defaultdict): A dictionary containing the encoded data using the provided encoding dictionary.
+        data(defaultdict): A dictionary containing the encoded data using the provided encoding dictionary.
     """
 
     def __init__(self, config: dict, df: pd.DataFrame, enc_dict: Dict[str, dict] = None):
@@ -95,12 +95,12 @@ class BaseDataset(Dataset):
         """
         This method encodes the dataset using the encoding dictionary and stores it in the self.enc_data dictionary.
         """
-        self.enc_data = defaultdict(np.array)
+        self.data_dict = defaultdict(np.array)
 
         for col in self.dense_cols:
-            self.enc_data[col] = torch.Tensor(np.array(self.enc_dense_data(col)))
+            self.data_dict[col] = torch.Tensor(np.array(self.enc_dense_data(col)))
         for col in self.sparse_cols:
-            self.enc_data[col] = torch.Tensor(np.array(self.enc_sparse_data(col))).long()
+            self.data_dict[col] = torch.Tensor(np.array(self.enc_sparse_data(col))).long()
 
     def __getitem__(self, index: int) -> Dict[str, torch.Tensor]:
         """
@@ -112,12 +112,12 @@ class BaseDataset(Dataset):
         Returns:
             A dictionary containing the encoded data at the given index.
         """
-        data = defaultdict(np.array)
+        data = {}
 
         for col in self.dense_cols:
-            data[col] = self.enc_data[col][index]
+            data[col] = self.data_dict[col][index]
         for col in self.sparse_cols:
-            data[col] = self.enc_data[col][index]
+            data[col] = self.data_dict[col][index]
         if 'label' in self.df.columns:
             data['label'] = torch.Tensor([self.df['label'].iloc[index]]).squeeze(-1)
 

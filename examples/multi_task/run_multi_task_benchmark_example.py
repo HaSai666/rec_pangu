@@ -38,7 +38,7 @@ if __name__=='__main__':
     # 声明Benchmark Trainer
     benchmark_trainer = BenchmarkTrainer(num_task=2,
                                          model_list=model_list,
-                                         benhcmark_res_path='./multi_task_benchmark_res.csv',
+                                         benchmark_res_path='./multi_task_benchmark_res.csv',
                                          ckpt_root='./multi_task_benchmark_ckpt/')
     #开始benchmark跑测，模型权重保存在{ckpt_root}/{model_name}下面，benchmark的输出结果保存在benchmark_res_path里面
     benchmark_trainer.run(enc_dict=enc_dict,
