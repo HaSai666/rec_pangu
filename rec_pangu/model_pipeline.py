@@ -3,7 +3,7 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from typing import Dict, List, Tuple
+from typing import Dict, List
 import torch
 import time
 from tqdm import tqdm

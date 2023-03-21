@@ -3,9 +3,8 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from torch import nn
 import torch
-from ..layers import EmbeddingLayer, MLP_Layer, LR_Layer, SENET_Layer, BilinearInteractionLayer
+from ..layers import MLP_Layer, LR_Layer, SENET_Layer, BilinearInteractionLayer
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 

@@ -7,7 +7,7 @@ import torch
 from collections import defaultdict
 import pandas as pd
 import numpy as np
-from .base_dataset import  BaseDataset
+from .base_dataset import BaseDataset
 
 class MultiTaskDataset(BaseDataset):
     """
@@ -32,7 +32,6 @@ class MultiTaskDataset(BaseDataset):
     """
 
     def __init__(self, config: dict, df: pd.DataFrame, enc_dict: dict = None) -> None:
-        super().__init__()
         self.config = config
         self.df = df
         self.enc_dict = enc_dict

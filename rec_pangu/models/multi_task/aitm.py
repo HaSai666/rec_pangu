@@ -88,8 +88,6 @@ class AITM(BaseModel):
              conversion_pred,
              constraint_weight=0.6):
 
-        conversion_label = conversion_label
-
         click_loss = nn.functional.binary_cross_entropy(click_pred, click_label)
         conversion_loss = nn.functional.binary_cross_entropy(
             conversion_pred, conversion_label)

@@ -133,10 +133,10 @@ class MLMMOE(BaseModel):
         return output_dict
 
     def loss(self, task_outputs, data, weight=None):
-        if weight == None:
+        if weight is None:
             weight = np.ones(self.num_task) / self.num_task
         loss = 0
-        for i in range(len(task_outputs)):
+        for i, _ in enumerate(task_outputs):
             loss += weight[i] * nn.functional.binary_cross_entropy(task_outputs[i].squeeze(-1),
                                                                    data[f'task{i + 1}_label'])
 

@@ -10,6 +10,7 @@ from ..utils import get_feature_num, get_linear_input
 import numpy as np
 from ..base_model import BaseModel
 
+
 class MMOE(BaseModel):
     def __init__(self,
                  num_task=2,
@@ -21,7 +22,7 @@ class MMOE(BaseModel):
                  dropouts=[0.2, 0.2],
                  enc_dict=None,
                  device=None):
-        super(MMOE, self).__init__(enc_dict,embedding_dim)
+        super(MMOE, self).__init__(enc_dict, embedding_dim)
         self.enc_dict = enc_dict
         self.num_task = num_task
         self.n_expert = n_expert
@@ -66,7 +67,7 @@ class MMOE(BaseModel):
             self.gates_bias[i] = self.gates_bias[i].to(device)
         print(f'Successfully set device:{device}')
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         """
         Perform forward propagation on the MMOE model.
 
@@ -119,11 +120,11 @@ class MMOE(BaseModel):
         return output_dict
 
     def loss(self, task_outputs, data, weight=None):
-        if weight == None:
+        if weight is None:
             weight = np.ones(self.num_task) / self.num_task
         loss = 0
-        for i in range(len(task_outputs)):
-            loss += weight[i] * nn.functional.binary_cross_entropy(task_outputs[i].squeeze(-1)+1e-6,
+        for i, _ in enumerate(task_outputs):
+            loss += weight[i] * nn.functional.binary_cross_entropy(task_outputs[i].squeeze(-1) + 1e-6,
                                                                    data[f'task{i + 1}_label'])
 
         return loss

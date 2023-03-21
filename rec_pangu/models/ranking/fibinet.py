@@ -3,7 +3,7 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from typing import Dict,List
+from typing import Dict, List
 import torch
 from ..layers import LR_Layer, MLP_Layer, BilinearInteractionLayer, SENET_Layer
 from ..utils import get_feature_num, get_linear_input

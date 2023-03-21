@@ -81,7 +81,7 @@ class BenchmarkTrainer:
                 test_metric = {}
             test_time = time.time() - start_time
             model_ckpt = os.path.join(self.ckpt_root, model_name)
-            model_trainer.save_all(model, enc_dict, os.path.join(self.ckpt_root,model_name))
+            model_trainer.save_all(model, enc_dict, model_ckpt)
             log_dict = {
                 'model_name': model_name,
                 'train_model_time': train_time * 1000,

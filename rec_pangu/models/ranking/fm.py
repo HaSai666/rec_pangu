@@ -3,7 +3,7 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from typing import Dict, Union
+from typing import Dict
 import torch
 from ..layers import FM_Layer
 from ..base_model import BaseModel
