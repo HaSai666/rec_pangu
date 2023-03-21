@@ -79,7 +79,7 @@ class CapsuleNetwork(nn.Module):
         self.bilinear_type = bilinear_type
         self.interest_num = interest_num
         self.routing_times = routing_times
-        self.hard_readout = hard_readout  
+        self.hard_readout = hard_readout
         self.relu_layer = relu_layer
         self.stop_grad = True
 
