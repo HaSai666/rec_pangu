@@ -3,10 +3,8 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2023/3/3 14:07
-import numpy as np
 import torch
 from torch.utils.data import Dataset
-from collections import defaultdict
 import random
 
 class SequenceDataset(Dataset):

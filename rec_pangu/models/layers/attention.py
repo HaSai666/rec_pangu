@@ -96,7 +96,7 @@ class MultiHeadAttention(nn.Module):
 
 class MultiHeadSelfAttention(MultiHeadAttention):
     def forward(self, X):
-        output, attention = super(MultiHeadSelfAttention, self).forward(X, X, X)
+        output, _ = super(MultiHeadSelfAttention, self).forward(X, X, X)
         return output
 
 

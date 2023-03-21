@@ -6,123 +6,290 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import copy
-import math
 
-class MultiInterest_SA(nn.Module):
-    def __init__(self, embedding_dim, K, d=None):
-        super(MultiInterest_SA, self).__init__()
+class MultiInterestSelfAttention(nn.Module):
+    def __init__(self, embedding_dim: int, num_attention_heads: int, d: int = None) -> None:
+        super(MultiInterestSelfAttention, self).__init__()
         self.embedding_dim = embedding_dim
-        self.K = K
-        if d == None:
-            self.d = self.embedding_dim*4
+        self.num_attention_heads = num_attention_heads
+        if d is None:
+            self.d = self.embedding_dim * 4
+        else:
+            self.d = d
 
-        self.W1 = torch.nn.Parameter(torch.rand(self.embedding_dim, self.d), requires_grad=True)
-        self.W2 = torch.nn.Parameter(torch.rand(self.d, self.K), requires_grad=True)
-        self.W3 = torch.nn.Parameter(torch.rand(self.embedding_dim, self.embedding_dim), requires_grad=True)
+        # Create trainable parameters
+        self.W1 = nn.Parameter(torch.rand(self.embedding_dim, self.d), requires_grad=True)
+        self.W2 = nn.Parameter(torch.rand(self.d, self.num_attention_heads), requires_grad=True)
+        self.W3 = nn.Parameter(torch.rand(self.embedding_dim, self.embedding_dim), requires_grad=True)
 
-    def forward(self, seq_emb, mask = None):
+    def forward(self, sequence_embeddings: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
         '''
-        seq_emb : batch,seq,emb
-        mask : batch,seq,1
+        Args:
+            * sequence_embeddings (torch.Tensor): batch_size x sequence_length x embedding_dimension
+            * mask (torch.Tensor): binary mask for sequence; batch_size x sequence_length x 1
+
+        Returns:
+            * Multi-interest embeddings (torch.Tensor): batch_size x num_attention_heads x embedding_dimension
         '''
-        H = torch.einsum('bse, ed -> bsd', seq_emb, self.W1).tanh()
-        if mask != None:
+
+        # Apply first layer of weights and activation function
+        H = torch.einsum('bse, ed -> bsd', sequence_embeddings, self.W1).tanh()
+
+        # Apply second layer of weights and softmax
+        if mask is not None:
+            # Add a large negative constant to the masked elements of the attention matrix to give them near 0 probability.
             A = torch.einsum('bsd, dk -> bsk', H, self.W2) + -1.e9 * (1 - mask.float())
             A = F.softmax(A, dim=1)
         else:
             A = F.softmax(torch.einsum('bsd, dk -> bsk', H, self.W2), dim=1)
+
+        # Transpose attention head and sequence dimensions for easier matrix multiplication
         A = A.permute(0, 2, 1)
-        multi_interest_emb = torch.matmul(A, seq_emb)
+
+        # Apply final attention pooling to get multi-interest embeddings
+        multi_interest_emb = torch.matmul(A, sequence_embeddings)
+
         return multi_interest_emb
 
-class CapsuleNetwork(nn.Module):
 
-    def __init__(self, hidden_size, seq_len, bilinear_type=2, interest_num=4, routing_times=3, hard_readout=True,
-                 relu_layer=False):
+class CapsuleNetwork(nn.Module):
+    """
+    Implements a Capsule Network that is capable of handling various types of bilinear
+    interactions between items in a sequence.
+
+    Args:
+    hidden_size: An integer representing the size of the hidden layer of the model.
+    seq_len: An integer representing the length of the input sequence.
+    bilinear_type: An integer representing the type of bilinear interaction between items.
+    interest_num: An integer representing the number of interest capsules in the model.
+    routing_times: An integer representing the number of dynamic routing iterations.
+    hard_readout: A Boolean indicating whether to use hard readout or not
+    relu_layer: A Boolean indicating whether to use a ReLU layer
+
+    Returns:
+    interest_capsule: The output interest capsule from the model
+    """
+
+    def __init__(self, hidden_size: int, seq_len: int, bilinear_type: int = 2, interest_num: int = 4,
+                 routing_times: int = 3, hard_readout: bool = True, relu_layer: bool = False) -> None:
         super(CapsuleNetwork, self).__init__()
-        self.hidden_size = hidden_size  # h
-        self.seq_len = seq_len  # s
+
+        self.hidden_size = hidden_size
+        self.seq_len = seq_len
         self.bilinear_type = bilinear_type
         self.interest_num = interest_num
         self.routing_times = routing_times
-        self.hard_readout = hard_readout
+        self.hard_readout = hard_readout  
         self.relu_layer = relu_layer
         self.stop_grad = True
-        self.relu = nn.Sequential(
-            nn.Linear(self.hidden_size, self.hidden_size, bias=False),
-            nn.ReLU()
-        )
-        if self.bilinear_type == 0:  # MIND
+
+        if self.relu_layer:
+            self.relu = nn.Sequential(
+                nn.Linear(self.hidden_size, self.hidden_size, bias=False),
+                nn.ReLU()
+            )
+
+        if self.bilinear_type == 0:
+            # The MIND algorithm uses a single linear layer
             self.linear = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
         elif self.bilinear_type == 1:
+            # Uses a linear layer to combine multiple interest capsules
             self.linear = nn.Linear(self.hidden_size, self.hidden_size * self.interest_num, bias=False)
         else:  # ComiRec_DR
+            # Uses learned attention weights for interactions between items in the sequence
             self.w = nn.Parameter(torch.Tensor(1, self.seq_len, self.interest_num * self.hidden_size, self.hidden_size))
 
-    def forward(self, item_eb, mask, device):
-        if self.bilinear_type == 0:  # MIND
-            item_eb_hat = self.linear(item_eb)  # [b, s, h]
-            item_eb_hat = item_eb_hat.repeat(1, 1, self.interest_num)  # [b, s, h*in]
+    def forward(self, item_eb: torch.Tensor, mask: torch.Tensor, device: torch.device) -> torch.Tensor:
+        """
+        Implements the forward pass of a Capsule Network model.
+
+        Args:
+        item_eb: A tensor of shape (batch_size, seq_len, hidden_size) containing the item embeddings for the input sequence.
+        mask: A tensor of shape (batch_size, seq_len) containing the attention mask for the input sequence.
+        device: The device to store the intermediate computations.
+
+        Returns:
+        interest_capsule: The output interest capsule from the model
+        """
+        if self.bilinear_type == 0:
+            # The MIND algorithm uses a single linear layer
+            item_eb_hat = self.linear(item_eb)  # [batch_size, seq_len, hidden_size]
+            item_eb_hat = item_eb_hat.repeat(1, 1, self.interest_num)  # [batch_size, seq_len, hidden_size*interest_num]
         elif self.bilinear_type == 1:
             item_eb_hat = self.linear(item_eb)
         else:  # ComiRec_DR
-            u = torch.unsqueeze(item_eb, dim=2)  # shape=(batch_size, maxlen, 1, embedding_dim)
+            u = torch.unsqueeze(item_eb, dim=2)  # shape=(batch_size, seq_len, 1, embedding_dim)
             item_eb_hat = torch.sum(self.w[:, :self.seq_len, :, :] * u,
-                                    dim=3)  # shape=(batch_size, maxlen, hidden_size*interest_num)
+                                    -1)  # shape=(batch_size, seq_len, hidden_size*interest_num)
 
-        item_eb_hat = torch.reshape(item_eb_hat, (-1, self.seq_len, self.interest_num, self.hidden_size))
-        item_eb_hat = torch.transpose(item_eb_hat, 1, 2).contiguous()
-        item_eb_hat = torch.reshape(item_eb_hat, (-1, self.interest_num, self.seq_len, self.hidden_size))
+        item_eb_hat = item_eb_hat.view(-1, self.seq_len, self.interest_num, self.hidden_size)
+        item_eb_hat = item_eb_hat.permute(0, 2, 1, 3).contiguous()
+        item_eb_hat = item_eb_hat.view(-1, self.interest_num, self.seq_len,
+                                       self.hidden_size)  # [batch_size, num_interest, seq_len, hidden_size]
 
-        # [b, in, s, h]
-        if self.stop_grad:  # 截断反向传播，item_emb_hat不计入梯度计算中
+        # [batch_size, num_interest, seq_len, hidden_size]
+        if self.stop_grad:  # Clip signal for backpropagation, item_emb_hat is not included in gradient calculation
             item_eb_hat_iter = item_eb_hat.detach()
         else:
             item_eb_hat_iter = item_eb_hat
 
-        # b的shape=(b, in, s)
-        if self.bilinear_type > 0:  # b初始化为0（一般的胶囊网络算法）
+        if self.bilinear_type > 0:
+            # If using specific Capsule Network algorithm rather than ComiRec_DR, initialise capsule_weight to 0
             capsule_weight = torch.zeros(item_eb_hat.shape[0], self.interest_num, self.seq_len, device=device,
                                          requires_grad=False)
-        else:  # MIND使用高斯分布随机初始化b
+        else:  # Use Gaussian distribution to initialise b for the MIND algorithm
             capsule_weight = torch.randn(item_eb_hat.shape[0], self.interest_num, self.seq_len, device=device,
                                          requires_grad=False)
 
-        for i in range(self.routing_times):  # 动态路由传播3次
-            atten_mask = torch.unsqueeze(mask, 1).repeat(1, self.interest_num, 1)  # [b, in, s]
+        for i in range(self.routing_times):  # Dynamic routing propagation 3 times
+            atten_mask = torch.unsqueeze(mask, 1).repeat(1, self.interest_num, 1)  # [batch_size, num_interest, seq_len]
             paddings = torch.zeros_like(atten_mask, dtype=torch.float)
 
-            # 计算c，进行mask，最后shape=[b, in, 1, s]
+            # Calculates c, applies masking, final shape=[batch_size, num_interest, 1, seq_len]
             capsule_softmax_weight = F.softmax(capsule_weight, dim=-1)
-            capsule_softmax_weight = torch.where(torch.eq(atten_mask, 0), paddings, capsule_softmax_weight)  # mask
+            capsule_softmax_weight = torch.where(torch.eq(atten_mask, 0), paddings, capsule_softmax_weight)  # Mask
             capsule_softmax_weight = torch.unsqueeze(capsule_softmax_weight, 2)
 
             if i < 2:
                 # s=c*u_hat , (batch_size, interest_num, 1, seq_len) * (batch_size, interest_num, seq_len, hidden_size)
-                interest_capsule = torch.matmul(capsule_softmax_weight,
-                                                item_eb_hat_iter)  # shape=(batch_size, interest_num, 1, hidden_size)
-                cap_norm = torch.sum(torch.square(interest_capsule), -1, True)  # shape=(batch_size, interest_num, 1, 1)
-                scalar_factor = cap_norm / (1 + cap_norm) / torch.sqrt(cap_norm + 1e-9)  # shape同上
-                interest_capsule = scalar_factor * interest_capsule  # squash(s)->v,shape=(batch_size, interest_num, 1, hidden_size)
+                interest_capsule = torch.matmul(capsule_softmax_weight, item_eb_hat_iter)
+                cap_norm = torch.sum(torch.square(interest_capsule), -1, True)
+                scalar_factor = cap_norm / (1 + cap_norm) / torch.sqrt(cap_norm + 1e-9)
+                interest_capsule = scalar_factor * interest_capsule
 
-                # 更新b
-                delta_weight = torch.matmul(item_eb_hat_iter,  # shape=(batch_size, interest_num, seq_len, hidden_size)
-                                            torch.transpose(interest_capsule, 2, 3).contiguous()
-                                            # shape=(batch_size, interest_num, hidden_size, 1)
-                                            )  # u_hat*v, shape=(batch_size, interest_num, seq_len, 1)
-                delta_weight = torch.reshape(delta_weight, (
-                -1, self.interest_num, self.seq_len))  # shape=(batch_size, interest_num, seq_len)
-                capsule_weight = capsule_weight + delta_weight  # 更新b
+                # Updating b
+                delta_weight = torch.matmul(item_eb_hat_iter, torch.transpose(interest_capsule, 2, 3).contiguous())
+                # u_hat*v, shape=(batch_size, interest_num, seq_len, 1)
+                delta_weight = delta_weight.view(-1, self.interest_num,
+                                                 self.seq_len)  # shape=(batch_size, interest_num, seq_len)
+                capsule_weight = capsule_weight + delta_weight  # Update b
             else:
                 interest_capsule = torch.matmul(capsule_softmax_weight, item_eb_hat)
                 cap_norm = torch.sum(torch.square(interest_capsule), -1, True)
                 scalar_factor = cap_norm / (1 + cap_norm) / torch.sqrt(cap_norm + 1e-9)
                 interest_capsule = scalar_factor * interest_capsule
 
-        interest_capsule = torch.reshape(interest_capsule, (-1, self.interest_num, self.hidden_size))
+        interest_capsule = interest_capsule.view(-1, self.interest_num, self.hidden_size)
 
-        if self.relu_layer:  # MIND模型使用book数据库时，使用relu_layer
+        if self.relu_layer:  # MIND model uses relu_layer
             interest_capsule = self.relu(interest_capsule)
 
         return interest_capsule
+
+# class MultiInterest_SA(nn.Module):
+#     def __init__(self, embedding_dim, K, d=None):
+#         super(MultiInterest_SA, self).__init__()
+#         self.embedding_dim = embedding_dim
+#         self.K = K
+#         if d == None:
+#             self.d = self.embedding_dim*4
+#
+#         self.W1 = torch.nn.Parameter(torch.rand(self.embedding_dim, self.d), requires_grad=True)
+#         self.W2 = torch.nn.Parameter(torch.rand(self.d, self.K), requires_grad=True)
+#         self.W3 = torch.nn.Parameter(torch.rand(self.embedding_dim, self.embedding_dim), requires_grad=True)
+#
+#     def forward(self, seq_emb, mask = None):
+#         '''
+#         seq_emb : batch,seq,emb
+#         mask : batch,seq,1
+#         '''
+#         H = torch.einsum('bse, ed -> bsd', seq_emb, self.W1).tanh()
+#         if mask != None:
+#             A = torch.einsum('bsd, dk -> bsk', H, self.W2) + -1.e9 * (1 - mask.float())
+#             A = F.softmax(A, dim=1)
+#         else:
+#             A = F.softmax(torch.einsum('bsd, dk -> bsk', H, self.W2), dim=1)
+#         A = A.permute(0, 2, 1)
+#         multi_interest_emb = torch.matmul(A, seq_emb)
+#         return multi_interest_emb
+
+# class CapsuleNetwork(nn.Module):
+#
+#     def __init__(self, hidden_size, seq_len, bilinear_type=2, interest_num=4, routing_times=3, hard_readout=True,
+#                  relu_layer=False):
+#         super(CapsuleNetwork, self).__init__()
+#         self.hidden_size = hidden_size  # h
+#         self.seq_len = seq_len  # s
+#         self.bilinear_type = bilinear_type
+#         self.interest_num = interest_num
+#         self.routing_times = routing_times
+#         self.hard_readout = hard_readout
+#         self.relu_layer = relu_layer
+#         self.stop_grad = True
+#         self.relu = nn.Sequential(
+#             nn.Linear(self.hidden_size, self.hidden_size, bias=False),
+#             nn.ReLU()
+#         )
+#         if self.bilinear_type == 0:  # MIND
+#             self.linear = nn.Linear(self.hidden_size, self.hidden_size, bias=False)
+#         elif self.bilinear_type == 1:
+#             self.linear = nn.Linear(self.hidden_size, self.hidden_size * self.interest_num, bias=False)
+#         else:  # ComiRec_DR
+#             self.w = nn.Parameter(torch.Tensor(1, self.seq_len, self.interest_num * self.hidden_size, self.hidden_size))
+#
+#     def forward(self, item_eb, mask, device):
+#         if self.bilinear_type == 0:  # MIND
+#             item_eb_hat = self.linear(item_eb)  # [b, s, h]
+#             item_eb_hat = item_eb_hat.repeat(1, 1, self.interest_num)  # [b, s, h*in]
+#         elif self.bilinear_type == 1:
+#             item_eb_hat = self.linear(item_eb)
+#         else:  # ComiRec_DR
+#             u = torch.unsqueeze(item_eb, dim=2)  # shape=(batch_size, maxlen, 1, embedding_dim)
+#             item_eb_hat = torch.sum(self.w[:, :self.seq_len, :, :] * u,
+#                                     dim=3)  # shape=(batch_size, maxlen, hidden_size*interest_num)
+#
+#         item_eb_hat = torch.reshape(item_eb_hat, (-1, self.seq_len, self.interest_num, self.hidden_size))
+#         item_eb_hat = torch.transpose(item_eb_hat, 1, 2).contiguous()
+#         item_eb_hat = torch.reshape(item_eb_hat, (-1, self.interest_num, self.seq_len, self.hidden_size))
+#
+#         # [b, in, s, h]
+#         if self.stop_grad:  # 截断反向传播，item_emb_hat不计入梯度计算中
+#             item_eb_hat_iter = item_eb_hat.detach()
+#         else:
+#             item_eb_hat_iter = item_eb_hat
+#
+#         # b的shape=(b, in, s)
+#         if self.bilinear_type > 0:  # b初始化为0（一般的胶囊网络算法）
+#             capsule_weight = torch.zeros(item_eb_hat.shape[0], self.interest_num, self.seq_len, device=device,
+#                                          requires_grad=False)
+#         else:  # MIND使用高斯分布随机初始化b
+#             capsule_weight = torch.randn(item_eb_hat.shape[0], self.interest_num, self.seq_len, device=device,
+#                                          requires_grad=False)
+#
+#         for i in range(self.routing_times):  # 动态路由传播3次
+#             atten_mask = torch.unsqueeze(mask, 1).repeat(1, self.interest_num, 1)  # [b, in, s]
+#             paddings = torch.zeros_like(atten_mask, dtype=torch.float)
+#
+#             # 计算c，进行mask，最后shape=[b, in, 1, s]
+#             capsule_softmax_weight = F.softmax(capsule_weight, dim=-1)
+#             capsule_softmax_weight = torch.where(torch.eq(atten_mask, 0), paddings, capsule_softmax_weight)  # mask
+#             capsule_softmax_weight = torch.unsqueeze(capsule_softmax_weight, 2)
+#
+#             if i < 2:
+#                 # s=c*u_hat , (batch_size, interest_num, 1, seq_len) * (batch_size, interest_num, seq_len, hidden_size)
+#                 interest_capsule = torch.matmul(capsule_softmax_weight,
+#                                                 item_eb_hat_iter)  # shape=(batch_size, interest_num, 1, hidden_size)
+#                 cap_norm = torch.sum(torch.square(interest_capsule), -1, True)  # shape=(batch_size, interest_num, 1, 1)
+#                 scalar_factor = cap_norm / (1 + cap_norm) / torch.sqrt(cap_norm + 1e-9)  # shape同上
+#                 interest_capsule = scalar_factor * interest_capsule  # squash(s)->v,shape=(batch_size, interest_num, 1, hidden_size)
+#
+#                 # 更新b
+#                 delta_weight = torch.matmul(item_eb_hat_iter,  # shape=(batch_size, interest_num, seq_len, hidden_size)
+#                                             torch.transpose(interest_capsule, 2, 3).contiguous()
+#                                             # shape=(batch_size, interest_num, hidden_size, 1)
+#                                             )  # u_hat*v, shape=(batch_size, interest_num, seq_len, 1)
+#                 delta_weight = torch.reshape(delta_weight, (
+#                 -1, self.interest_num, self.seq_len))  # shape=(batch_size, interest_num, seq_len)
+#                 capsule_weight = capsule_weight + delta_weight  # 更新b
+#             else:
+#                 interest_capsule = torch.matmul(capsule_softmax_weight, item_eb_hat)
+#                 cap_norm = torch.sum(torch.square(interest_capsule), -1, True)
+#                 scalar_factor = cap_norm / (1 + cap_norm) / torch.sqrt(cap_norm + 1e-9)
+#                 interest_capsule = scalar_factor * interest_capsule
+#
+#         interest_capsule = torch.reshape(interest_capsule, (-1, self.interest_num, self.hidden_size))
+#
+#         if self.relu_layer:  # MIND模型使用book数据库时，使用relu_layer
+#             interest_capsule = self.relu(interest_capsule)
+#
+#         return interest_capsule
