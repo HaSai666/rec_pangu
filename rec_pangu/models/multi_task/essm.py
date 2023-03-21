@@ -3,11 +3,12 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-import torch
 from torch import nn
-from ..layers import EmbeddingLayer,MLP_Layer
+from ..layers import MLP_Layer
 from ..utils import get_feature_num
 from ..base_model import BaseModel
+
+
 class ESSM(BaseModel):
     def __init__(self,
                  embedding_dim=40,

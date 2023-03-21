@@ -3,9 +3,8 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2022/6/10 7:40 PM
-from torch import nn
 import torch
-from typing import Optional, Dict, Union, List
+from typing import Dict, List
 from ..layers import LR_Layer, MLP_Layer, InnerProductLayer
 from ..utils import get_dnn_input_dim
 from ..base_model import BaseModel
