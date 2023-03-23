@@ -15,7 +15,7 @@ class Re4(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(Re4, self).__init__(enc_dict, config)
 
-        self.num_interests = self.config.get('num_interests', 4)
+        self.num_interests = self.config.get('K', 4)
         self.att_thre = self.config.get('att_thre', -1)
         self.t_cont = self.config.get('t_cont', 0.02)
         self.att_lambda = self.config.get('att_lambda', 0.01)

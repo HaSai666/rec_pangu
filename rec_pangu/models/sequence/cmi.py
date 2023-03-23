@@ -22,7 +22,7 @@ class CMI(SequenceBaseModel):
         self.w_orth = self.config.get('w_orth', 10)  # 约束全局兴趣向量比较正交
         self.w_sharp = self.config.get('w_sharp', 1)  # 约束item属于一个全局兴趣向量
         self.w_clloss = self.config.get('w_clloss', 0.05)
-        self.n_interest = self.config.get('n_interest', 8)
+        self.n_interest = self.config.get('K', 8)
 
         self.emb_dropout = nn.Dropout(self.dropout_prob)
         self.W = nn.Linear(self.embedding_dim, self.embedding_dim)
