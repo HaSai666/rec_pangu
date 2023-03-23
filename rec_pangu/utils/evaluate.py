@@ -134,7 +134,7 @@ def evaluate_recall(preds: Dict[str, List[int]],
     hitrate = total_hitrate * 1.0 / total
 
     # Return a dictionary containing results
-    return {'recall@{topN}': round(recall,4), 'ndcg@{topN}': round(ndcg,4), 'hitrate@{topN}': round(hitrate,4)}
+    return {f'recall@{topN}': round(recall,4), f'ndcg@{topN}': round(ndcg,4), f'hitrate@{topN}': round(hitrate,4)}
 
 # def get_recall_predict(model, test_data, device, topN=20,):
 #     item_embs = model.output_items().cpu().detach().numpy()
