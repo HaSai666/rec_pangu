@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch import nn
 import torch.nn.functional as F
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.base_model import SequenceBaseModel
 
 class Re4(SequenceBaseModel):
     def __init__(self, enc_dict, config):

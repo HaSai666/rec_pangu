@@ -8,7 +8,7 @@ from typing import Dict
 import torch
 from torch import nn
 import torch.nn.functional as F
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.base_model import SequenceBaseModel
 
 class CMI(SequenceBaseModel):
     def __init__(self, enc_dict, config):

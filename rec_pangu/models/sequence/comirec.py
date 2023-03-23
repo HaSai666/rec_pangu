@@ -5,8 +5,8 @@
 # @Time: 2023/3/5 15:08
 from typing import Dict
 import torch
-from ..layers import MultiInterest_SA,CapsuleNetwork
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.layers import MultiInterestSelfAttention, CapsuleNetwork
+from rec_pangu.models.base_model import SequenceBaseModel
 
 
 class ComirecSA(SequenceBaseModel):
@@ -14,7 +14,8 @@ class ComirecSA(SequenceBaseModel):
     def __init__(self, enc_dict,config):
         super(ComirecSA, self).__init__(enc_dict, config)
 
-        self.multi_interest_sa = MultiInterest_SA(embedding_dim=self.embedding_dim, K=self.config['K'])
+        self.multi_interest_sa = MultiInterestSelfAttention(embedding_dim=self.embedding_dim,
+                                                            num_attention_heads=self.config['K'])
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
@@ -66,7 +67,8 @@ class ComirecDR(SequenceBaseModel):
     def __init__(self, enc_dict,config):
         super(ComirecDR, self).__init__(enc_dict, config)
 
-        self.capsule = CapsuleNetwork(self.embedding_dim,self.max_length,bilinear_type=2,interest_num=self.config['K'])
+        self.capsule = CapsuleNetwork(self.embedding_dim, self.max_length,
+                                      bilinear_type=2, interest_num=self.config['K'])
         self.apply(self._init_weights)
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):

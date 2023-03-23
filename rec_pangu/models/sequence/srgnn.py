@@ -6,9 +6,9 @@
 from typing import Dict
 import torch
 from torch import nn
-from ..utils import generate_graph
-from ..layers import SRGNNCell
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.utils import generate_graph
+from rec_pangu.models.layers import SRGNNCell
+from rec_pangu.models.base_model import SequenceBaseModel
 
 
 class SRGNN(SequenceBaseModel):

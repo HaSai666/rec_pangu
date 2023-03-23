@@ -6,7 +6,7 @@
 from typing import Dict
 import torch
 from torch import nn
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.base_model import SequenceBaseModel
 
 
 class NARM(SequenceBaseModel):

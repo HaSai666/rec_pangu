@@ -5,8 +5,8 @@
 # @Time: 2023/3/5 15:08
 from typing import Dict
 import torch
-from ..layers import CapsuleNetwork
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.layers import CapsuleNetwork
+from rec_pangu.models.base_model import SequenceBaseModel
 
 class MIND(SequenceBaseModel):
     def __init__(self, enc_dict,config):

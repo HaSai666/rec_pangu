@@ -5,7 +5,7 @@
 # @Time: 2023/3/5 15:25
 from typing import Dict
 import torch
-from ..base_model import SequenceBaseModel
+from rec_pangu.models.base_model import SequenceBaseModel
 
 class YotubeDNN(SequenceBaseModel):
     def __init__(self, enc_dict,config):
