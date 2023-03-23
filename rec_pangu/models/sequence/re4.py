@@ -62,7 +62,7 @@ class Re4(SequenceBaseModel):
 
         proposals_weight = torch.matmul(self.W1_2,
                                         torch.tanh(torch.matmul(self.W1, torch.transpose(item_seq_emb, 1, 2))))
-        proposals_weight_logits = proposals_weight.masked_fill(item_mask.unsqueeze(1), -1e9)
+        proposals_weight_logits = proposals_weight.masked_fill(item_mask.unsqueeze(1).bool(), -1e9)
         proposals_weight = torch.softmax(proposals_weight_logits, dim=2)
         user_interests = torch.matmul(proposals_weight, torch.matmul(item_seq_emb, self.W2))
 
@@ -81,7 +81,7 @@ class Re4(SequenceBaseModel):
 
             # re-attend
             product = torch.matmul(user_interests, torch.transpose(item_seq_emb, 1, 2))
-            product = product.masked_fill(item_mask.unsqueeze(1), -1e9)
+            product = product.masked_fill(item_mask.unsqueeze(1).bool(), -1e9)
             re_att = torch.softmax(product, dim=2)
             att_pred = F.log_softmax(proposals_weight_logits, dim=-1)
             loss_attend = -(re_att * att_pred).sum() / (re_att).sum()
@@ -91,13 +91,13 @@ class Re4(SequenceBaseModel):
             norm_watch_movie_embedding = F.normalize(item_seq_emb, p=2, dim=-1)
             cos_sim = torch.matmul(norm_watch_interests, torch.transpose(norm_watch_movie_embedding, 1, 2))
             if self.att_thre == -1:
-                gate = np.repeat(1 / (item_seq_len * 1.0), self.max_length, axis=0)
+                gate = np.repeat(1 / (item_seq_len.cpu() * 1.0), self.max_length, axis=0)
             else:
                 gate = np.repeat(torch.FloatTensor([self.att_thre]).repeat(item_seq_len.size(0)), self.max_length,
                                  axis=0)
             gate = torch.reshape(gate, (dim0, 1, self.max_length)).to(self.device)
             positive_weight_idx = (proposals_weight > gate) * 1  # value is 1 or 0
-            mask_cos = cos_sim.masked_fill(item_mask.unsqueeze(1), -1e9)
+            mask_cos = cos_sim.masked_fill(item_mask.unsqueeze(1).bool(), -1e9)
             pos_cos = mask_cos.masked_fill(positive_weight_idx != 1, -1e9)
             import pdb
             # cons_pos = torch.sum(torch.exp(pos_cos / t_cont), dim=2)
@@ -115,7 +115,7 @@ class Re4(SequenceBaseModel):
             cons_neg = cons_neg + torch.sum(torch.exp(in2i / self.t_cont), dim=2)
 
             cons_div = cons_pos / cons_neg.unsqueeze(-1)
-            cons_div = cons_div.masked_fill(item_mask.unsqueeze(1), 1)
+            cons_div = cons_div.masked_fill(item_mask.unsqueeze(1).bool(), 1)
             cons_div = cons_div.masked_fill(positive_weight_idx != 1, 1)
             # loss_contrastive = -torch.log(cons_pos / cons_neg.unsqueeze(-1))
             loss_contrastive = -torch.log(cons_div)
@@ -135,7 +135,7 @@ class Re4(SequenceBaseModel):
             target_emb = item_seq_emb.unsqueeze(1).repeat(1, self.proposal_num, 1, 1)
             loss_construct = self.recons_mse_loss(recons_item, target_emb)
             loss_construct = loss_construct.masked_fill((positive_weight_idx == 0).unsqueeze(-1), 0.)
-            loss_construct = loss_construct.masked_fill(item_mask.unsqueeze(-1).unsqueeze(1), 0.)
+            loss_construct = loss_construct.masked_fill(item_mask.unsqueeze(-1).unsqueeze(1).bool(), 0.)
             loss_construct = torch.mean(loss_construct)
 
             loss = loss + self.att_lambda*loss_attend + self.ct_lambda*loss_contrastive + self.cs_lambda*loss_construct
