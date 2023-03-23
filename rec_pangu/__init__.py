@@ -5,5 +5,5 @@
 # @Time: 2022/6/10 8:20 PM
 from .utils import check_version
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 check_version(__version__)
