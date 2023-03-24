@@ -120,7 +120,7 @@ def seq_collate(batch):
     hist_mask = torch.rand(len(batch),batch[0][0].shape[0])
     item_list = []
     for i in range(len(batch)):
-        hist_item[i,:] = batch[i][0]
+        hist_item[i, :] = batch[i][0]
         hist_mask[i, :] = batch[i][1]
         item_list.append(batch[i][2])
     hist_item = hist_item.long()
