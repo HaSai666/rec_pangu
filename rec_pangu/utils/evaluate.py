@@ -49,7 +49,7 @@ def get_recall_predict(model: torch.nn.Module,
         user_embs = model(data, is_training=False)['user_emb']
         user_embs = user_embs.cpu().detach().numpy().astype('float32')
 
-        user_list = data['user'].detach().cpu().numpy()
+        user_list = data['user'].cpu().numpy()
 
         # Get the recommendations using Faiss index.
 

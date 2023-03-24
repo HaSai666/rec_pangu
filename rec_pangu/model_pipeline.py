@@ -302,21 +302,6 @@ def test_sequence_model(model: torch.nn.Module,
 
     return metric_dict
 
-# def test_sequence_model(model, test_loader, device, topk_list=[20,50,100],use_wandb=False):
-#     model.eval()
-#     test_gd = test_loader.dataset.get_test_gd()
-#     preds = get_recall_predict(model, test_loader, device, topN=200)
-#
-#     metric_dict = dict()
-#     for i, k in enumerate(topk_list):
-#         temp_metric_dict = evaluate_recall(preds, test_gd, k)
-#         logger.info(temp_metric_dict)
-#         metric_dict.update(temp_metric_dict)
-#
-#     if use_wandb:
-#         wandb.log(metric_dict)
-#     return metric_dict
-
 def train_graph_model(model, train_dataset, optimizer, device, batch_size=1024):
     model.train()
     epoch_loss = 0
