@@ -79,7 +79,7 @@ class CapsuleNetwork(nn.Module):
         self.routing_times = routing_times
         self.hard_readout = hard_readout
         self.relu_layer = relu_layer
-        self.stop_grad = True
+        self.stop_grad = False
         self.relu = nn.Sequential(
             nn.Linear(self.hidden_size, self.hidden_size, bias=False),
             nn.ReLU()

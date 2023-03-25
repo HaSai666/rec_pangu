@@ -132,7 +132,6 @@ class SequenceBaseModel(nn.Module):
         Returns:
         The tensor representing the item embedding layer weight.
         """
-        self.eval()
         return self.item_emb.weight
 
     def _init_weights(self, module: nn.Module):
@@ -143,11 +142,9 @@ class SequenceBaseModel(nn.Module):
         module (nn.Module): The module whose weights need to be initialized.
         """
         if isinstance(module, nn.Embedding):
-            xavier_normal_(module.weight.data)
+            torch.nn.init.kaiming_normal_(module.weight.data)
         elif isinstance(module, nn.Linear):
-             xavier_normal_(module.weight.data)
-             if module.bias is not None:
-                constant_(module.bias.data, 0)
+            torch.nn.init.kaiming_normal_(module.weight.data)
 
 class GraphBaseModel(nn.Module):
     def __int__(self,num_user,num_item,embedding_dim):

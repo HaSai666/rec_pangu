@@ -92,7 +92,7 @@ class ComirecDR(SequenceBaseModel):
             seq_emb = self.item_emb(item_seq)  # Batch,Seq,Emb
             item_e = self.item_emb(item).squeeze(1)
 
-            multi_interest_emb = self.capsule(seq_emb, mask,self.device)  # Batch,K,Emb
+            multi_interest_emb = self.capsule(seq_emb, mask, self.device)  # Batch,K,Emb
 
             cos_res = torch.bmm(multi_interest_emb, item_e.squeeze(1).unsqueeze(-1))
             k_index = torch.argmax(cos_res, dim=1)
@@ -108,7 +108,7 @@ class ComirecDR(SequenceBaseModel):
             }
         else:
             seq_emb = self.item_emb(item_seq)  # Batch,Seq,Emb
-            multi_interest_emb = self.capsule(seq_emb, mask,self.device)  # Batch,K,Emb
+            multi_interest_emb = self.capsule(seq_emb, mask, self.device)  # Batch,K,Emb
             output_dict = {
                 'user_emb': multi_interest_emb,
             }

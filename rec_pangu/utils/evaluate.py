@@ -103,7 +103,7 @@ def evaluate_recall(preds: Dict[str, List[int]],
     total_hitrate = 0
 
     # Iterate over each user in the test data
-    for user in test_gd.keys():
+    for user in preds.keys():
         recall = 0
         dcg = 0.0
         item_list = test_gd[user]
