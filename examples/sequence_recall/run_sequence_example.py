@@ -49,7 +49,7 @@ if __name__=='__main__':
     device = torch.device('cpu')
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=50)
-    #声明模型,排序模型目前支持：xxx,xxx,xxx,xxx
+    #声明模型,序列召回模型模型目前支持： ComirecSA,ComirecDR,MIND,CMI,Re4,NARM,YotubeDNN,SRGNN
     model = ComirecSA(enc_dict=enc_dict,config=config)
     #声明Trainer
     # trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt',wandb_config=wandb_config)
