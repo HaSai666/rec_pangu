@@ -134,6 +134,36 @@ class SequenceBaseModel(nn.Module):
         """
         return self.item_emb.weight
 
+    def get_attention_mask(self, attention_mask: torch.Tensor) -> torch.Tensor:
+        """
+        Generate left-to-right uni-directional attention mask for multi-head attention.
+
+        Args:
+        attention_mask: a tensor used in multi-head attention with shape (batch_size,
+        seq_len), containing values of either 0 or 1. 0 indicates padding of a sequence
+        and 1 indicates the actual content of the sequence.
+
+        Return:
+        extended_attention_mask: a tensor with shape (batch_size, 1, seq_len, seq_len).
+        An attention mask tensor with float values of -1e6 added to masked positions
+        and 0 to unmasked positions.
+        """
+        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)  # reshape to (batch_size, 1, 1, seq_len)
+
+        max_len = attention_mask.size(-1)
+        attn_shape = (1, max_len, max_len)
+        subsequent_mask = torch.triu(torch.ones(attn_shape, dtype=torch.uint8),
+                                     diagonal=1)  # create a matrix of upper triangle
+
+        subsequent_mask = (subsequent_mask == 0).unsqueeze(1).type_as(
+            attention_mask)  # reshape and convert to attention_mask type
+
+        extended_attention_mask = extended_attention_mask * subsequent_mask  # apply mask
+
+        extended_attention_mask = (1.0 - extended_attention_mask) * -1e6  # replace masked positions with -1e6 and unmasked positions with 0
+
+        return extended_attention_mask
+
     def _init_weights(self, module: nn.Module):
         """
         Initializes the weight value for the given module.

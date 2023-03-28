@@ -11,4 +11,5 @@ from .sequence import *
 from .attention import *
 from .interaction import *
 from .graph import *
-from .multi_interest import *
+from .multi_interest import MultiInterestSelfAttention, CapsuleNetwork
+from .trainformer import TransformerEncoder
