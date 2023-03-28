@@ -9,5 +9,6 @@ from .yotubednn import YotubeDNN
 from .cmi import CMI
 from .re4 import Re4
 from .narm import NARM
+from .sasrec import SASRec
 from .srgnn import SRGNN
 from .gcsan import GCSAN
