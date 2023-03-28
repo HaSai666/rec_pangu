@@ -12,3 +12,4 @@ from .narm import NARM
 from .sasrec import SASRec
 from .srgnn import SRGNN
 from .gcsan import GCSAN
+from .niser import NISER
