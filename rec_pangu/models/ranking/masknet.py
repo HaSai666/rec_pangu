@@ -13,18 +13,21 @@ from ..base_model import BaseModel
 class MaskNet(BaseModel):
     def __init__(self,
                  embedding_dim: int = 32,
-                 hidden_units: List[int] = [64, 64, 64],
                  block_num: int = 3,
                  use_parallel: bool = True,
                  reduction_factor: float = 0.3,
+                 hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
         super(MaskNet, self).__init__(enc_dict, embedding_dim)
-        """
-        MaskNet model.
+        """A class for the MaskNet
 
         Args:
             embedding_dim (int): The size of the embedding vector. Default is 32.
+            block_num (int): The number of MaskBlocks to use. Default is 3.
+            use_parallel (bool): If True, use parallel processing for the MaskBlocks. Default is True.
+            reduction_factor (float): The reduction factor used to scale the output size of the MaskBlocks. Default is 0.3.
+            hidden_units (List[int]): A list of integers representing the number of hidden units in each layer of the MLP. Default is [64, 64, 64].
             loss_fun (str): The loss function used for training. Default is 'torch.nn.BCELoss()'.
             enc_dict (Dict[str, dict]): The dictionary containing the encoding information for the features.
         """
