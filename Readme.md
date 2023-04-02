@@ -28,20 +28,20 @@ pip install rec_pangu --upgrade
 ```
 ## 3.Rank模型
 
-| 模型     | 论文     | 年份   | 
-|--------|------|------|
-| WDL    | [Wide & Deep Learning for Recommender Systems](https://arxiv.org/pdf/1606.07792)     | 2016 | 
-| DeepFM | [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](https://arxiv.org/pdf/1703.04247)     | 2017 | 
-| NFM | [Neural Factorization Machines for Sparse Predictive Analytics](https://arxiv.org/pdf/1708.05027.pdf)              | 2017 | 
+| 模型      | 论文     | 年份   | 
+|---------|------|------|
+| WDL     | [Wide & Deep Learning for Recommender Systems](https://arxiv.org/pdf/1606.07792)     | 2016 | 
+| DeepFM  | [DeepFM: A Factorization-Machine based Neural Network for CTR Prediction](https://arxiv.org/pdf/1703.04247)     | 2017 | 
+| NFM     | [Neural Factorization Machines for Sparse Predictive Analytics](https://arxiv.org/pdf/1708.05027.pdf)              | 2017 | 
 | FiBiNet | [FiBiNET: Combining Feature Importance and Bilinear Feature Interaction for Click-Through Rate](https://arxiv.org/pdf/1905.09433.pdf) | 2019 | 
-| AFM | [Attentional Factorization Machines](https://arxiv.org/pdf/1708.04617)                  | 2017 | 
+| AFM     | [Attentional Factorization Machines](https://arxiv.org/pdf/1708.04617)                  | 2017 | 
 | AutoInt | [AutoInt: Automatic Feature Interaction Learning via Self-Attentive Neural Networks](https://arxiv.org/pdf/1810.11921.pdf)              | 2018 | 
-| CCPM | [A Convolutional Click Prediction Model](http://www.shuwu.name/sw/Liu2015CCPM.pdf)    | 2015 |
-| LR | /  | 2019 | 
-| FM | /  | 2019 | 
+| CCPM    | [A Convolutional Click Prediction Model](http://www.shuwu.name/sw/Liu2015CCPM.pdf)    | 2015 |
+| LR      | /  | 2019 | 
+| FM      | /  | 2019 | 
 | xDeepFM | [xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems](https://arxiv.org/pdf/1803.05170.pdf)     | 2018 |
-| DCN | [Deep & Cross Network for Ad Click Predictions](https://arxiv.org/pdf/1708.05123.pdf) | 2019 | 
-
+| DCN     | [Deep & Cross Network for Ad Click Predictions](https://arxiv.org/pdf/1708.05123.pdf) | 2019 | 
+| MaskNet | [MaskNet: Introducing Feature-Wise Multiplication to CTR Ranking Models by Instance-Guided Mask](https://arxiv.org/pdf/2102.07619.pdf) | 2021 | 
 ## 4.多任务模型
 
 | 模型          | 论文                                                                                                                                          | 年份   | 
