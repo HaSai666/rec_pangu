@@ -220,6 +220,7 @@ class InteractionMachine(nn.Module):
         y = self.fc(out)
         return y
 
+
 class FM_Layer(nn.Module):
     def __init__(self, final_activation=None, use_bias=True):
         super(FM_Layer, self).__init__()
@@ -231,6 +232,7 @@ class FM_Layer(nn.Module):
         if self.final_activation is not None:
             output = self.final_activation(output)
         return output
+
 
 class SENET_Layer(nn.Module):
     def __init__(self, num_fields, reduction_ratio=3):
@@ -246,3 +248,35 @@ class SENET_Layer(nn.Module):
         A = self.excitation(Z)
         V = feature_emb * A.unsqueeze(-1)
         return V
+
+
+class MaskBlock(torch.nn.Module):
+    def __init__(
+            self, input_dim: int, mask_input_dim: int, output_size: int, reduction_factor: float
+    ) -> None:
+        """
+       Initializes the MaskBlock module.
+
+       Args:
+           input_dim (int): The size of the input tensor.
+           mask_input_dim (int): The size of the mask tensor.
+           output_size (int): The size of the output tensor.
+           reduction_factor (float): The factor by which to reduce the size of the mask tensor.
+       """
+        super(MaskBlock, self).__init__()
+
+        self._input_layer_norm = torch.nn.LayerNorm(input_dim)
+        aggregation_size = int(mask_input_dim * reduction_factor)
+        self._mask_layer = torch.nn.Sequential(
+            torch.nn.Linear(mask_input_dim, aggregation_size),
+            torch.nn.ReLU(),
+            torch.nn.Linear(aggregation_size, input_dim),
+        )
+        self._hidden_layer = torch.nn.Linear(input_dim, output_size)
+        self._layer_norm = torch.nn.LayerNorm(output_size)
+
+    def forward(self, net: torch.Tensor, mask_input: torch.Tensor):
+        if self._input_layer_norm:
+            net = self._input_layer_norm(net)
+        hidden_layer_output = self._hidden_layer(net * self._mask_layer(mask_input))
+        return self._layer_norm(hidden_layer_output)

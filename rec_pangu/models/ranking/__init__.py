@@ -16,3 +16,4 @@ from .lr import LR
 from .fm import FM
 from .xdeepfm import xDeepFM
 from .dcn import DCN
+from .masknet import MaskNet

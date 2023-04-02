@@ -7,7 +7,7 @@ import sys
 sys.path.append('../../')
 import torch
 from rec_pangu.dataset import get_dataloader
-from rec_pangu.models.ranking import WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM, DCN
+from rec_pangu.models.ranking import WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM, DCN, MaskNet
 from rec_pangu.trainer import RankTrainer
 import pandas as pd
 
@@ -33,7 +33,7 @@ if __name__=='__main__':
     #获取dataloader
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema, batch_size=512)
     #声明模型,排序模型目前支持：WDL, DeepFM, NFM, FiBiNet, AFM, AFN, AOANet, AutoInt, CCPM, LR, FM, xDeepFM
-    model = FiBiNet(enc_dict=enc_dict)
+    model = MaskNet(enc_dict=enc_dict)
     #声明Trainer
     trainer = RankTrainer(num_task=1, model_ckpt_dir='./model_ckpt')
     #训练模型
