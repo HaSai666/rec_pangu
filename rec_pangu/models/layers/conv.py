@@ -3,7 +3,7 @@
 # @Author: wk
 # @Email: 306178200@qq.com
 # @Time: 2023/4/3 15:15
-from typing import  List
+from typing import List
 from torch import nn
 import torch
 
@@ -149,7 +149,8 @@ class LayerNorm(nn.Module):
         channels (int): Number of channels in the input tensor.
         epsilon (float, optional): Small number to avoid numerical instability.
     """
-    def __init__(self, channels: int, epsilon: float=1e-5) -> None:
+
+    def __init__(self, channels: int, epsilon: float = 1e-5) -> None:
         """
         Initialize layer normalization.
         """

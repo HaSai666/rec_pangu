@@ -19,8 +19,3 @@ def beautify_json(ori_dict: dict) -> str:
     """
     formatted_json = json.dumps(ori_dict, indent=4, ensure_ascii=False, sort_keys=True)
     return highlight(formatted_json, lexers.get_lexer_by_name('json'), formatters.TerminalFormatter())
-
-# def beautify_json(ori_dict):
-#     formatted_json = json.dumps(ori_dict, indent=4, ensure_ascii=False, sort_keys=True)
-#     return highlight(formatted_json, lexers.get_lexer_by_name('json'), formatters.TerminalFormatter())
-#

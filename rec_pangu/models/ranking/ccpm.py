@@ -45,7 +45,7 @@ class CCPM(BaseModel):
 
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         """
         Perform forward propagation on the CCPM model.
 
@@ -66,22 +66,24 @@ class CCPM(BaseModel):
         y_pred = y_pred.sigmoid()
         # 输出
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict
+
 
 class CCPM_ConvLayer(nn.Module):
     """
     Input X: tensor of shape (batch_size, 1, num_fields, embedding_dim)
     """
+
     def __init__(self, num_fields, channels=[3], kernel_heights=[3], activation="Tanh"):
         super(CCPM_ConvLayer, self).__init__()
         if not isinstance(kernel_heights, list):
             kernel_heights = [kernel_heights] * len(channels)
         elif len(kernel_heights) != len(channels):
-            raise ValueError("channels={} and kernel_heights={} should have the same length."\
+            raise ValueError("channels={} and kernel_heights={} should have the same length." \
                              .format(channels, kernel_heights))
         module_list = []
         self.channels = [1] + channels

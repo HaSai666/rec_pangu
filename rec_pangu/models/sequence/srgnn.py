@@ -16,7 +16,7 @@ class SRGNN(SequenceBaseModel):
         super(SRGNN, self).__init__(enc_dict, config)
         # define layers and loss
 
-        self.step = self.config.get('step',1)
+        self.step = self.config.get('step', 1)
 
         self.gnncell = SRGNNCell(self.embedding_dim)
         self.linear_one = nn.Linear(self.embedding_dim, self.embedding_dim)

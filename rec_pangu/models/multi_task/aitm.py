@@ -6,7 +6,7 @@
 from typing import Dict, List
 import torch
 from torch import nn
-from ..layers import MLP,MultiHeadSelfAttention
+from ..layers import MLP, MultiHeadSelfAttention
 from ..utils import get_feature_num
 from ..base_model import BaseModel
 
@@ -41,7 +41,7 @@ class AITM(BaseModel):
                                               nn.Sigmoid())
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         """
         Perform forward propagation on the AITM model.
 

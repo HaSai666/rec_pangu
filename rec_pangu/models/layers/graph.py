@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from itertools import product
 import dgl.function as fn
 
+
 class FiGNN_Layer(nn.Module):
     def __init__(self,
                  num_fields,
@@ -44,7 +45,7 @@ class FiGNN_Layer(nn.Module):
         alpha = alpha.view(-1, self.num_fields, self.num_fields)
         mask = torch.eye(self.num_fields).to(self.device)
         alpha = alpha.masked_fill(mask.byte(), float('-inf'))
-        graph = F.softmax(alpha, dim=-1) # batch x field x field without self-loops
+        graph = F.softmax(alpha, dim=-1)  # batch x field x field without self-loops
         return graph
 
     def forward(self, feature_emb):
@@ -66,6 +67,7 @@ class FiGNN_Layer(nn.Module):
                 h += feature_emb
         return h
 
+
 class GraphLayer(nn.Module):
     def __init__(self, num_fields, embedding_dim):
         super(GraphLayer, self).__init__()
@@ -76,10 +78,11 @@ class GraphLayer(nn.Module):
         self.bias_p = nn.Parameter(torch.zeros(embedding_dim))
 
     def forward(self, g, h):
-        h_out = torch.matmul(self.W_out, h.unsqueeze(-1)).squeeze(-1) # broadcast multiply
+        h_out = torch.matmul(self.W_out, h.unsqueeze(-1)).squeeze(-1)  # broadcast multiply
         aggr = torch.bmm(g, h_out)
         a = torch.matmul(self.W_in, aggr.unsqueeze(-1)).squeeze(-1) + self.bias_p
         return a
+
 
 class NGCFLayer(nn.Module):
     def __init__(self, in_size, out_size, dropout):

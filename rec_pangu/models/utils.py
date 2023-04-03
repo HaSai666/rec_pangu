@@ -12,6 +12,7 @@ from torch import nn
 import random
 from typing import Dict, List, Tuple, Union
 
+
 def seed_everything(seed: int = 1029) -> None:
     """Set the random seed for reproducibility.
 
@@ -25,6 +26,7 @@ def seed_everything(seed: int = 1029) -> None:
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
 
+
 def set_device(gpu: int = -1) -> torch.device:
     """Set the device to use for computation.
 
@@ -35,11 +37,11 @@ def set_device(gpu: int = -1) -> torch.device:
         torch.device: The device to use for computation.
     """
     if gpu >= 0 and torch.cuda.is_available():
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
-        device = torch.device("cuda")
+        device = torch.device(f"cuda:{gpu}")
     else:
         device = torch.device("cpu")
     return device
+
 
 def set_optimizer(optimizer: str) -> torch.optim.Optimizer:
     """Set the optimizer for training.
@@ -53,6 +55,7 @@ def set_optimizer(optimizer: str) -> torch.optim.Optimizer:
     if optimizer.lower() == "adam":
         optimizer = "Adam"
     return getattr(torch.optim, optimizer)
+
 
 def set_loss(loss: str) -> str:
     """Set the loss function for training.
@@ -68,6 +71,7 @@ def set_loss(loss: str) -> str:
     else:
         raise NotImplementedError(f"loss={loss} is not supported.")
     return loss
+
 
 def set_regularizer(reg: Union[float, str]) -> List[Tuple[int, float]]:
     """Set the regularizer for the model.
@@ -95,6 +99,7 @@ def set_regularizer(reg: Union[float, str]) -> List[Tuple[int, float]]:
             raise NotImplementedError(f"regularizer={reg} is not supported.")
     return reg_pair
 
+
 def set_activation(activation: str) -> nn.Module:
     """Set the activation function for the model.
 
@@ -113,6 +118,7 @@ def set_activation(activation: str) -> nn.Module:
     else:
         return getattr(nn, activation)()
 
+
 def get_linear_input(enc_dict: Dict, data: Dict) -> torch.Tensor:
     """Get the input tensor for linear layers.
 
@@ -130,6 +136,7 @@ def get_linear_input(enc_dict: Dict, data: Dict) -> torch.Tensor:
     res_data = torch.stack(res_data, axis=1)
     return res_data
 
+
 def get_dnn_input_dim(enc_dict: Dict, embedding_dim: int) -> int:
     """Get the input dimension for DNN layers.
 
@@ -142,6 +149,7 @@ def get_dnn_input_dim(enc_dict: Dict, embedding_dim: int) -> int:
     """
     num_sparse, num_dense = get_feature_num(enc_dict)
     return num_sparse * embedding_dim + num_dense
+
 
 def get_feature_num(enc_dict: Dict) -> Tuple[int, int]:
     """Get the number of sparse and dense features.
@@ -160,6 +168,7 @@ def get_feature_num(enc_dict: Dict) -> Tuple[int, int]:
         elif 'vocab_size' in enc_dict[col].keys():
             num_sparse += 1
     return num_sparse, num_dense
+
 
 def pad_sequence(seqs: List[torch.Tensor], max_len: int) -> torch.Tensor:
     """Pad sequences to the same length.
@@ -182,6 +191,7 @@ def pad_sequence(seqs: List[torch.Tensor], max_len: int) -> torch.Tensor:
         padded_seqs.append(padded_seq)
     padded_seqs = torch.stack(padded_seqs, dim=0)
     return padded_seqs
+
 
 def generate_graph(batch_data: Dict) -> Dict:
     """Generate session graph.

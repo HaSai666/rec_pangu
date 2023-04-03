@@ -14,17 +14,18 @@ from rec_pangu.models.ranking import *
 from rec_pangu.models.multi_task import *
 from loguru import logger
 
+
 class BenchmarkTrainer:
     """
     BenchmarkTrainer is used to train models and store training logs in a pandas dataframe.
     """
 
     def __init__(
-        self,
-        num_task: int = 1,
-        model_list: Optional[List[str]] = None,
-        benchmark_res_path: Optional[str] = None,
-        ckpt_root: str = './benchmark_ckpt'
+            self,
+            num_task: int = 1,
+            model_list: Optional[List[str]] = None,
+            benchmark_res_path: Optional[str] = None,
+            ckpt_root: str = './benchmark_ckpt'
     ) -> None:
         """
         Args:
@@ -40,14 +41,14 @@ class BenchmarkTrainer:
         self.ckpt_root = ckpt_root
 
     def run(
-        self,
-        train_loader: DataLoader,
-        enc_dict: Dict[str, int],
-        valid_loader: Optional[DataLoader] = None,
-        test_loader: Optional[DataLoader] = None,
-        epoch: int = 10,
-        lr: float = 1e-3,
-        device: torch.device = torch.device('cpu')
+            self,
+            train_loader: DataLoader,
+            enc_dict: Dict[str, int],
+            valid_loader: Optional[DataLoader] = None,
+            test_loader: Optional[DataLoader] = None,
+            epoch: int = 10,
+            lr: float = 1e-3,
+            device: torch.device = torch.device('cpu')
     ) -> None:
         """Train and evaluate models on given data loaders and store logs.
 
@@ -136,6 +137,3 @@ class BenchmarkTrainer:
 #             self.benchmark_res_df.to_csv(self.benhcmark_res_path, index=False)
 #
 #
-
-
-

@@ -55,7 +55,7 @@ class AutoInt(BaseModel):
         self.fc = nn.Linear(self.num_sparse * attention_dim * num_heads, 1)
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         """
         Perform forward propagation on the AutoInt model.
 
@@ -80,8 +80,8 @@ class AutoInt(BaseModel):
         y_pred = y_pred.sigmoid()
         # 输出
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict

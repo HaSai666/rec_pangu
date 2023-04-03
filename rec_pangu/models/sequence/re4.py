@@ -11,6 +11,7 @@ from torch import nn
 import torch.nn.functional as F
 from rec_pangu.models.base_model import SequenceBaseModel
 
+
 class Re4(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(Re4, self).__init__(enc_dict, config)
@@ -55,7 +56,7 @@ class Re4(SequenceBaseModel):
         item_mask = data['hist_mask_list']
         dim0, dim1 = item_seq.shape
 
-        item_seq_len = torch.sum(item_mask,dim=-1)
+        item_seq_len = torch.sum(item_mask, dim=-1)
         item_seq = torch.reshape(item_seq, (1, dim0 * dim1))
         item_seq_emb = self.item_emb(item_seq)
         item_seq_emb = torch.reshape(item_seq_emb, (dim0, dim1, -1))
@@ -138,7 +139,7 @@ class Re4(SequenceBaseModel):
             loss_construct = loss_construct.masked_fill(item_mask.unsqueeze(-1).unsqueeze(1).bool(), 0.)
             loss_construct = torch.mean(loss_construct)
 
-            loss = loss + self.att_lambda*loss_attend + self.ct_lambda*loss_contrastive + self.cs_lambda*loss_construct
+            loss = loss + self.att_lambda * loss_attend + self.ct_lambda * loss_contrastive + self.cs_lambda * loss_construct
             output_dict = {
                 'user_emb': user_interests,
                 'loss': loss
@@ -149,4 +150,3 @@ class Re4(SequenceBaseModel):
             }
 
         return output_dict
-

@@ -10,6 +10,7 @@ import numpy as np
 from .layers import EmbeddingLayer
 from loguru import logger
 
+
 class BaseModel(nn.Module):
     def __init__(self, enc_dict: dict, embedding_dim: int) -> None:
         """
@@ -51,9 +52,11 @@ class BaseModel(nn.Module):
             AssertionError: If the column name is not in the encoding dictionary.
                               If the pre-trained embedding dimension is not equal to the model embedding dimension.
         """
-        assert col_name in self.enc_dict.keys(), "Pretrained Embedding Col: {} must be in the {}".format(col_name, self.enc_dict.keys())
+        assert col_name in self.enc_dict.keys(), "Pretrained Embedding Col: {} must be in the {}".format(col_name,
+                                                                                                         self.enc_dict.keys())
         pretrained_emb_dim = len(list(pretrained_dict.values())[0])
-        assert self.embedding_dim == pretrained_emb_dim, "Pretrained Embedding Dim:{} must be equal to Model Embedding Dim:{}".format(pretrained_emb_dim, self.embedding_dim)
+        assert self.embedding_dim == pretrained_emb_dim, "Pretrained Embedding Dim:{} must be equal to Model Embedding Dim:{}".format(
+            pretrained_emb_dim, self.embedding_dim)
         pretrained_emb = np.random.rand(self.enc_dict[col_name]['vocab_size'], pretrained_emb_dim)
         for k, v in self.enc_dict[col_name].items():
             if k == 'vocab_size':
@@ -63,7 +66,10 @@ class BaseModel(nn.Module):
         embeddings = torch.from_numpy(pretrained_emb).float()
         embedding_matrix = torch.nn.Parameter(embeddings)
         self.embedding_layer.set_weights(col_name=col_name, embedding_matrix=embedding_matrix, trainable=trainable)
-        logger.info('Successfully Set The Pretrained Embedding Weights for the column:{} With Trainable={}'.format(col_name, trainable))
+        logger.info(
+            'Successfully Set The Pretrained Embedding Weights for the column:{} With Trainable={}'.format(col_name,
+                                                                                                           trainable))
+
 
 class SequenceBaseModel(nn.Module):
     """
@@ -88,9 +94,11 @@ class SequenceBaseModel(nn.Module):
         self.max_length = self.config['max_length']
         self.device = self.config['device']
 
-        self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim, padding_idx=0)
+        self.item_emb = nn.Embedding(self.enc_dict[self.config['item_col']]['vocab_size'], self.embedding_dim,
+                                     padding_idx=0)
         for col in self.config['cate_cols']:
-            setattr(self,f'{col}_emb',nn.Embedding(self.enc_dict[col]['vocab_size'], self.embedding_dim, padding_idx=0))
+            setattr(self, f'{col}_emb',
+                    nn.Embedding(self.enc_dict[col]['vocab_size'], self.embedding_dim, padding_idx=0))
 
         self.loss_fun = nn.CrossEntropyLoss()
 
@@ -160,7 +168,8 @@ class SequenceBaseModel(nn.Module):
 
         extended_attention_mask = extended_attention_mask * subsequent_mask  # apply mask
 
-        extended_attention_mask = (1.0 - extended_attention_mask) * -1e6  # replace masked positions with -1e6 and unmasked positions with 0
+        extended_attention_mask = (
+                                              1.0 - extended_attention_mask) * -1e6  # replace masked positions with -1e6 and unmasked positions with 0
 
         return extended_attention_mask
 
@@ -176,8 +185,9 @@ class SequenceBaseModel(nn.Module):
         elif isinstance(module, nn.Linear):
             torch.nn.init.kaiming_normal_(module.weight.data)
 
+
 class GraphBaseModel(nn.Module):
-    def __int__(self,num_user,num_item,embedding_dim):
+    def __int__(self, num_user, num_item, embedding_dim):
         super(GraphBaseModel, self).__init__()
         self.embedding_dim = embedding_dim
         self.num_user = num_item
@@ -205,6 +215,7 @@ class GraphBaseModel(nn.Module):
         emb_loss = self.lmbd * regularizer / users.shape[0]
 
         return mf_loss + emb_loss
+
     def get_ego_embedding(self):
         user_emb = self.user_emb_layer.weight
         item_emb = self.item_emb_layer.weight

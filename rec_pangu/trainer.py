@@ -8,14 +8,16 @@ Model Trainer
 """
 import os
 import torch
-from .model_pipeline import train_model, test_model, train_graph_model, test_graph_model, train_sequence_model, test_sequence_model
+from .model_pipeline import train_model, test_model, train_graph_model, test_graph_model, train_sequence_model, \
+    test_sequence_model
 from .utils import beautify_json
-from .dataset import BaseDataset,MultiTaskDataset
+from .dataset import BaseDataset, MultiTaskDataset
 from loguru import logger
 import torch.utils.data as D
 import wandb
 from typing import List, Optional
 import pandas as pd
+
 
 class RankTrainer:
     """
@@ -192,7 +194,7 @@ class RankTrainer:
             return multi_task_pred_list
 
     def predict_dataframe(self, model, test_df, enc_dict: dict, schema: dict,
-                          device:torch.device = torch.device('cpu'), batch_size: int = 1024):
+                          device: torch.device = torch.device('cpu'), batch_size: int = 1024):
         """
         Make predictions for the data in the given DataFrame using the model, encoding dictionary, and schema.
 
@@ -214,10 +216,12 @@ class RankTrainer:
         test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
         return self.predict_dataloader(model, test_loader, device=device)
 
+
 class SequenceTrainer:
     """
     Sequence Trainer class for training and evaluating sequence models.
     """
+
     def __init__(self, wandb_config: Optional[dict] = None,
                  model_ckpt_dir: str = './model_ckpt'):
         """
@@ -370,26 +374,27 @@ class SequenceTrainer:
         torch.save(save_dict, os.path.join(model_ckpt_dir, f'model_{model_str}.pth'))
         logger.info(f'Model Saved to {model_ckpt_dir}')
 
+
 class GraphTrainer:
     def __init__(self):
         logger.info("Graph Trainer")
 
-    def fit(self,model,train_dataset,epoch,lr,device=torch.device('cpu'),batch_size=1024):
+    def fit(self, model, train_dataset, epoch, lr, device=torch.device('cpu'), batch_size=1024):
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
 
-        for i in range(1, epoch+1):
-            epoch_loss = train_graph_model(model=model,train_dataset=train_dataset,optimizer=optimizer,device=device,batch_size=batch_size)
+        for i in range(1, epoch + 1):
+            epoch_loss = train_graph_model(model=model, train_dataset=train_dataset, optimizer=optimizer, device=device,
+                                           batch_size=batch_size)
             logger.info(f"Epoch:{i}/{epoch} Train Loss:{epoch_loss}")
 
     def save_model(self, model, model_ckpt_dir):
         os.makedirs(model_ckpt_dir, exist_ok=True, mode=0o777)
         save_dict = {'model': model.state_dict()}
-        torch.save(save_dict,os.path.join(model_ckpt_dir, 'model.pth'))
+        torch.save(save_dict, os.path.join(model_ckpt_dir, 'model.pth'))
 
-    def evaluate_model(self, model, train_dataset,test_dataset,hidden_size,topN=50):
+    def evaluate_model(self, model, train_dataset, test_dataset, hidden_size, topN=50):
         train_gd = train_dataset.generate_test_gd()
         test_gd = test_dataset.generate_test_gd()
-        test_metric = test_graph_model(model,train_gd=train_gd,test_gd=test_gd,hidden_size=hidden_size,topN=topN)
+        test_metric = test_graph_model(model, train_gd=train_gd, test_gd=test_gd, hidden_size=hidden_size, topN=topN)
         logger.info(f"Test Metric:{beautify_json(test_metric)}")
         return test_metric
-

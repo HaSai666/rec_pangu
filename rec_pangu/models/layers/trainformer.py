@@ -24,12 +24,12 @@ class MultiHeadAttention(nn.Module):
     """
 
     def __init__(
-        self,
-        n_heads,
-        hidden_size,
-        hidden_dropout_prob,
-        attn_dropout_prob,
-        layer_norm_eps,
+            self,
+            n_heads,
+            hidden_size,
+            hidden_dropout_prob,
+            attn_dropout_prob,
+            layer_norm_eps,
     ):
         super(MultiHeadAttention, self).__init__()
         if hidden_size % n_heads != 0:
@@ -110,7 +110,7 @@ class FeedForward(nn.Module):
     """
 
     def __init__(
-        self, hidden_size, inner_size, hidden_dropout_prob, hidden_act, layer_norm_eps
+            self, hidden_size, inner_size, hidden_dropout_prob, hidden_act, layer_norm_eps
     ):
         super(FeedForward, self).__init__()
         self.dense_1 = nn.Linear(hidden_size, inner_size)
@@ -170,14 +170,14 @@ class TransformerLayer(nn.Module):
     """
 
     def __init__(
-        self,
-        n_heads,
-        hidden_size,
-        intermediate_size,
-        hidden_dropout_prob,
-        attn_dropout_prob,
-        hidden_act,
-        layer_norm_eps,
+            self,
+            n_heads,
+            hidden_size,
+            intermediate_size,
+            hidden_dropout_prob,
+            attn_dropout_prob,
+            hidden_act,
+            layer_norm_eps,
     ):
         super(TransformerLayer, self).__init__()
         self.multi_head_attention = MultiHeadAttention(
@@ -214,15 +214,15 @@ class TransformerEncoder(nn.Module):
     """
 
     def __init__(
-        self,
-        n_layers=2,
-        n_heads=2,
-        hidden_size=64,
-        inner_size=256,
-        hidden_dropout_prob=0.5,
-        attn_dropout_prob=0.5,
-        hidden_act="gelu",
-        layer_norm_eps=1e-12,
+            self,
+            n_layers=2,
+            n_heads=2,
+            hidden_size=64,
+            inner_size=256,
+            hidden_dropout_prob=0.5,
+            attn_dropout_prob=0.5,
+            hidden_act="gelu",
+            layer_norm_eps=1e-12,
     ):
 
         super(TransformerEncoder, self).__init__()

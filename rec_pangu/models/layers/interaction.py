@@ -8,6 +8,7 @@ import torch
 from torch import nn
 from itertools import combinations
 
+
 class InnerProductLayer(nn.Module):
     """ output: product_sum_pooling (bs x 1),
                 Bi_interaction_pooling (bs * dim),

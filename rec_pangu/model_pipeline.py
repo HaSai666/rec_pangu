@@ -44,7 +44,7 @@ def train_model(model: torch.nn.Module,
         pred_list = []
         label_list = []
         start_time = time.time()
-        for idx,data in enumerate(train_loader):
+        for idx, data in enumerate(train_loader):
 
             for key in data.keys():
                 data[key] = data[key].to(device)
@@ -63,30 +63,32 @@ def train_model(model: torch.nn.Module,
             auc = round(roc_auc_score(label_list[-1000:], pred_list[-1000:]), 4)
 
             if use_wandb:
-                wandb.log({'train_loss':loss.item(),
-                           'train_auc':auc})
+                wandb.log({'train_loss': loss.item(),
+                           'train_auc': auc})
 
             iter_time = time.time() - start_time
-            remaining_time = round(((iter_time / (idx+1)) * (max_iter - idx + 1)) / 60, 2)
+            remaining_time = round(((iter_time / (idx + 1)) * (max_iter - idx + 1)) / 60, 2)
 
             if idx % log_rounds == 0 and device.type != 'cpu':
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc} GPU Mem:{get_gpu_usage(device)}')
+                logger.info(
+                    f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc} GPU Mem:{get_gpu_usage(device)}')
             elif idx % log_rounds == 0:
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc}')
+                logger.info(
+                    f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} AUC:{auc}')
         res_dict = dict()
         for metric in metric_list:
             assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                 metric, ['roc_auc_score', 'log_loss'])
-            if metric =='log_loss':
-                res_dict[f'train_{metric}'] = round(log_loss(label_list,pred_list, eps=1e-7),4)
+            if metric == 'log_loss':
+                res_dict[f'train_{metric}'] = round(log_loss(label_list, pred_list, eps=1e-7), 4)
             else:
-                res_dict[f'train_{metric}'] = round(eval(metric)(label_list,pred_list),4)
+                res_dict[f'train_{metric}'] = round(eval(metric)(label_list, pred_list), 4)
         return res_dict
     else:
         multi_task_pred_list = [[] for _ in range(num_task)]
         multi_task_label_list = [[] for _ in range(num_task)]
         start_time = time.time()
-        for idx,data in enumerate(train_loader):
+        for idx, data in enumerate(train_loader):
 
             for key in data.keys():
                 data[key] = data[key].to(device)
@@ -101,13 +103,15 @@ def train_model(model: torch.nn.Module,
                 multi_task_pred_list[i].extend(list(output[f'task{i + 1}_pred'].squeeze(-1).cpu().detach().numpy()))
                 multi_task_label_list[i].extend(list(data[f'task{i + 1}_label'].squeeze(-1).cpu().detach().numpy()))
             if use_wandb:
-                wandb.log({'train_loss':loss.item()})
+                wandb.log({'train_loss': loss.item()})
             iter_time = time.time() - start_time
             remaining_time = round(((iter_time / (idx + 1)) * (max_iter - idx + 1)) / 60, 2)
-            if idx % log_rounds ==0 and device.type != 'cpu':
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
-            elif idx % log_rounds ==0:
-                logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)}')
+            if idx % log_rounds == 0 and device.type != 'cpu':
+                logger.info(
+                    f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
+            elif idx % log_rounds == 0:
+                logger.info(
+                    f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)}')
 
         res_dict = dict()
         for i in range(num_task):
@@ -115,10 +119,13 @@ def train_model(model: torch.nn.Module,
                 assert metric in ['roc_auc_score', 'log_loss'], 'metric :{} not supported! metric must be in {}'.format(
                     metric, ['roc_auc_score', 'log_loss'])
                 if metric == 'log_loss':
-                    res_dict[f'train_task{i+1}_{metric}'] = round(log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7),4)
+                    res_dict[f'train_task{i + 1}_{metric}'] = round(
+                        log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7), 4)
                 else:
-                    res_dict[f'train_task{i+1}_{metric}'] = round(eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]),4)
+                    res_dict[f'train_task{i + 1}_{metric}'] = round(
+                        eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]), 4)
         return res_dict
+
 
 def test_model(model: torch.nn.Module,
                test_loader: torch.utils.data.DataLoader,
@@ -166,11 +173,12 @@ def test_model(model: torch.nn.Module,
 
         # Compute evaluation metric for each supported metric
         for metric in metric_list:
-            assert metric in ['roc_auc_score','log_loss'], f"Unsupported metric: {metric}. Supported metrics are ['roc_auc_score','log_loss']."
+            assert metric in ['roc_auc_score',
+                              'log_loss'], f"Unsupported metric: {metric}. Supported metrics are ['roc_auc_score','log_loss']."
             if metric == 'log_loss':
-                res_dict[metric] = round(log_loss(label_list, pred_list, eps=1e-7),4)
+                res_dict[metric] = round(log_loss(label_list, pred_list, eps=1e-7), 4)
             else:
-                res_dict[metric] = round(eval(metric)(label_list, pred_list),4)
+                res_dict[metric] = round(eval(metric)(label_list, pred_list), 4)
 
         return res_dict
 
@@ -199,13 +207,17 @@ def test_model(model: torch.nn.Module,
         # Compute the evaluation metric for each task and each supported metric
         for i in range(num_task):
             for metric in metric_list:
-                assert metric in ['roc_auc_score', 'log_loss'], f"Unsupported metric: {metric}. Supported metrics are ['roc_auc_score','log_loss']."
+                assert metric in ['roc_auc_score',
+                                  'log_loss'], f"Unsupported metric: {metric}. Supported metrics are ['roc_auc_score','log_loss']."
                 if metric == 'log_loss':
-                    res_dict[f'test_task{i + 1}_{metric}'] = round(log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7),4)
+                    res_dict[f'test_task{i + 1}_{metric}'] = round(
+                        log_loss(multi_task_label_list[i], multi_task_pred_list[i], eps=1e-7), 4)
                 else:
-                    res_dict[f'test_task{i + 1}_{metric}'] = round(eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]),4)
+                    res_dict[f'test_task{i + 1}_{metric}'] = round(
+                        eval(metric)(multi_task_label_list[i], multi_task_pred_list[i]), 4)
 
         return res_dict
+
 
 def train_sequence_model(model: torch.nn.Module,
                          train_loader: torch.utils.data.DataLoader,
@@ -259,9 +271,12 @@ def train_sequence_model(model: torch.nn.Module,
 
         # Log progress
         if idx % log_rounds == 0 and device.type != 'cpu':
-            logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
+            logger.info(
+                f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} GPU Mem:{get_gpu_usage(device)}')
         elif idx % log_rounds == 0:
-            logger.info(f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
+            logger.info(
+                f'Iter {idx}/{max_iter} Remaining time:{remaining_time} min Loss:{round(float(loss.detach().cpu().numpy()), 4)} ')
+
 
 def test_sequence_model(model: torch.nn.Module,
                         test_loader: torch.utils.data.DataLoader,
@@ -302,10 +317,11 @@ def test_sequence_model(model: torch.nn.Module,
 
     return metric_dict
 
+
 def train_graph_model(model, train_dataset, optimizer, device, batch_size=1024):
     model.train()
     epoch_loss = 0
-    pbar = tqdm(range(train_dataset.__len__()//batch_size))
+    pbar = tqdm(range(train_dataset.__len__() // batch_size))
     for _ in pbar:
 
         data = train_dataset.sample(batch_size)
@@ -323,6 +339,7 @@ def train_graph_model(model, train_dataset, optimizer, device, batch_size=1024):
         epoch_loss += loss.item()
         pbar.set_description("Loss {}".format(round(epoch_loss, 4)))
     return epoch_loss
+
 
 def test_graph_model(model, train_gd, test_gd, hidden_size, topN=50):
     model.eval()
@@ -346,4 +363,3 @@ def test_graph_model(model, train_gd, test_gd, hidden_size, topN=50):
             train_items = train_gd.get(user_ids[i], [])
             preds[user_ids[i]] = [x for x in list(I[i, :]) if x not in train_items]
     return evaluate_recall(preds, test_gd, topN=topN)
-

@@ -9,6 +9,7 @@ from torch import nn
 from rec_pangu.models.layers import TransformerEncoder
 from rec_pangu.models.base_model import SequenceBaseModel
 
+
 class SASRec(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(SASRec, self).__init__(enc_dict, config)

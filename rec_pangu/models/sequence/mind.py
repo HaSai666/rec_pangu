@@ -8,9 +8,10 @@ import torch
 from rec_pangu.models.layers import CapsuleNetwork
 from rec_pangu.models.base_model import SequenceBaseModel
 
+
 class MIND(SequenceBaseModel):
-    def __init__(self, enc_dict,config):
-        super(MIND, self).__init__(enc_dict,config)
+    def __init__(self, enc_dict, config):
+        super(MIND, self).__init__(enc_dict, config)
 
         self.capsule = CapsuleNetwork(self.embedding_dim, self.max_length, bilinear_type=0,
                                       interest_num=self.config['K'])
@@ -46,7 +47,7 @@ class MIND(SequenceBaseModel):
             for k in range(multi_interest_emb.shape[0]):
                 best_interest_emb[k, :] = multi_interest_emb[k, k_index[k], :]
 
-            loss = self.calculate_loss(best_interest_emb,item)
+            loss = self.calculate_loss(best_interest_emb, item)
             output_dict = {
                 'user_emb': multi_interest_emb,
                 'loss': loss,

@@ -7,8 +7,9 @@ import torch
 from torch.utils.data import Dataset
 import random
 
+
 class SequenceDataset(Dataset):
-    def __init__(self,config,df,enc_dict=None,phase='train'):
+    def __init__(self, config, df, enc_dict=None, phase='train'):
         self.config = config
         self.df = df
         self.enc_dict = enc_dict
@@ -21,27 +22,27 @@ class SequenceDataset(Dataset):
         if self.time_col:
             self.df = self.df.sort_values(by=[self.user_col, self.time_col])
 
-        if self.enc_dict==None:
+        if self.enc_dict == None:
             self.get_enc_dict()
         self.enc_data()
 
         self.user2item = self.df.groupby(self.user_col)[self.item_col].apply(list).to_dict()
         for col in self.cate_cols:
-            setattr(self,f'user2{col}',self.df.groupby(self.user_col)[col].apply(list).to_dict())
+            setattr(self, f'user2{col}', self.df.groupby(self.user_col)[col].apply(list).to_dict())
 
         self.user_list = self.df[self.user_col].unique()
         self.phase = phase
 
     def get_enc_dict(self):
-        #计算enc_dict
-        if self.enc_dict==None:
-            sparse_cols = [self.item_col]+self.cate_cols
-            self.enc_dict = dict(zip( list(sparse_cols),[dict() for _ in range(len(sparse_cols))]))
-            for f in [self.item_col]+self.cate_cols:
+        # 计算enc_dict
+        if self.enc_dict == None:
+            sparse_cols = [self.item_col] + self.cate_cols
+            self.enc_dict = dict(zip(list(sparse_cols), [dict() for _ in range(len(sparse_cols))]))
+            for f in [self.item_col] + self.cate_cols:
                 self.df[f] = self.df[f].astype('str')
-                map_dict = dict(zip(sorted(self.df[f].unique()), range(1,1+self.df[f].nunique())))
+                map_dict = dict(zip(sorted(self.df[f].unique()), range(1, 1 + self.df[f].nunique())))
                 self.enc_dict[f] = map_dict
-                self.enc_dict[f]['vocab_size'] = self.df[f].nunique()+1
+                self.enc_dict[f]['vocab_size'] = self.df[f].nunique() + 1
         else:
             return self.enc_dict
 
@@ -49,7 +50,7 @@ class SequenceDataset(Dataset):
         sparse_cols = [self.item_col] + self.cate_cols
         for f in sparse_cols:
             self.df[f] = self.df[f].astype('str')
-            self.df[f] = self.df[f].apply(lambda x:self.enc_dict[f].get(x,0))
+            self.df[f] = self.df[f].apply(lambda x: self.enc_dict[f].get(x, 0))
 
     def __getitem__(self, index):
         user_id = self.user_list[index]
@@ -65,35 +66,35 @@ class SequenceDataset(Dataset):
                 hist_item_list.append(item_list[k - self.max_length: k])
                 hist_mask_list.append([1.0] * self.max_length)
                 for col in self.cate_cols:
-                    cate_seq = getattr(self,f'user2{col}')[user_id]
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[k - self.max_length: k])
             else:
                 hist_item_list.append(item_list[:k] + [0] * (self.max_length - k))
                 hist_mask_list.append([1.0] * k + [0.0] * (self.max_length - k))
                 for col in self.cate_cols:
-                    cate_seq = getattr(self,f'user2{col}')[user_id]
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
             data = {
-                'hist_item_list':torch.Tensor(hist_item_list).squeeze(0).long(),
-                'hist_mask_list':torch.Tensor(hist_mask_list).squeeze(0).long(),
-                'target_item':torch.Tensor([item_id]).long()
+                'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
+                'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
+                'target_item': torch.Tensor([item_id]).long()
             }
 
             for col in self.cate_cols:
-                data.update({f'hist_{col}_list':torch.Tensor(getattr(self,f'hist_{col}_list')).squeeze(0).long()})
+                data.update({f'hist_{col}_list': torch.Tensor(getattr(self, f'hist_{col}_list')).squeeze(0).long()})
         else:
             k = int(0.8 * len(item_list))
             if k >= self.max_length:  # 选取seq_len个物品
                 hist_item_list.append(item_list[k - self.max_length: k])
                 hist_mask_list.append([1.0] * self.max_length)
                 for col in self.cate_cols:
-                    cate_seq = getattr(self,f'user2{col}')[user_id]
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[k - self.max_length: k])
             else:
                 hist_item_list.append(item_list[:k] + [0] * (self.max_length - k))
                 hist_mask_list.append([1.0] * k + [0.0] * (self.max_length - k))
                 for col in self.cate_cols:
-                    cate_seq = getattr(self,f'user2{col}')[user_id]
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
             data = {
                 'user': user_id,
@@ -101,7 +102,7 @@ class SequenceDataset(Dataset):
                 'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
             }
             for col in self.cate_cols:
-                data.update({f'hist_{col}_list':torch.Tensor(getattr(self,f'hist_{col}_list')).squeeze(0).long()})
+                data.update({f'hist_{col}_list': torch.Tensor(getattr(self, f'hist_{col}_list')).squeeze(0).long()})
         return data
 
     def __len__(self):
@@ -115,9 +116,10 @@ class SequenceDataset(Dataset):
             self.test_gd[str(user)] = item_list[test_item_index:]
         return self.test_gd
 
+
 def seq_collate(batch):
-    hist_item = torch.rand(len(batch),batch[0][0].shape[0])
-    hist_mask = torch.rand(len(batch),batch[0][0].shape[0])
+    hist_item = torch.rand(len(batch), batch[0][0].shape[0])
+    hist_mask = torch.rand(len(batch), batch[0][0].shape[0])
     item_list = []
     for i in range(len(batch)):
         hist_item[i, :] = batch[i][0]
@@ -125,4 +127,4 @@ def seq_collate(batch):
         item_list.append(batch[i][2])
     hist_item = hist_item.long()
     hist_mask = hist_mask.long()
-    return hist_item,hist_mask,item_list
+    return hist_item, hist_mask, item_list

@@ -14,9 +14,8 @@ class NARM(SequenceBaseModel):
         super(NARM, self).__init__(enc_dict, config)
 
         self.n_layers = self.config.get('n_layers', 2)
-        self.dropout_probs = self.config.get('dropout_probs',[0.1, 0.1])
+        self.dropout_probs = self.config.get('dropout_probs', [0.1, 0.1])
         self.hidden_size = self.config.get('hidden_size', 32)
-
 
         self.emb_dropout = nn.Dropout(self.dropout_probs[0])
         self.gru = nn.GRU(self.embedding_dim, self.hidden_size, self.n_layers, bias=False, batch_first=True)
@@ -42,7 +41,7 @@ class NARM(SequenceBaseModel):
             tensors as values.
         """
         item_seq = data['hist_item_list']
-        item_seq_len = torch.sum(data['hist_mask_list'],dim=-1)
+        item_seq_len = torch.sum(data['hist_mask_list'], dim=-1)
 
         item_seq_emb = self.item_emb(item_seq)
         item_seq_emb_dropout = self.emb_dropout(item_seq_emb)
@@ -65,8 +64,8 @@ class NARM(SequenceBaseModel):
         if is_training:
             target_item = data['target_item'].squeeze()
             output_dict = {
-                'user_emb':user_emb,
-                'loss':self.calculate_loss(user_emb, target_item)
+                'user_emb': user_emb,
+                'loss': self.calculate_loss(user_emb, target_item)
             }
         else:
             output_dict = {

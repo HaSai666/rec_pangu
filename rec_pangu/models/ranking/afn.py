@@ -10,16 +10,17 @@ from ..layers import EmbeddingLayer, MLP
 from ..utils import get_feature_num
 from ..base_model import BaseModel
 
+
 class AFN(BaseModel):
     def __init__(self,
                  embedding_dim=32,
                  dnn_hidden_units=[64, 64, 64],
-                 afn_hidden_units = [64, 64, 64],
-                 ensemble_dnn = True,
+                 afn_hidden_units=[64, 64, 64],
+                 ensemble_dnn=True,
                  loss_fun='torch.nn.BCELoss()',
-                 logarithmic_neurons = 5,
+                 logarithmic_neurons=5,
                  enc_dict=None):
-        super(AFN, self).__init__(enc_dict,embedding_dim)
+        super(AFN, self).__init__(enc_dict, embedding_dim)
         """
         AFN model.
 
@@ -57,7 +58,7 @@ class AFN(BaseModel):
                            use_bias=True)
             self.fc = nn.Linear(2, 1)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         """
         Perform forward propagation on the AFN model.
 
@@ -82,19 +83,19 @@ class AFN(BaseModel):
         y_pred = y_pred.sigmoid()
         # 输出
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict
 
     def logarithmic_net(self, feature_emb):
         feature_emb = torch.abs(feature_emb)
-        feature_emb = torch.clamp(feature_emb, min=1e-5) # ReLU with min 1e-5 (better than 1e-7 suggested in paper)
-        log_feature_emb = torch.log(feature_emb) # element-wise log
-        log_feature_emb = self.log_batch_norm(log_feature_emb) # batch_size * num_fields * embedding_dim
+        feature_emb = torch.clamp(feature_emb, min=1e-5)  # ReLU with min 1e-5 (better than 1e-7 suggested in paper)
+        log_feature_emb = torch.log(feature_emb)  # element-wise log
+        log_feature_emb = self.log_batch_norm(log_feature_emb)  # batch_size * num_fields * embedding_dim
         logarithmic_out = self.coefficient_W(log_feature_emb.transpose(2, 1)).transpose(1, 2)
-        cross_out = torch.exp(logarithmic_out) # element-wise exp
+        cross_out = torch.exp(logarithmic_out)  # element-wise exp
         cross_out = self.exp_batch_norm(cross_out)  # batch_size * logarithmic_neurons * embedding_dim
         concat_out = torch.flatten(cross_out, start_dim=1)
         return concat_out

@@ -16,7 +16,7 @@ class DeepFM(BaseModel):
                  hidden_units: List[int] = [64, 64, 64],
                  loss_fun: str = 'torch.nn.BCELoss()',
                  enc_dict: Dict[str, dict] = None):
-        super(DeepFM, self).__init__(enc_dict,embedding_dim)
+        super(DeepFM, self).__init__(enc_dict, embedding_dim)
         """
         DeepFM model.
 
@@ -59,9 +59,8 @@ class DeepFM(BaseModel):
 
         y_pred = torch.sigmoid(fm_out + dnn_output)
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict
-

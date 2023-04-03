@@ -8,6 +8,7 @@ from ..layers import MLP, LR_Layer, SENET_Layer, BilinearInteractionLayer
 from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
+
 # TODO: change the current code of AFM with the right version.
 
 class AFM(BaseModel):
@@ -16,7 +17,7 @@ class AFM(BaseModel):
                  hidden_units=[64, 64, 64],
                  loss_fun='torch.nn.BCELoss()',
                  enc_dict=None):
-        super(AFM, self).__init__(enc_dict,embedding_dim)
+        super(AFM, self).__init__(enc_dict, embedding_dim)
 
         self.hidden_units = hidden_units
         self.loss_fun = eval(loss_fun)
@@ -33,7 +34,7 @@ class AFM(BaseModel):
                        hidden_activations='relu', dropout_rates=0)
         self.apply(self._init_weights)
 
-    def forward(self, data,is_training=True):
+    def forward(self, data, is_training=True):
         """
         Perform forward propagation on the AFM model.
 
@@ -53,14 +54,14 @@ class AFM(BaseModel):
         comb_out = torch.flatten(torch.cat([bilinear_p, bilinear_q], dim=1), start_dim=1)
 
         dense_input = get_linear_input(self.enc_dict, data)
-        comb_out = torch.cat([comb_out, dense_input],dim=1)
+        comb_out = torch.cat([comb_out, dense_input], dim=1)
         y_pred += self.dnn(comb_out)
         y_pred = y_pred.sigmoid()
 
         # 输出
         if is_training:
-            loss = self.loss_fun(y_pred.squeeze(-1),data['label'])
-            output_dict = {'pred':y_pred,'loss':loss}
+            loss = self.loss_fun(y_pred.squeeze(-1), data['label'])
+            output_dict = {'pred': y_pred, 'loss': loss}
         else:
-            output_dict = {'pred':y_pred}
+            output_dict = {'pred': y_pred}
         return output_dict

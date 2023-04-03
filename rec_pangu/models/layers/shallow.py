@@ -9,6 +9,7 @@ from torch import nn
 from .embedding import EmbeddingLayer
 from ..utils import get_dnn_input_dim, get_linear_input
 
+
 # Wide部分
 class LR_Layer(nn.Module):
     def __init__(self, enc_dict):

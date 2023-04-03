@@ -34,7 +34,9 @@ def check_version(version):
                         continue
                     latest_version = max(latest_version, ver)
                 if latest_version > version:
-                    logger.warning('\nRec_Pangu version {0} detected. Your version is {1}.\nUse `pip install -U rec_pangu` to upgrade.'.format(latest_version,version))
+                    logger.warning(
+                        '\nRec_Pangu version {0} detected. Your version is {1}.\nUse `pip install -U rec_pangu` to upgrade.'.format(
+                            latest_version, version))
         except:
             print("Please check the latest version manually on https://pypi.org/project/rec_pangu/#history")
             return

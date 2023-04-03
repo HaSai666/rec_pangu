@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import Dataset
 import random
 
+
 class GeneralGraphDataset(Dataset):
     def __init__(self, df, num_user, num_item, phase='train'):
         self.df = df
@@ -101,4 +102,3 @@ class GeneralGraphDataset(Dataset):
             return len(self.df)
         else:
             return self.df['user_id'].nunique()
-
