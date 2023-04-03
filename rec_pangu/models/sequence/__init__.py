@@ -14,3 +14,4 @@ from .srgnn import SRGNN
 from .gcsan import GCSAN
 from .niser import NISER
 from .nextitnet import NextItNet
+from .stamp import STAMP
