@@ -11,7 +11,7 @@ from rec_pangu.models.base_model import SequenceBaseModel
 
 class ComirecSA(SequenceBaseModel):
 
-    def __init__(self, enc_dict,config):
+    def __init__(self, enc_dict, config):
         super(ComirecSA, self).__init__(enc_dict, config)
 
         self.multi_interest_sa = MultiInterestSelfAttention(embedding_dim=self.embedding_dim,
@@ -48,10 +48,10 @@ class ComirecSA(SequenceBaseModel):
             for k in range(multi_interest_emb.shape[0]):
                 best_interest_emb[k, :] = multi_interest_emb[k, k_index[k], :]
 
-            loss = self.calculate_loss(best_interest_emb,item)
+            loss = self.calculate_loss(best_interest_emb, item)
             output_dict = {
-                'user_emb':multi_interest_emb,
-                'loss':loss,
+                'user_emb': multi_interest_emb,
+                'loss': loss,
             }
         else:
             seq_emb = self.item_emb(item_seq)  # Batch,Seq,Emb
@@ -62,9 +62,10 @@ class ComirecSA(SequenceBaseModel):
             }
         return output_dict
 
+
 class ComirecDR(SequenceBaseModel):
 
-    def __init__(self, enc_dict,config):
+    def __init__(self, enc_dict, config):
         super(ComirecDR, self).__init__(enc_dict, config)
 
         self.capsule = CapsuleNetwork(self.embedding_dim, self.max_length,
@@ -101,10 +102,10 @@ class ComirecDR(SequenceBaseModel):
             for k in range(multi_interest_emb.shape[0]):
                 best_interest_emb[k, :] = multi_interest_emb[k, k_index[k], :]
 
-            loss = self.calculate_loss(best_interest_emb,item)
+            loss = self.calculate_loss(best_interest_emb, item)
             output_dict = {
-                'user_emb':multi_interest_emb,
-                'loss':loss,
+                'user_emb': multi_interest_emb,
+                'loss': loss,
             }
         else:
             seq_emb = self.item_emb(item_seq)  # Batch,Seq,Emb
@@ -113,5 +114,3 @@ class ComirecDR(SequenceBaseModel):
                 'user_emb': multi_interest_emb,
             }
         return output_dict
-
-

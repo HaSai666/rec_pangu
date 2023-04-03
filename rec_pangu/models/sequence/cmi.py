@@ -10,6 +10,7 @@ from torch import nn
 import torch.nn.functional as F
 from rec_pangu.models.base_model import SequenceBaseModel
 
+
 class CMI(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(CMI, self).__init__(enc_dict, config)
@@ -68,7 +69,7 @@ class CMI(SequenceBaseModel):
 
         item_seq = data['hist_item_list']
 
-        item_seq_len = torch.sum(data['hist_mask_list'],dim=-1)
+        item_seq_len = torch.sum(data['hist_mask_list'], dim=-1)
 
         batch_size, n_seq = item_seq.shape
         item_seq_emb = self.item_emb(item_seq)
@@ -116,8 +117,8 @@ class CMI(SequenceBaseModel):
 
         if is_training:
             output_dict = {
-                'global_user_emb' : full_psnl_emb,
-                'user_emb' : psnl_interest,
+                'global_user_emb': full_psnl_emb,
+                'user_emb': psnl_interest,
                 'loss': self.calculate_cmi_loss(psnl_interest, data['target_item'].squeeze())
             }
         else:
@@ -128,7 +129,7 @@ class CMI(SequenceBaseModel):
 
     def get_neg_item(self, batch_size):
         n_item = self.item_emb.weight.shape[0]
-        return torch.randint(1, n_item-1, (batch_size,1)).squeeze()
+        return torch.randint(1, n_item - 1, (batch_size, 1)).squeeze()
 
     def calculate_cmi_loss(self, psnl_interest, pos_items):
         batch_size, n_interest, embed_size = psnl_interest.shape
@@ -166,8 +167,8 @@ class CMI(SequenceBaseModel):
         user_interests_a = F.normalize(user_interests_a, p=2, dim=-1)
         user_interests_b = F.normalize(user_interests_b, p=2, dim=-1)
         sim_matrix = user_interests_a.matmul(user_interests_b.transpose(0, 1)) / self.temperature
-        loss = F.cross_entropy(sim_matrix, torch.arange(sim_matrix.shape[0],device=device)) + F.cross_entropy(
-            sim_matrix.transpose(0, 1), torch.arange(sim_matrix.shape[0],device=device))
+        loss = F.cross_entropy(sim_matrix, torch.arange(sim_matrix.shape[0], device=device)) + F.cross_entropy(
+            sim_matrix.transpose(0, 1), torch.arange(sim_matrix.shape[0], device=device))
         return loss
 
     def get_orth_loss(self, x):

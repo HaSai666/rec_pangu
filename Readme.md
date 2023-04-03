@@ -67,6 +67,7 @@ pip install rec_pangu --upgrade
 | YotubeDNN | 经典序列召回 |[Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190?utm_campaign=Weekly%20dose%20of%20Machine%20Learning&utm_medium=email&utm_source=Revue%20newsletter) | 2016 |
 | Gru4Rec   | 经典序列召回 |[Session-based recommendations with recurrent neural networks](https://arxiv.org/pdf/1511.06939) | 2015 |
 | Narm      | 经典序列召回 |[Neural Attentive Session-based Recommendation](https://arxiv.org/pdf/1711.04725) | 2017 |
+| NextItNet | 经典序列召回 |[A Simple Convolutional Generative Network for Next Item](https://arxiv.org/pdf/1808.05163) | 2019 |
 | ComirecSA | 多兴趣召回  |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
 | ComirecDR | 多兴趣召回  |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
 | Mind      | 多兴趣召回  |[Multi-Interest Network with Dynamic Routing for Recommendation at Tmall](https://arxiv.org/pdf/1904.08030) | 2019 |

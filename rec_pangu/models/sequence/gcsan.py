@@ -10,6 +10,7 @@ from rec_pangu.models.utils import generate_graph
 from rec_pangu.models.layers import SRGNNCell, TransformerEncoder
 from rec_pangu.models.base_model import SequenceBaseModel
 
+
 class GCSAN(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(GCSAN, self).__init__(enc_dict, config)
