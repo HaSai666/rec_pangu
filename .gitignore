@@ -143,3 +143,4 @@ rec_pangu/dataset/process_data_bak.py
 examples/ranking/model_ckpt
 examples/multi_task/model_ckpt
 pypi.sh
+*.ipynb
