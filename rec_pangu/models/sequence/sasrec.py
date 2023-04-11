@@ -34,7 +34,8 @@ class SASRec(SequenceBaseModel):
             layer_norm_eps=self.layer_norm_eps
         )
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """

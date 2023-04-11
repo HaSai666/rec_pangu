@@ -24,7 +24,8 @@ class SRGNN(SequenceBaseModel):
         self.linear_three = nn.Linear(self.embedding_dim, 1, bias=False)
         self.linear_transform = nn.Linear(self.embedding_dim * 2, self.embedding_dim)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """

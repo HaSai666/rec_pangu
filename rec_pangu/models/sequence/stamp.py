@@ -16,7 +16,8 @@ class STAMP(SequenceBaseModel):
         self.feat_drop = self.config.get('feat_drop', 0)
 
         self.stamp_layer = STAMPLayer(self.embedding_dim, feat_drop=self.feat_drop)
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """

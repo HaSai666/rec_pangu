@@ -12,7 +12,8 @@ class YotubeDNN(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(YotubeDNN, self).__init__(enc_dict, config)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """

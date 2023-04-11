@@ -16,7 +16,8 @@ class ComirecSA(SequenceBaseModel):
 
         self.multi_interest_sa = MultiInterestSelfAttention(embedding_dim=self.embedding_dim,
                                                             num_attention_heads=self.config['K'])
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """
@@ -70,7 +71,8 @@ class ComirecDR(SequenceBaseModel):
 
         self.capsule = CapsuleNetwork(self.embedding_dim, self.max_length,
                                       bilinear_type=2, interest_num=self.config['K'])
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         f"""

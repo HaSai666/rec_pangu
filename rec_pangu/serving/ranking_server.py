@@ -42,8 +42,9 @@ def export2tf(model: torch.nn.Module, schema: dict, serving_dir: str, version: s
     serving_dir (str): The directory where the exported model will be saved.
     version (str): The version number of the exported model.
     """
+    os.makedirs(serving_dir, exist_ok=True, mode=0o777)
     # Define the path to save the ONNX model
-    onnx_path = os.path.join(serving_dir, './temp.onnx')
+    onnx_path = os.path.join(serving_dir, 'temp.onnx')
     # Construct dummy data for the model input
     dummy_input, dynamic_axes = construct_demmy_data(schema)
     # Export the PyTorch model to ONNX format
@@ -57,4 +58,4 @@ def export2tf(model: torch.nn.Module, schema: dict, serving_dir: str, version: s
     # Convert the ONNX model to TensorFlow format
     tf_rep = prepare(model_onnx)
     # Export the TensorFlow model
-    tf_rep.export_graph(os.path.join(serving_dir, version))
+    tf_rep.export_graph(os.path.join(serving_dir, str(version)))

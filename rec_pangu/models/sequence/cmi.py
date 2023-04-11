@@ -43,7 +43,8 @@ class CMI(SequenceBaseModel):
             nn.ReLU()
         )
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """

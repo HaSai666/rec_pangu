@@ -37,7 +37,8 @@ class Re4(SequenceBaseModel):
         self.mse_loss = nn.MSELoss(reduce=True, size_average=True)
         self.recons_mse_loss = nn.MSELoss(reduce=False)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """

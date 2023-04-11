@@ -185,6 +185,24 @@ class SequenceBaseModel(nn.Module):
         elif isinstance(module, nn.Linear):
             torch.nn.init.kaiming_normal_(module.weight.data)
 
+    def reset_parameters(self):
+        """
+        Initializes the weights of the neural network.
+
+        Args:
+            self: The neural network object.
+
+        Returns:
+            None
+        """
+        for weight in self.parameters():
+            # If the weight is a bias term or a 1D tensor, set it to 0.
+            if len(weight.shape) == 1:
+                torch.nn.init.constant_(weight, 0)
+            # Otherwise, initialize the weight using Kaiming initialization.
+            else:
+                torch.nn.init.kaiming_normal_(weight)
+
 
 class GraphBaseModel(nn.Module):
     def __int__(self, num_user, num_item, embedding_dim):

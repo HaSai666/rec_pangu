@@ -23,7 +23,8 @@ class NextItNet(SequenceBaseModel):
         )
         self.fc = torch.nn.Linear(self.embedding_dim, self.embedding_dim, bias=False)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
         """
