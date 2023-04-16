@@ -43,7 +43,8 @@ class CCPM(BaseModel):
         conv_out_dim = 3 * embedding_dim * channels[-1]  # 3 is k-max-pooling size of the last layer
         self.fc = nn.Linear(conv_out_dim, 1)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data, is_training=True):
         """

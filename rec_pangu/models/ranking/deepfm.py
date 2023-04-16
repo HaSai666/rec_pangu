@@ -35,7 +35,8 @@ class DeepFM(BaseModel):
         self.dnn_input_dim = get_dnn_input_dim(self.enc_dict, self.embedding_dim)
         self.dnn = MLP(input_dim=self.dnn_input_dim, output_dim=1, hidden_units=self.hidden_units,
                        hidden_activations='relu', dropout_rates=0)
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data, is_training=True):
         """

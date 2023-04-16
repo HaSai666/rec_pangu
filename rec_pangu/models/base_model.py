@@ -39,6 +39,24 @@ class BaseModel(nn.Module):
             if module.bias is not None:
                 constant_(module.bias.data, 0)
 
+    def reset_parameters(self):
+        """
+        Initializes the weights of the neural network.
+
+        Args:
+            self: The neural network object.
+
+        Returns:
+            None
+        """
+        for weight in self.parameters():
+            # If the weight is a bias term or a 1D tensor, set it to 0.
+            if len(weight.shape) == 1:
+                torch.nn.init.constant_(weight, 0)
+            # Otherwise, initialize the weight using Kaiming initialization.
+            else:
+                torch.nn.init.kaiming_normal_(weight)
+
     def set_pretrained_weights(self, col_name: str, pretrained_dict: dict, trainable: bool = True) -> None:
         """
         Set the pre-trained weights for the model.
@@ -169,7 +187,7 @@ class SequenceBaseModel(nn.Module):
         extended_attention_mask = extended_attention_mask * subsequent_mask  # apply mask
 
         extended_attention_mask = (
-                                              1.0 - extended_attention_mask) * -1e6  # replace masked positions with -1e6 and unmasked positions with 0
+                                          1.0 - extended_attention_mask) * -1e6  # replace masked positions with -1e6 and unmasked positions with 0
 
         return extended_attention_mask
 

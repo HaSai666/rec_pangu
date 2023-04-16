@@ -53,7 +53,8 @@ class AutoInt(BaseModel):
                                      align_to="output")
               for i in range(attention_layers)])
         self.fc = nn.Linear(self.num_sparse * attention_dim * num_heads, 1)
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data, is_training=True):
         """

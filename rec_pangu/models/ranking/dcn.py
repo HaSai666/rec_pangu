@@ -39,7 +39,9 @@ class DCN(BaseModel):
 
         self.fc = nn.Linear(input_dim, 1)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
+
 
     def forward(self, data, is_training=True):
         """

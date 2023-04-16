@@ -40,7 +40,8 @@ class FiBiNet(BaseModel):
         input_dim = self.num_sparse * (self.num_sparse - 1) * self.embedding_dim + self.num_dense
         self.dnn = MLP(input_dim=input_dim, output_dim=1, hidden_units=self.hidden_units,
                        hidden_activations='relu', dropout_rates=0)
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.Tensor],
                 is_training: bool = True) -> Dict[str, torch.Tensor]:

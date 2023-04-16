@@ -49,7 +49,8 @@ class MaskNet(BaseModel):
                        hidden_units=self.hidden_units,
                        output_dim=1)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data, is_training=True):
         """

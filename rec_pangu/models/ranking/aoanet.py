@@ -46,7 +46,9 @@ class AOANet(BaseModel):
                                              self.num_sparse,
                                              self.embedding_dim)
         self.fc = nn.Linear(dnn_hidden_units[-1] + num_subspaces * self.embedding_dim, 1)
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
+
 
     def forward(self, data, is_training=True):
         """

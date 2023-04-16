@@ -42,7 +42,8 @@ class xDeepFM(BaseModel):
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
         self.cin = CompressedInteractionNet(self.num_sparse, cin_layer_units, output_dim=1)
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.Tensor], is_training: bool = True) -> Dict[str, torch.Tensor]:
         """

@@ -9,7 +9,7 @@ from ..utils import get_feature_num, get_linear_input
 from ..base_model import BaseModel
 
 
-# TODO: change the current code of AFM with the right version.
+# Fixme: change the current code of AFM with the right version.
 
 class AFM(BaseModel):
     def __init__(self,
@@ -32,7 +32,8 @@ class AFM(BaseModel):
         input_dim = self.num_sparse * (self.num_sparse - 1) * self.embedding_dim + self.num_dense
         self.dnn = MLP(input_dim=input_dim, output_dim=1, hidden_units=self.hidden_units,
                        hidden_activations='relu', dropout_rates=0)
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data, is_training=True):
         """

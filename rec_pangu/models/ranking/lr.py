@@ -25,6 +25,7 @@ class LR(nn.Module):
         self.loss_fun = eval(loss_fun)
         self.enc_dict = enc_dict
         self.lr_layer = LR_Layer(enc_dict=self.enc_dict)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.Tensor],
                 is_training: bool = True) -> Dict[str, torch.Tensor]:

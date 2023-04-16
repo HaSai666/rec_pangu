@@ -28,7 +28,8 @@ class FM(BaseModel):
         self.enc_dict = enc_dict
         self.fm = FM_Layer()
 
-        self.apply(self._init_weights)
+        # self.apply(self._init_weights)
+        self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.Tensor],
                 is_training: bool = True) -> Dict[str, torch.Tensor]:

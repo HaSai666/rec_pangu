@@ -48,7 +48,6 @@ class AFN(BaseModel):
         self.log_batch_norm = nn.BatchNorm1d(self.num_sparse)
         self.exp_batch_norm = nn.BatchNorm1d(logarithmic_neurons)
         self.ensemble_dnn = ensemble_dnn
-        self.apply(self._init_weights)
 
         if ensemble_dnn:
             self.embedding_layer2 = EmbeddingLayer(enc_dict=self.enc_dict, embedding_dim=self.embedding_dim)
@@ -57,6 +56,8 @@ class AFN(BaseModel):
                            hidden_units=dnn_hidden_units,
                            use_bias=True)
             self.fc = nn.Linear(2, 1)
+
+        self.reset_parameters()
 
     def forward(self, data, is_training=True):
         """
