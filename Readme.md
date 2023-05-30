@@ -60,28 +60,40 @@ pip install rec_pangu --upgrade
 - 经典序列召回模型
 - 基于图的序列召回模型
 - 多兴趣序列召回模型
+- 基于LLM的序列召回模型
 
 
-| 模型        | 类型     | 论文                                                                                                                                     | 年份   | 
-|-----------|--------|-------------------------------------------------------------------------------------------------------------------------------------------|------|
-| YotubeDNN | 经典序列召回 |[Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190?utm_campaign=Weekly%20dose%20of%20Machine%20Learning&utm_medium=email&utm_source=Revue%20newsletter) | 2016 |
-| Gru4Rec   | 经典序列召回 |[Session-based recommendations with recurrent neural networks](https://arxiv.org/pdf/1511.06939) | 2015 |
-| Narm      | 经典序列召回 |[Neural Attentive Session-based Recommendation](https://arxiv.org/pdf/1711.04725) | 2017 |
-| NextItNet | 经典序列召回 |[A Simple Convolutional Generative Network for Next Item](https://arxiv.org/pdf/1808.05163) | 2019 |
-| ComirecSA | 多兴趣召回  |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
-| ComirecDR | 多兴趣召回  |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
-| Mind      | 多兴趣召回  |[Multi-Interest Network with Dynamic Routing for Recommendation at Tmall](https://arxiv.org/pdf/1904.08030) | 2019 |
-| Re4       | 多兴趣召回  |[Re4: Learning to Re-contrast, Re-attend, Re-construct for Multi-interest Recommendation](https://dl.acm.org/doi/10.1145/3485447.3512094) | 2022 |
-| CMI       | 多兴趣召回  |[mproving Micro-video Recommendation via Contrastive Multiple Interests](https://arxiv.org/pdf/2205.09593) | 2022 |
-| SRGNN     | 图序列召回  |[Session-based Recommendation with Graph Neural Networks](https://ojs.aaai.org/index.php/AAAI/article/view/3804/3682) | 2019 |
-| GC-SAN    | 图序列召回  |[SGraph Contextualized Self-Attention Network for Session-based Recommendation](https://www.ijcai.org/proceedings/2019/0547.pdf) | 2019 |
-| NISER     | 图序列召回  |[NISER: Normalized Item and Session Representations to Handle Popularity Bias](https://arxiv.org/pdf/1909.04276) | 2019 |
+| 模型              | 类型      | 论文                                                                                                                                  | 年份   | 
+|-----------------|---------|----------------------------------------------------------------------------------------------------------------------------------------|------|
+| YotubeDNN       | 经典序列召回  |[Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190?utm_campaign=Weekly%20dose%20of%20Machine%20Learning&utm_medium=email&utm_source=Revue%20newsletter) | 2016 |
+| Gru4Rec         | 经典序列召回  |[Session-based recommendations with recurrent neural networks](https://arxiv.org/pdf/1511.06939) | 2015 |
+| Narm            | 经典序列召回  |[Neural Attentive Session-based Recommendation](https://arxiv.org/pdf/1711.04725) | 2017 |
+| NextItNet       | 经典序列召回  |[A Simple Convolutional Generative Network for Next Item](https://arxiv.org/pdf/1808.05163) | 2019 |
+| ComirecSA       | 多兴趣召回   |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
+| ComirecDR       | 多兴趣召回   |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
+| Mind            | 多兴趣召回   |[Multi-Interest Network with Dynamic Routing for Recommendation at Tmall](https://arxiv.org/pdf/1904.08030) | 2019 |
+| Re4             | 多兴趣召回   |[Re4: Learning to Re-contrast, Re-attend, Re-construct for Multi-interest Recommendation](https://dl.acm.org/doi/10.1145/3485447.3512094) | 2022 |
+| CMI             | 多兴趣召回   |[mproving Micro-video Recommendation via Contrastive Multiple Interests](https://arxiv.org/pdf/2205.09593) | 2022 |
+| SRGNN           | 图序列召回   |[Session-based Recommendation with Graph Neural Networks](https://ojs.aaai.org/index.php/AAAI/article/view/3804/3682) | 2019 |
+| GC-SAN          | 图序列召回   |[SGraph Contextualized Self-Attention Network for Session-based Recommendation](https://www.ijcai.org/proceedings/2019/0547.pdf) | 2019 |
+| NISER           | 图序列召回   |[NISER: Normalized Item and Session Representations to Handle Popularity Bias](https://arxiv.org/pdf/1909.04276) | 2019 |
+| GCE-GNN(ToDo)   | 图序列召回   |[Global Context Enhanced Graph Neural Networks for Session-based Recommendation](https://arxiv.org/pdf/2106.05081.pdf) | 2020 |
+| Recformer(ToDo) | LLM序列召回 |[Text Is All You Need: Learning Language Representations for Sequential Recommendation](https://arxiv.org/pdf/2305.13731.pdf) | 2023 |
+
 
 
 
 ## 6.图协同过滤模型
 
-TODO
+
+| 模型         | 类型          | 论文                                                                                                                          | 年份   | 
+|------------|-------------|-----------------------------------------------------------------------------------------------------------------------------|------|
+| NGCF（ToDo） | 图协同过滤       | [Neural Graph Collaborative Filtering](https://arxiv.org/pdf/1905.08108.pdf)                                                | 2019 |
+| LightGCN（ToDo）   | 图协同过滤       | [LightGCN: Simplifying and Powering Graph Convolution Network for Recommendation](https://arxiv.org/pdf/2002.02126.pdf)     | 2019 |
+| NCL（ToDo）        | 图对比学习       | [Improving Graph Collaborative Filtering with Neighborhood-enriched Contrastive Learning](https://arxiv.org/pdf/2202.06200) | 2022 |
+| SimGCL（ToDo）     | 图对比学习       | [Are Graph Augmentations Necessary? Simple Graph Contrastive Learning for Recommendation](https://www.researchgate.net/profile/Junliang-Yu/publication/359788233_Are_Graph_Augmentations_Necessary_Simple_Graph_Contrastive_Learning_for_Recommendation/links/624e802ad726197cfd426f81/Are-Graph-Augmentations-Necessary-Simple-Graph-Contrastive-Learning-for-Recommendation.pdf?ref=https://githubhelp.com) | 2022 |
+| SGL（ToDo）        | 图对比学习       | [Self-supervised Graph Learning for Recommendation](https://arxiv.org/pdf/2010.10783)                                       | 2021 |
+
 
 ## 7.Demo
 我们的Rank和多任务模型所对外暴露的接口十分相似,同时我们这里也支持使用wandb来实时监测模型训练指标,我们下面会分别给出Rank,多任务模型,wandb的demo
