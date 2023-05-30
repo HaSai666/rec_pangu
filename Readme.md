@@ -86,13 +86,13 @@ pip install rec_pangu --upgrade
 ## 6.图协同过滤模型
 
 
-| 模型         | 类型          | 论文                                                                                                                          | 年份   | 
-|------------|-------------|-----------------------------------------------------------------------------------------------------------------------------|------|
-| NGCF（ToDo） | 图协同过滤       | [Neural Graph Collaborative Filtering](https://arxiv.org/pdf/1905.08108.pdf)                                                | 2019 |
-| LightGCN（ToDo）   | 图协同过滤       | [LightGCN: Simplifying and Powering Graph Convolution Network for Recommendation](https://arxiv.org/pdf/2002.02126.pdf)     | 2019 |
-| NCL（ToDo）        | 图对比学习       | [Improving Graph Collaborative Filtering with Neighborhood-enriched Contrastive Learning](https://arxiv.org/pdf/2202.06200) | 2022 |
-| SimGCL（ToDo）     | 图对比学习       | [Are Graph Augmentations Necessary? Simple Graph Contrastive Learning for Recommendation](https://www.researchgate.net/profile/Junliang-Yu/publication/359788233_Are_Graph_Augmentations_Necessary_Simple_Graph_Contrastive_Learning_for_Recommendation/links/624e802ad726197cfd426f81/Are-Graph-Augmentations-Necessary-Simple-Graph-Contrastive-Learning-for-Recommendation.pdf?ref=https://githubhelp.com) | 2022 |
-| SGL（ToDo）        | 图对比学习       | [Self-supervised Graph Learning for Recommendation](https://arxiv.org/pdf/2010.10783)                                       | 2021 |
+| 模型             | 类型          | 论文                                                                                                                          | 年份   | 
+|----------------|-------------|-----------------------------------------------------------------------------------------------------------------------------|------|
+| NGCF(ToDo)     | 图协同过滤       | [Neural Graph Collaborative Filtering](https://arxiv.org/pdf/1905.08108.pdf)                                                | 2019 |
+| LightGCN(ToDo)   | 图协同过滤       | [LightGCN: Simplifying and Powering Graph Convolution Network for Recommendation](https://arxiv.org/pdf/2002.02126.pdf)     | 2019 |
+| NCL(ToDo)       | 图对比学习       | [Improving Graph Collaborative Filtering with Neighborhood-enriched Contrastive Learning](https://arxiv.org/pdf/2202.06200) | 2022 |
+| SimGCL(ToDo)    | 图对比学习       | [Are Graph Augmentations Necessary? Simple Graph Contrastive Learning for Recommendation](https://www.researchgate.net/profile/Junliang-Yu/publication/359788233_Are_Graph_Augmentations_Necessary_Simple_Graph_Contrastive_Learning_for_Recommendation/links/624e802ad726197cfd426f81/Are-Graph-Augmentations-Necessary-Simple-Graph-Contrastive-Learning-for-Recommendation.pdf?ref=https://githubhelp.com) | 2022 |
+| SGL(ToDo)      | 图对比学习       | [Self-supervised Graph Learning for Recommendation](https://arxiv.org/pdf/2010.10783)                                       | 2021 |
 
 
 ## 7.Demo
