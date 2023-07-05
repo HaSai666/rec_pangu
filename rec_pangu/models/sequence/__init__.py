@@ -15,3 +15,5 @@ from .gcsan import GCSAN
 from .niser import NISER
 from .nextitnet import NextItNet
 from .stamp import STAMP
+from .gru4rec import GRU4Rec
+from .sine import SINE
