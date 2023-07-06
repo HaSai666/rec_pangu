@@ -6,18 +6,13 @@
 from typing import Dict
 import torch
 from rec_pangu.models.base_model import SequenceBaseModel
+from rec_pangu.models.layers import GRU4RecEncoder
 
 
 class GRU4Rec(SequenceBaseModel):
     def __init__(self, enc_dict, config):
         super(GRU4Rec, self).__init__(enc_dict, config)
-        self.gru = torch.nn.GRU(
-            input_size=self.embedding_dim,
-            hidden_size=self.embedding_dim,
-            num_layers=self.config.get('num_layers', 2),
-            batch_first=True,
-            bias=False
-        )
+        self.gru = GRU4RecEncoder(self.embedding_dim, self.embedding_dim)
         self.reset_parameters()
 
     def forward(self, data: Dict[str, torch.tensor], is_training: bool = True):
@@ -34,10 +29,11 @@ class GRU4Rec(SequenceBaseModel):
             tensors as values.
         """
         item_seq = data['hist_item_list']
+        mask = data['hist_mask_list']
+        item_seq_length = torch.sum(mask, dim=1)
 
         seq_emb = self.item_emb(item_seq)
-        _, seq_emb = self.gru(seq_emb)
-        user_emb = seq_emb[-1]
+        user_emb = self.gru(seq_emb, item_seq_length)
         if is_training:
             item = data['target_item'].squeeze()
             loss = self.calculate_loss(user_emb, item)
