@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # 训练模型
     # trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device, log_rounds=10,
     #             use_earlystoping=True, max_patience=5, monitor_metric='recall@20', )
-    trainer.fit(model, train_loader, epoch=500, lr=1e-3, device=device, log_rounds=10,
+    trainer.fit(model, train_loader, valid_loader, epoch=500, lr=1e-3, device=device, log_rounds=10,
                 use_earlystoping=True, max_patience=5, monitor_metric='recall@20',
                 lr_scheduler_type='CosineAnnealingLR', scheduler_params={"T_max": 7, "eta_min": 0})
     # 保存模型权重和enc_dict

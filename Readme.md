@@ -63,22 +63,23 @@ pip install rec_pangu --upgrade
 - 基于LLM的序列召回模型
 
 
-| 模型              | 类型      | 论文                                                                                                                                  | 年份   | 
-|-----------------|---------|----------------------------------------------------------------------------------------------------------------------------------------|------|
-| YotubeDNN       | 经典序列召回  |[Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190?utm_campaign=Weekly%20dose%20of%20Machine%20Learning&utm_medium=email&utm_source=Revue%20newsletter) | 2016 |
-| Gru4Rec         | 经典序列召回  |[Session-based recommendations with recurrent neural networks](https://arxiv.org/pdf/1511.06939) | 2015 |
-| Narm            | 经典序列召回  |[Neural Attentive Session-based Recommendation](https://arxiv.org/pdf/1711.04725) | 2017 |
-| NextItNet       | 经典序列召回  |[A Simple Convolutional Generative Network for Next Item](https://arxiv.org/pdf/1808.05163) | 2019 |
-| ComirecSA       | 多兴趣召回   |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
-| ComirecDR       | 多兴趣召回   |[Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347) | 2020 |
-| Mind            | 多兴趣召回   |[Multi-Interest Network with Dynamic Routing for Recommendation at Tmall](https://arxiv.org/pdf/1904.08030) | 2019 |
-| Re4             | 多兴趣召回   |[Re4: Learning to Re-contrast, Re-attend, Re-construct for Multi-interest Recommendation](https://dl.acm.org/doi/10.1145/3485447.3512094) | 2022 |
-| CMI             | 多兴趣召回   |[mproving Micro-video Recommendation via Contrastive Multiple Interests](https://arxiv.org/pdf/2205.09593) | 2022 |
-| SRGNN           | 图序列召回   |[Session-based Recommendation with Graph Neural Networks](https://ojs.aaai.org/index.php/AAAI/article/view/3804/3682) | 2019 |
-| GC-SAN          | 图序列召回   |[SGraph Contextualized Self-Attention Network for Session-based Recommendation](https://www.ijcai.org/proceedings/2019/0547.pdf) | 2019 |
-| NISER           | 图序列召回   |[NISER: Normalized Item and Session Representations to Handle Popularity Bias](https://arxiv.org/pdf/1909.04276) | 2019 |
-| GCE-GNN(ToDo)   | 图序列召回   |[Global Context Enhanced Graph Neural Networks for Session-based Recommendation](https://arxiv.org/pdf/2106.05081.pdf) | 2020 |
-| Recformer(ToDo) | LLM序列召回 |[Text Is All You Need: Learning Language Representations for Sequential Recommendation](https://arxiv.org/pdf/2305.13731.pdf) | 2023 |
+| 模型              | 类型      | 论文                                                                                                                                                                                                         | 年份   | 
+|-----------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------|
+| YotubeDNN       | 经典序列召回  | [Deep Neural Networks for YouTube Recommendations](https://dl.acm.org/doi/pdf/10.1145/2959100.2959190?utm_campaign=Weekly%20dose%20of%20Machine%20Learning&utm_medium=email&utm_source=Revue%20newsletter) | 2016 |
+| Gru4Rec         | 经典序列召回  | [Session-based recommendations with recurrent neural networks](https://arxiv.org/pdf/1511.06939)                                                                                                           | 2015 |
+| Narm            | 经典序列召回  | [Neural Attentive Session-based Recommendation](https://arxiv.org/pdf/1711.04725)                                                                                                                          | 2017 |
+| NextItNet       | 经典序列召回  | [A Simple Convolutional Generative Network for Next Item](https://arxiv.org/pdf/1808.05163)                                                                                                                | 2019 |
+| ContraRec       | 序列对比学习  | [Sequential Recommendation with Multiple Contrast Signals](https://dl.acm.org/doi/pdf/10.1145/3522673)                                                                                                     |      |
+| ComirecSA       | 多兴趣召回   | [Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347)                                                                                                               | 2020 |
+| ComirecDR       | 多兴趣召回   | [Controllable multi-interest framework for recommendation](https://arxiv.org/pdf/2005.09347)                                                                                                               | 2020 |
+| Mind            | 多兴趣召回   | [Multi-Interest Network with Dynamic Routing for Recommendation at Tmall](https://arxiv.org/pdf/1904.08030)                                                                                                | 2019 |
+| Re4             | 多兴趣召回   | [Re4: Learning to Re-contrast, Re-attend, Re-construct for Multi-interest Recommendation](https://dl.acm.org/doi/10.1145/3485447.3512094)                                                                  | 2022 |
+| CMI             | 多兴趣召回   | [mproving Micro-video Recommendation via Contrastive Multiple Interests](https://arxiv.org/pdf/2205.09593)                                                                                                 | 2022 |
+| SRGNN           | 图序列召回   | [Session-based Recommendation with Graph Neural Networks](https://ojs.aaai.org/index.php/AAAI/article/view/3804/3682)                                                                                      | 2019 |
+| GC-SAN          | 图序列召回   | [SGraph Contextualized Self-Attention Network for Session-based Recommendation](https://www.ijcai.org/proceedings/2019/0547.pdf)                                                                           | 2019 |
+| NISER           | 图序列召回   | [NISER: Normalized Item and Session Representations to Handle Popularity Bias](https://arxiv.org/pdf/1909.04276)                                                                                           | 2019 |
+| GCE-GNN(ToDo)   | 图序列召回   | [Global Context Enhanced Graph Neural Networks for Session-based Recommendation](https://arxiv.org/pdf/2106.05081.pdf)                                                                                     | 2020 |
+| Recformer(ToDo) | LLM序列召回 | [Text Is All You Need: Learning Language Representations for Sequential Recommendation](https://arxiv.org/pdf/2305.13731.pdf)                                                                              | 2023 |
 
 
 
