@@ -17,6 +17,7 @@ import torch.utils.data as D
 import wandb
 from typing import List, Optional
 import pandas as pd
+from torch.optim import lr_scheduler
 
 
 class RankTrainer:
@@ -49,7 +50,8 @@ class RankTrainer:
 
     def fit(self, model, train_loader, valid_loader: Optional = None, epoch: int = 10, lr: float = 1e-3,
             device: torch.device = torch.device('cpu'), use_earlystopping: bool = False,
-            max_patience: int = 999, monitor_metric: Optional[str] = None):
+            max_patience: int = 999, monitor_metric: Optional[str] = None, lr_scheduler_type: str = "",
+            scheduler_params: Optional[dict] = {}):
         """
         Train the model using the given data loaders and hyperparameters.
 
@@ -68,9 +70,23 @@ class RankTrainer:
             wandb.init(
                 **self.wandb_config
             )
+
         # Declare the optimizer
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
         model = model.to(device)
+
+        # 根据选择的学习率衰减策略，初始化学习率衰减器
+        if lr_scheduler_type == 'StepLR':
+            scheduler = lr_scheduler.StepLR(optimizer, **scheduler_params)
+        elif lr_scheduler_type == 'ExponentialLR':
+            scheduler = lr_scheduler.ExponentialLR(optimizer, **scheduler_params)
+        elif lr_scheduler_type == 'CosineAnnealingLR':
+            scheduler = lr_scheduler.CosineAnnealingLR(optimizer, **scheduler_params)
+        elif lr_scheduler_type == "":
+            scheduler = None
+        else:
+            raise ValueError('Unknown scheduler type: {}'.format(lr_scheduler_type))
+
         # Model training process
         logger.info('Model Starting Training ')
         best_epoch = -1
@@ -79,6 +95,9 @@ class RankTrainer:
             # Model training
             train_metric = train_model(model, train_loader, optimizer=optimizer, device=device, num_task=self.num_task,
                                        use_wandb=self.use_wandb)
+            if scheduler is not None:
+                scheduler.step()
+                logger.info(f"Epoch {i} LR:{round(scheduler.get_lr(),6)}")
             logger.info(f"Train Metric:{train_metric}")
             # Model validation
             if valid_loader is not None:
@@ -242,7 +261,8 @@ class SequenceTrainer:
     def fit(self, model, train_loader, valid_loader: Optional = None, epoch: int = 50, lr: float = 1e-3,
             device: torch.device = torch.device('cpu'), topk_list: Optional[List[int]] = None,
             use_earlystoping: bool = False, max_patience: int = 999, monitor_metric: Optional[str] = None,
-            log_rounds: int = 100):
+            log_rounds: int = 100, lr_scheduler_type: str = "",
+            scheduler_params: Optional[dict] = {}):
         """
         Fits the model using the given data loaders.
 
@@ -271,6 +291,17 @@ class SequenceTrainer:
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0)
         model = model.to(device)
 
+        # 根据选择的学习率衰减策略，初始化学习率衰减器
+        if lr_scheduler_type == 'StepLR':
+            scheduler = lr_scheduler.StepLR(optimizer, **scheduler_params)
+        elif lr_scheduler_type == 'ExponentialLR':
+            scheduler = lr_scheduler.ExponentialLR(optimizer, **scheduler_params)
+        elif lr_scheduler_type == 'CosineAnnealingLR':
+            scheduler = lr_scheduler.CosineAnnealingLR(optimizer, **scheduler_params)
+        elif lr_scheduler_type == "":
+            scheduler = None
+        else:
+            raise ValueError('Unknown scheduler type: {}'.format(lr_scheduler_type))
         # Training process
         logger.info('Model Starting Training')
         best_epoch = -1
@@ -281,6 +312,9 @@ class SequenceTrainer:
             # Train the model
             train_sequence_model(model, train_loader, optimizer=optimizer, device=device,
                                  use_wandb=self.use_wandb, log_rounds=log_rounds)
+            if scheduler is not None:
+                scheduler.step()
+                logger.info(f"Epoch {i} LR:{round(scheduler.get_lr()[-1], 6)}")
 
             # Validate the model
             if valid_loader is not None:
