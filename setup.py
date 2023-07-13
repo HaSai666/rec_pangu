@@ -11,14 +11,14 @@ with open("Readme.md", "r") as f:
 
 setup(
     name='rec_pangu',
-    version='0.3.8',
+    version='0.3.9',
     description='Some Rank/Multi-task model implemented by Pytorch',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='wk',
     author_email='306178200@qq.com',
     url='https://github.com/HaSai666/rec_pangu',
-    install_requires=['numpy>=1.19.0', 'torch>=1.7.0', 'pandas>=1.0.5', 'tqdm', 'scikit_learn>=0.23.2', 'pygments', 'loguru', 'faiss-cpu', 'wandb'], #'torch_sparse','torch_scatter','torch_geometric'
+    install_requires=['numpy>=1.19.0', 'torch>=1.7.0', 'pandas==1.3.5', 'tqdm', 'scikit_learn>=0.23.2', 'pygments', 'loguru', 'faiss-cpu', 'wandb'], #'torch_sparse','torch_scatter','torch_geometric'
     packages=find_packages(),
     platforms=["all"],
     classifiers=[

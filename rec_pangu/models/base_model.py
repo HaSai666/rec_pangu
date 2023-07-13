@@ -52,7 +52,8 @@ class BaseModel(nn.Module):
         for weight in self.parameters():
             # If the weight is a bias term or a 1D tensor, set it to 0.
             if len(weight.shape) == 1:
-                torch.nn.init.constant_(weight, 0)
+                # torch.nn.init.constant_(weight, 0)
+                continue
             # Otherwise, initialize the weight using Kaiming initialization.
             else:
                 torch.nn.init.kaiming_normal_(weight)
@@ -216,7 +217,8 @@ class SequenceBaseModel(nn.Module):
         for weight in self.parameters():
             # If the weight is a bias term or a 1D tensor, set it to 0.
             if len(weight.shape) == 1:
-                torch.nn.init.constant_(weight, 0)
+                # torch.nn.init.constant_(weight, 0)
+                continue
             # Otherwise, initialize the weight using Kaiming initialization.
             else:
                 torch.nn.init.kaiming_normal_(weight)
@@ -231,6 +233,25 @@ class GraphBaseModel(nn.Module):
 
         self.user_emb_layer = nn.Embedding(self.num_user, self.embedding_dim)
         self.item_emb_layer = nn.Embedding(self.num_item, self.embedding_dim)
+
+    def reset_parameters(self):
+        """
+        Initializes the weights of the neural network.
+
+        Args:
+            self: The neural network object.
+
+        Returns:
+            None
+        """
+        for weight in self.parameters():
+            # If the weight is a bias term or a 1D tensor, set it to 0.
+            if len(weight.shape) == 1:
+                # torch.nn.init.constant_(weight, 0)
+                continue
+            # Otherwise, initialize the weight using Kaiming initialization.
+            else:
+                torch.nn.init.kaiming_normal_(weight)
 
     def _init_weights(self, module):
         if isinstance(module, nn.Embedding):

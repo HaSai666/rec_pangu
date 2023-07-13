@@ -20,7 +20,7 @@ class SINE(SequenceBaseModel):
         self.L = self.config.get("prototype_size", 500)  # 500 for movie-len dataset
         self.k = self.config.get("interest_size", 4)  # 4 for movie-len dataset
         self.tau = self.config.get("tau_ratio", 0.1)  # 0.1 in paper
-        self.reg_loss_ratio = self.config.get("reg_loss_ratio")  # 0.1 in paper
+        self.reg_loss_ratio = self.config.get("reg_loss_ratio", 0.1)  # 0.1 in paper
 
         self.initializer_range = 0.01
 
