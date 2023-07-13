@@ -54,7 +54,7 @@ if __name__ == '__main__':
     train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema,
                                                                        batch_size=50)
     # 声明模型,序列召回模型模型目前支持： ComirecSA,ComirecDR,MIND,CMI,Re4,NARM,YotubeDNN,SRGNN
-    model = CustomMOEModel(enc_dict=enc_dict, config=config)
+    model = GCSAN(enc_dict=enc_dict, config=config)
     # 声明Trainer
     # trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt',wandb_config=wandb_config)
     trainer = SequenceTrainer(model_ckpt_dir='./model_ckpt')
