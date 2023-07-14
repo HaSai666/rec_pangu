@@ -258,11 +258,13 @@ def generate_graph(batch_data: Dict) -> Dict:
     edge_weight = norm[reversed_edge_index[0]]
     out_graph.edata['edge_weight'] = edge_weight
 
+    device = batch_data['hist_mask_list'].device
+
     new_batch_data = {
-        'x': x,
-        'alias_inputs': alias_inputs,
-        'in_graph': in_graph,
-        'out_graph': out_graph
+        'x': x.to(device),
+        'alias_inputs': alias_inputs.to(device),
+        'in_graph': in_graph.to(device),
+        'out_graph': out_graph.to(device)
 
     }
     return new_batch_data
