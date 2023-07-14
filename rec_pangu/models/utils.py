@@ -205,6 +205,7 @@ def generate_graph(batch_data: Dict) -> Dict:
     x = []
     edge_index = []
     alias_inputs = []
+    device = batch_data['hist_mask_list'].device
     item_seq_len = torch.sum(batch_data['hist_mask_list'], dim=-1).cpu().numpy()
     # 对每个session graph进行构建
     """
@@ -233,14 +234,14 @@ def generate_graph(batch_data: Dict) -> Dict:
     核心逻辑给每个序列的index加上前一个序列的index的最大值，
     保证每个序列在图中对应的节点的index范围互不冲突
     """
-    tot_node_num = torch.zeros([1], dtype=torch.long)
+    tot_node_num = torch.zeros([1], dtype=torch.long, device=device)
     for i in range(batch_data['hist_item_list'].shape[0]):
         edge_index[i] = edge_index[i] + tot_node_num
         alias_inputs[i] = alias_inputs[i] + tot_node_num
         tot_node_num += x[i].shape[0]
 
-    x = torch.cat(x)
-    alias_inputs = pad_sequence(alias_inputs, max_len=batch_data['hist_item_list'].shape[1])
+    x = torch.cat(x).to(device)
+    alias_inputs = pad_sequence(alias_inputs, max_len=batch_data['hist_item_list'].shape[1]).to(device)
 
     # SRGNN有两个图，第二个图可以简单通过torch.flip进行构建
     edge_index = torch.cat(edge_index, dim=1)
@@ -258,11 +259,9 @@ def generate_graph(batch_data: Dict) -> Dict:
     edge_weight = norm[reversed_edge_index[0]]
     out_graph.edata['edge_weight'] = edge_weight
 
-    device = batch_data['hist_mask_list'].device
-
     new_batch_data = {
-        'x': x.to(device),
-        'alias_inputs': alias_inputs.to(device),
+        'x': x,
+        'alias_inputs': alias_inputs,
         'in_graph': in_graph.to(device),
         'out_graph': out_graph.to(device)
 
