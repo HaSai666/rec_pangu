@@ -184,7 +184,7 @@ def pad_sequence(seqs: List[torch.Tensor], max_len: int) -> torch.Tensor:
     for seq in seqs:
         seq_len = seq.shape[0]
         if seq_len < max_len:
-            padding = torch.zeros(max_len - seq_len, dtype=torch.long)
+            padding = torch.zeros(max_len - seq_len, dtype=torch.long, device=seq.device)
             padded_seq = torch.cat([seq, padding])
         else:
             padded_seq = seq[:max_len]

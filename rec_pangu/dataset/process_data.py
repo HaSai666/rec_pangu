@@ -43,9 +43,9 @@ def get_sequence_dataloader(train_df, valid_df, test_df, schema, batch_size=512 
 
     train_loader = D.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                 num_workers=0, pin_memory=True, drop_last=True)
-    valid_loader = D.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False,
+    valid_loader = D.DataLoader(valid_dataset, batch_size=8, shuffle=False,
                                 num_workers=0, pin_memory=True, drop_last=True)
-    test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False,
+    test_loader = D.DataLoader(test_dataset, batch_size=8, shuffle=False,
                                num_workers=0, pin_memory=True, drop_last=True)
 
     return train_loader, valid_loader, test_loader, enc_dict

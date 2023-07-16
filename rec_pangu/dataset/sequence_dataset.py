@@ -97,7 +97,7 @@ class SequenceDataset(Dataset):
                     cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
             data = {
-                'user': user_id,
+                'user': str(user_id),
                 'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
                 'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
             }
