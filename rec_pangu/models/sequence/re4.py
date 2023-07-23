@@ -54,7 +54,7 @@ class Re4(SequenceBaseModel):
             tensors as values.
         """
         item_seq = data['hist_item_list']
-        item_mask = data['hist_mask_list']
+        item_mask = 1-data['hist_mask_list']
         dim0, dim1 = item_seq.shape
 
         item_seq_len = torch.sum(item_mask, dim=-1)
@@ -71,15 +71,6 @@ class Re4(SequenceBaseModel):
         if is_training:
             target_item = data['target_item']
             item_e = self.item_emb(target_item)
-            # main loss
-            cos_res = torch.bmm(user_interests, item_e.squeeze(1).unsqueeze(-1))
-            k_index = torch.argmax(cos_res, dim=1)
-
-            best_interest_emb = torch.rand(user_interests.shape[0], user_interests.shape[2]).to(self.device)
-            for k in range(user_interests.shape[0]):
-                best_interest_emb[k, :] = user_interests[k, k_index[k], :]
-
-            loss = self.calculate_loss(best_interest_emb, target_item.squeeze())
 
             # re-attend
             product = torch.matmul(user_interests, torch.transpose(item_seq_emb, 1, 2))
@@ -140,12 +131,23 @@ class Re4(SequenceBaseModel):
             loss_construct = loss_construct.masked_fill(item_mask.unsqueeze(-1).unsqueeze(1).bool(), 0.)
             loss_construct = torch.mean(loss_construct)
 
+            user_interests = F.tanh(self.fc1(user_interests))
+            # main loss
+            cos_res = torch.bmm(user_interests, item_e.squeeze(1).unsqueeze(-1))
+            k_index = torch.argmax(cos_res, dim=1)
+
+            best_interest_emb = torch.rand(user_interests.shape[0], user_interests.shape[2]).to(self.device)
+            for k in range(user_interests.shape[0]):
+                best_interest_emb[k, :] = user_interests[k, k_index[k], :]
+
+            loss = self.calculate_loss(best_interest_emb, target_item.squeeze())
+
             loss = loss + self.att_lambda * loss_attend + self.ct_lambda * loss_contrastive + self.cs_lambda * loss_construct
             output_dict = {
-                'user_emb': user_interests,
                 'loss': loss
             }
         else:
+            user_interests = F.tanh(self.fc1(user_interests))
             output_dict = {
                 'user_emb': user_interests
             }

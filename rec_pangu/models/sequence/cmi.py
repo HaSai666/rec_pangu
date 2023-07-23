@@ -33,7 +33,7 @@ class CMI(SequenceBaseModel):
 
         self.gru = nn.GRU(
             input_size=self.embedding_dim,
-            hidden_size=self.hidden_size,
+            hidden_size=self.embedding_dim,
             num_layers=self.num_layers,
             bias=False,
             batch_first=True,

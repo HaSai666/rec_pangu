@@ -26,7 +26,7 @@ class SASRec(SequenceBaseModel):
         self.self_attention = TransformerEncoder(
             n_layers=self.n_layers,
             n_heads=self.n_heads,
-            hidden_size=self.hidden_size,
+            hidden_size=self.embedding_dim,
             inner_size=self.inner_size,
             hidden_dropout_prob=self.hidden_dropout_prob,
             attn_dropout_prob=self.attn_dropout_prob,
