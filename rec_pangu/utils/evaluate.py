@@ -119,7 +119,8 @@ def evaluate_recall(preds: Dict[str, List[int]],
                 # Increment recall for each correctly predicted item
                 recall += 1
                 # Calculate dcg
-                dcg += 1.0 / math.log(no + 2, 2)
+                idx = preds[user][:topN].index(item_id)
+                dcg += 1.0 / math.log(idx + 2, 2)
 
             # Calculate idcg
             idcg = 0.0

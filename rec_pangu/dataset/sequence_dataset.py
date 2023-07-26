@@ -18,6 +18,7 @@ class SequenceDataset(Dataset):
         self.item_col = self.config['item_col']
         self.time_col = self.config.get('time_col', None)
         self.cate_cols = self.config.get('cate_cols', [])
+        self.next_seq_length = self.config.get('next_seq_length', 10)
 
         if self.time_col:
             self.df = self.df.sort_values(by=[self.user_col, self.time_col])
@@ -74,10 +75,21 @@ class SequenceDataset(Dataset):
                 for col in self.cate_cols:
                     cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
+
+            next_item_list = item_list[k:k + self.next_seq_length]
+            next_mask_list = [1] * len(next_item_list)
+
+            # 如果不足m个元素，则用0填充，并在mask_list中对应位置设置为0
+            while len(next_item_list) < self.next_seq_length:
+                next_item_list.append(0)
+                next_mask_list.append(0)
+
             data = {
                 'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
                 'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
-                'target_item': torch.Tensor([item_id]).long()
+                'target_item': torch.Tensor([item_id]).long(),
+                'next_item_list': torch.Tensor(next_item_list).squeeze(0).long(),
+                'next_mask_list': torch.Tensor(next_mask_list).squeeze(0).long()
             }
 
             for col in self.cate_cols:
@@ -125,8 +137,8 @@ class SequenceDatasetV2(SequenceDataset):
         self.test_gd = dict()
         for user in self.user2item:
             item_list = self.user2item[user]
-            if self.phase=='valid':
-                test_item_index = len(item_list)-2
+            if self.phase == 'valid':
+                test_item_index = len(item_list) - 2
             else:
                 test_item_index = len(item_list) - 1
             self.test_gd[str(user)] = [item_list[test_item_index]]
@@ -139,7 +151,7 @@ class SequenceDatasetV2(SequenceDataset):
         hist_mask_list = []
         if self.phase == 'train':
 
-            k = random.choice(range(3, len(item_list)))  # 从[4,len(item_list))中随机选择一个index
+            k = random.choice(range(2, len(item_list) - 2))  # 从[4,len(item_list))中随机选择一个index
             item_id = item_list[k]  # 该index对应的item加入item_id_list
 
             if k >= self.max_length:  # 选取seq_len个物品
@@ -154,10 +166,20 @@ class SequenceDatasetV2(SequenceDataset):
                 for col in self.cate_cols:
                     cate_seq = getattr(self, f'user2{col}')[user_id]
                     setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
+            next_item_list = item_list[k:min(k + self.next_seq_length, len(item_list)-2)]
+            next_mask_list = [1] * len(next_item_list)
+
+            # 如果不足m个元素，则用0填充，并在mask_list中对应位置设置为0
+            while len(next_item_list) < self.next_seq_length:
+                next_item_list.append(0)
+                next_mask_list.append(0)
+
             data = {
                 'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
                 'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
-                'target_item': torch.Tensor([item_id]).long()
+                'target_item': torch.Tensor([item_id]).long(),
+                'next_item_list': torch.Tensor(next_item_list).squeeze(0).long(),
+                'next_mask_list': torch.Tensor(next_mask_list).squeeze(0).long()
             }
 
             for col in self.cate_cols:
