@@ -19,3 +19,4 @@ from .gru4rec import GRU4Rec
 from .sine import SINE
 from .contrarec import ContraRec
 from .clrec import CLRec
+from .iocrec import IOCRec

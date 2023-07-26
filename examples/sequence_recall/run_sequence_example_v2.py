@@ -7,7 +7,7 @@ import sys
 
 sys.path.append('../../')
 import torch
-from rec_pangu.dataset import get_dataloader
+from rec_pangu.dataset import get_dataloader, get_sequence_dataloader_v2
 from rec_pangu.models.sequence import (ComirecSA, ComirecDR, MIND, CMI, Re4, STAMP, GRU4Rec, SINE, ContraRec,
                                        NARM, YotubeDNN, SRGNN, GCSAN, SASRec, NISER, NextItNet, CLRec, IOCRec)
 from custom_model import CustomModel,CustomMOEModel
@@ -48,11 +48,17 @@ if __name__ == '__main__':
     valid_df = pd.read_csv('./sample_data/sample_valid.csv')
     test_df = pd.read_csv('./sample_data/sample_test.csv')
 
+    df = pd.concat([train_df,valid_df,test_df],axis=0).reset_index(drop=True)
+
+
     # 声明使用的device
     device = torch.device('cpu')
     # 获取dataloader
-    train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema,
-                                                                       batch_size=50)
+    # train_loader, valid_loader, test_loader, enc_dict = get_dataloader(train_df, valid_df, test_df, schema,
+    #                                                                    batch_size=50)
+
+    train_loader, valid_loader, test_loader, enc_dict = get_sequence_dataloader_v2(df, schema,batch_size=50)
+
     # 声明模型,序列召回模型模型目前支持： ComirecSA,ComirecDR,MIND,CMI,Re4,NARM,YotubeDNN,SRGNN
     model = IOCRec(enc_dict=enc_dict, config=config)
     # 声明Trainer

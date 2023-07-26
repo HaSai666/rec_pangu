@@ -5,7 +5,7 @@
 # @Time: 2022/6/10 7:40 PM
 from .base_dataset import BaseDataset
 from .multi_task_dataset import MultiTaskDataset
-from .sequence_dataset import SequenceDataset
+from .sequence_dataset import SequenceDataset, SequenceDatasetV2
 import torch.utils.data as D
 
 
@@ -40,6 +40,21 @@ def get_sequence_dataloader(train_df, valid_df, test_df, schema, batch_size=512 
     enc_dict = train_dataset.get_enc_dict()
     valid_dataset = SequenceDataset(schema, df=valid_df, enc_dict=enc_dict, phase='test')
     test_dataset = SequenceDataset(schema, df=test_df, enc_dict=enc_dict, phase='test')
+
+    train_loader = D.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
+                                num_workers=0, pin_memory=True, drop_last=True)
+    valid_loader = D.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False,
+                                num_workers=0, pin_memory=True, drop_last=True)
+    test_loader = D.DataLoader(test_dataset, batch_size=batch_size, shuffle=False,
+                               num_workers=0, pin_memory=True, drop_last=True)
+
+    return train_loader, valid_loader, test_loader, enc_dict
+
+def get_sequence_dataloader_v2(df, schema, batch_size=512 * 3):
+    train_dataset = SequenceDatasetV2(schema, df=df, phase='train')
+    enc_dict = train_dataset.get_enc_dict()
+    valid_dataset = SequenceDatasetV2(schema, df=df, enc_dict=enc_dict, phase='valid')
+    test_dataset = SequenceDatasetV2(schema, df=df, enc_dict=enc_dict, phase='test')
 
     train_loader = D.DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                 num_workers=0, pin_memory=True, drop_last=True)

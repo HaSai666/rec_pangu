@@ -117,6 +117,78 @@ class SequenceDataset(Dataset):
         return self.test_gd
 
 
+class SequenceDatasetV2(SequenceDataset):
+    def __init__(self, config, df, enc_dict=None, phase='train'):
+        super().__init__(config, df, enc_dict, phase)
+
+    def get_test_gd(self):
+        self.test_gd = dict()
+        for user in self.user2item:
+            item_list = self.user2item[user]
+            if self.phase=='valid':
+                test_item_index = len(item_list)-2
+            else:
+                test_item_index = len(item_list) - 1
+            self.test_gd[str(user)] = [item_list[test_item_index]]
+        return self.test_gd
+
+    def __getitem__(self, index):
+        user_id = self.user_list[index]
+        item_list = self.user2item[user_id]
+        hist_item_list = []
+        hist_mask_list = []
+        if self.phase == 'train':
+
+            k = random.choice(range(3, len(item_list)))  # 从[4,len(item_list))中随机选择一个index
+            item_id = item_list[k]  # 该index对应的item加入item_id_list
+
+            if k >= self.max_length:  # 选取seq_len个物品
+                hist_item_list.append(item_list[k - self.max_length: k])
+                hist_mask_list.append([1.0] * self.max_length)
+                for col in self.cate_cols:
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
+                    setattr(self, f'hist_{col}_list', cate_seq[k - self.max_length: k])
+            else:
+                hist_item_list.append(item_list[:k] + [0] * (self.max_length - k))
+                hist_mask_list.append([1.0] * k + [0.0] * (self.max_length - k))
+                for col in self.cate_cols:
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
+                    setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
+            data = {
+                'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
+                'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
+                'target_item': torch.Tensor([item_id]).long()
+            }
+
+            for col in self.cate_cols:
+                data.update({f'hist_{col}_list': torch.Tensor(getattr(self, f'hist_{col}_list')).squeeze(0).long()})
+        else:
+            if self.phase == 'valid':
+                k = len(item_list) - 2
+            else:
+                k = len(item_list) - 1
+            if k >= self.max_length:  # 选取seq_len个物品
+                hist_item_list.append(item_list[k - self.max_length: k])
+                hist_mask_list.append([1.0] * self.max_length)
+                for col in self.cate_cols:
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
+                    setattr(self, f'hist_{col}_list', cate_seq[k - self.max_length: k])
+            else:
+                hist_item_list.append(item_list[:k] + [0] * (self.max_length - k))
+                hist_mask_list.append([1.0] * k + [0.0] * (self.max_length - k))
+                for col in self.cate_cols:
+                    cate_seq = getattr(self, f'user2{col}')[user_id]
+                    setattr(self, f'hist_{col}_list', cate_seq[:k] + [0] * (self.max_length - k))
+            data = {
+                'user': str(user_id),
+                'hist_item_list': torch.Tensor(hist_item_list).squeeze(0).long(),
+                'hist_mask_list': torch.Tensor(hist_mask_list).squeeze(0).long(),
+            }
+            for col in self.cate_cols:
+                data.update({f'hist_{col}_list': torch.Tensor(getattr(self, f'hist_{col}_list')).squeeze(0).long()})
+        return data
+
+
 def seq_collate(batch):
     hist_item = torch.rand(len(batch), batch[0][0].shape[0])
     hist_mask = torch.rand(len(batch), batch[0][0].shape[0])
